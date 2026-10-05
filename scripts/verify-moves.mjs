@@ -3,7 +3,8 @@
  * Prove that moved code is still the fork's code.
  *
  * Stencil folds seven repos by moving their renderers, not rewriting them. Every moved
- * file is listed in scripts/moves.json. A `verbatim` entry must equal its fork source
+ * file is listed in scripts/moves/<area>.json (one file per format, so parallel lanes
+ * never edit the same manifest). A `verbatim` entry must equal its fork source
  * byte for byte once the entry's declared `rewrites` (literal [from, to] pairs, applied
  * in order to every occurrence) are applied. An `adapted` entry is provenance only.
  *
@@ -11,6 +12,8 @@
  * manifest stays as history.
  *
  *   node scripts/verify-moves.mjs [--manifest <file>] [--src-root <dir>] [--dest-root <dir>]
+ *
+ * The forks are found at STENCIL_SOURCES, else the folder above this repo.
  *
  * Exit 0 when every verbatim entry matches, 1 otherwise (with a unified diff).
  */
@@ -27,11 +30,13 @@ function arg(name, fallback) {
   return i >= 0 ? path.resolve(process.argv[i + 1]) : fallback;
 }
 
-const manifest = arg("--manifest", path.join(ROOT, "scripts", "moves.json"));
-const srcRoot = arg("--src-root", path.dirname(ROOT));
+const manifest = arg("--manifest", "");
+const srcRoot = arg("--src-root", path.resolve(process.env.STENCIL_SOURCES || path.dirname(ROOT)));
 const destRoot = arg("--dest-root", ROOT);
 
-const { moves = [] } = JSON.parse(fs.readFileSync(manifest, "utf8"));
+const MOVES_DIR = path.join(ROOT, "scripts", "moves");
+const files = manifest ? [manifest] : fs.readdirSync(MOVES_DIR).filter((f) => f.endsWith(".json")).sort().map((f) => path.join(MOVES_DIR, f));
+const moves = files.flatMap((f) => JSON.parse(fs.readFileSync(f, "utf8")).moves || []);
 let failed = 0;
 let verified = 0;
 const skipped = [];

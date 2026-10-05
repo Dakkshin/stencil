@@ -24,7 +24,8 @@ import { spawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 export const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-export const AUTOMATION = path.dirname(ROOT);
+/* Where the forks live. A lane worktree outside Automation/ sets STENCIL_SOURCES. */
+export const AUTOMATION = path.resolve(process.env.STENCIL_SOURCES || path.dirname(ROOT));
 export const EKWA = path.dirname(AUTOMATION);
 export const SCRATCH = path.join(process.env.STENCIL_PARITY_TMP || os.tmpdir(), "stencil-parity");
 export const PARITY = path.join(ROOT, ".parity");

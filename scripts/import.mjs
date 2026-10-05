@@ -26,7 +26,7 @@ const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const argv = process.argv.slice(2);
 const DRY = argv.includes("--dry-run");
 const fromIdx = argv.indexOf("--from");
-const FROM = fromIdx >= 0 ? path.resolve(argv[fromIdx + 1]) : path.dirname(ROOT);
+const FROM = fromIdx >= 0 ? path.resolve(argv[fromIdx + 1]) : path.resolve(process.env.STENCIL_SOURCES || path.dirname(ROOT));
 
 const ALL = ["podcast-thumbnails", "iu-podcast-thumbnails", "panel-social-posts", "iu-panel-social-posts", "zoom-banner", "iu-zoom-banner", "g-slides"];
 const IMAGE = /\.(png|jpe?g|webp|svg)$/i;

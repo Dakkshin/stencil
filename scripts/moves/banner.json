@@ -2,12 +2,6 @@
   "about": "Every file moved from a fork into Stencil. src is relative to Automation/, dest to stencil/. verbatim = equal to src after the literal rewrites (checked by scripts/verify-moves.mjs); adapted = provenance only.",
   "moves": [
     {
-      "src": "panel-social-posts/lib/toml.mjs",
-      "dest": "core/toml.mjs",
-      "mode": "verbatim",
-      "rewrites": []
-    },
-    {
       "src": "zoom-banner/lib/geometry.mjs",
       "dest": "formats/banner/geometry.mjs",
       "mode": "verbatim",

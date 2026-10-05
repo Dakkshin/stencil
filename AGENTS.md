@@ -31,7 +31,7 @@
   No brand id tests (`=== "IU"`) in format or layout code; read a token instead.
 - A format owns one surface: `formats/<f>/gen.mjs` exports `main(argv)`; designs live in
   `formats/<f>/layouts/<name>/`.
-- Moved code stays moved code: list it in `scripts/moves.json`; only import, asset and
+- Moved code stays moved code: list it in `scripts/moves/<format>.json`; only import, asset and
   brand-lookup lines may differ from the fork.
 - Output names are frozen (plan AD-3). Renaming any `.gen/`, `out/`, `canva/` or
   `preview/` path is a breaking change.

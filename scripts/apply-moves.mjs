@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Materialise verbatim moves from scripts/moves.json: write each destination as its fork
+ * Materialise verbatim moves from scripts/moves/*.json: write each destination as its fork
  * source with the entry's literal rewrites applied. The manifest is then both the record
  * and the recipe, and scripts/verify-moves.mjs proves nobody edited the result by hand.
  *
@@ -14,9 +14,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const SRC_ROOT = path.dirname(ROOT);
+const SRC_ROOT = path.resolve(process.env.STENCIL_SOURCES || path.dirname(ROOT));
 const force = new Set(process.argv.slice(2));
-const { moves } = JSON.parse(fs.readFileSync(path.join(ROOT, "scripts", "moves.json"), "utf8"));
+const MOVES_DIR = path.join(ROOT, "scripts", "moves");
+const moves = fs
+  .readdirSync(MOVES_DIR)
+  .filter((f) => f.endsWith(".json"))
+  .sort()
+  .flatMap((f) => JSON.parse(fs.readFileSync(path.join(MOVES_DIR, f), "utf8")).moves || []);
 
 let wrote = 0;
 for (const m of moves) {

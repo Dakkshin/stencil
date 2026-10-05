@@ -65,7 +65,7 @@ Resource Directory.
   is shared. Changing any of these is a breaking change and out of scope.
 - **AD-4 Lift and shift.** A moved file keeps its code. Allowed edits: import paths, asset,
   font and template paths, brand lookups through `core/brands.mjs`, playwright and sharp
-  resolution through `core/chromium.mjs`. Every moved file is listed in `scripts/moves.json`
+  resolution through `core/chromium.mjs`. Every moved file is listed in `scripts/moves/<format>.json`
   as `verbatim` (must equal the source after the declared rewrites, checked by
   `node scripts/verify-moves.mjs`) or `adapted` (provenance only). Verbatim moves do not count
   toward the 5-file authored scope; the verifier is their review.
@@ -294,7 +294,7 @@ lanes never share a file).
 
 ## Task 10: Moves manifest and verifier
 
-**Description:** `scripts/moves.json` lists `{ src, dest, mode: "verbatim"|"adapted", rewrites: [[from, to]] }`.
+**Description:** `scripts/moves/<area>.json` lists `{ src, dest, mode: "verbatim"|"adapted", rewrites: [[from, to]] }`.
 `scripts/verify-moves.mjs` applies each verbatim entry's rewrites to the source and requires the
 result to equal the destination byte for byte, printing a unified diff on failure (AD-4).
 **Acceptance criteria:**
@@ -303,7 +303,7 @@ result to equal the destination byte for byte, printing a unified diff on failur
 **Verification:**
 - [ ] `node scripts/verify-moves.mjs && node --test tests/moves.test.mjs`
 **Dependencies:** T1
-**Files likely touched:** `scripts/moves.json`, `scripts/verify-moves.mjs`, `tests/moves.test.mjs`
+**Files likely touched:** `scripts/moves/*.json`, `scripts/verify-moves.mjs`, `tests/moves.test.mjs`
 **Pattern to follow:** none in the forks; keep it under 80 lines
 **Seat:** builder
 **Estimated scope:** S
@@ -373,24 +373,24 @@ VET gets a render test, not a parity case.
 
 ## Task 14: Thumbnail, OBA layout
 
-**Description:** Move the OBA thumbnail renderer into `formats/thumb/layouts/oba/`:
+**Description:** Move the OBA thumbnail renderer into `formats/thumb/layouts/classic/`:
 `template.html` (from `oba-thumbnail-template.html`; keeps its Google Fonts link, A12),
 `render-svg.mjs` (fonts from `assets/fonts/`, logo from `assets/logos/`), and `normalize.mjs`
-(from `podcast-thumbnails/gen.mjs:103-195`). Record every move in `scripts/moves.json`.
+(from `podcast-thumbnails/gen.mjs:103-195`). Record every move in `scripts/moves/thumb.json`.
 **Acceptance criteria:**
 - [ ] `node scripts/verify-moves.mjs` passes for the verbatim entries
 - [ ] The layout exports `normalize(cfg, name, opts)`, `buildSvg(cfg)`, and a PNG hook used by the thumb `gen.mjs`
 **Verification:**
 - [ ] `node scripts/verify-moves.mjs`
 **Dependencies:** CP1
-**Files likely touched:** `formats/thumb/layouts/oba/template.html`, `formats/thumb/layouts/oba/render-svg.mjs`, `formats/thumb/layouts/oba/normalize.mjs`, `scripts/moves.json`
+**Files likely touched:** `formats/thumb/layouts/classic/template.html`, `formats/thumb/layouts/classic/render-svg.mjs`, `formats/thumb/layouts/classic/normalize.mjs`, `scripts/moves/thumb.json`
 **Pattern to follow:** `podcast-thumbnails/render-svg.mjs:462-490` (buildSVG), `podcast-thumbnails/gen.mjs:125-195`
 **Seat:** builder
 **Estimated scope:** M
 
 ## Task 15: Thumbnail, IU layout
 
-**Description:** Move the IU v3 renderer into `formats/thumb/layouts/iu/`: `geometry.mjs`,
+**Description:** Move the IU v3 renderer into `formats/thumb/layouts/cards/`: `geometry.mjs`,
 `layout.mjs`, `motif.mjs`, `cutout.mjs`, `widths.json`, `template.src.html`,
 `build-template.mjs` (fonts and logos from the pools; writes a gitignored `template.html`),
 `render-svg.mjs`, `normalize.mjs` (from `iu-podcast-thumbnails/gen.mjs:110-270`), `fidelity.mjs`.
@@ -402,7 +402,7 @@ VET gets a render test, not a parity case.
 **Verification:**
 - [ ] `node --test tests/thumb-iu-*.test.mjs && node scripts/verify-moves.mjs`
 **Dependencies:** CP1
-**Files likely touched:** `formats/thumb/layouts/iu/*` (verbatim, AD-4), `formats/thumb/layouts/iu/normalize.mjs`, `formats/thumb/layouts/iu/build-template.mjs`, `scripts/moves.json`, `tests/thumb-iu-layout.test.mjs`
+**Files likely touched:** `formats/thumb/layouts/cards/*` (verbatim, AD-4), `formats/thumb/layouts/cards/normalize.mjs`, `formats/thumb/layouts/cards/build-template.mjs`, `scripts/moves/thumb.json`, `tests/thumb-iu-layout.test.mjs`
 **Pattern to follow:** `iu-podcast-thumbnails/scripts/build-template.mjs:20-40`, `iu-podcast-thumbnails/.d/MAP.md`
 **Seat:** builder
 **Estimated scope:** M
@@ -448,21 +448,21 @@ panelist normalize, campaign nesting, `--formats`, `--brand`), `cutout.mjs` and
 
 **Description:** Move `template.html`, `speaker-template.html`, `render-svg.mjs` and the template
 half of `render.mjs` (speaker bounding boxes, `__setBrand`, `__setFormat`) into
-`formats/social/layouts/oba/`, with font and logo URLs pointed at the pools.
+`formats/social/layouts/classic/`, with font and logo URLs pointed at the pools.
 **Acceptance criteria:**
 - [ ] Parity passes for every OBA post and format
 - [ ] `node scripts/verify-moves.mjs` passes
 **Verification:**
 - [ ] `node parity/run.mjs social --brand OBA`
 **Dependencies:** T17
-**Files likely touched:** `formats/social/layouts/oba/template.html`, `formats/social/layouts/oba/speaker-template.html`, `formats/social/layouts/oba/render-svg.mjs`, `formats/social/layouts/oba/render-png.mjs`, `scripts/moves.json`
+**Files likely touched:** `formats/social/layouts/classic/template.html`, `formats/social/layouts/classic/speaker-template.html`, `formats/social/layouts/classic/render-svg.mjs`, `formats/social/layouts/classic/render-png.mjs`, `scripts/moves/social.json`
 **Pattern to follow:** `panel-social-posts/render.mjs:184-236`
 **Seat:** builder
 **Estimated scope:** M
 
 ## Task 19: Social, IU layout
 
-**Description:** Move `iu-panel-social-posts/lib/iu/**` into `formats/social/layouts/iu/` and its
+**Description:** Move `iu-panel-social-posts/lib/iu/**` into `formats/social/layouts/scene/` and its
 `render-svg.mjs` and `render.mjs` (Chrome rasterises the scene SVG). Fonts, logos, stamps and
 PACE mark from the pools. Port `tests/qr.test.mjs` and `tests/promo-pack.test.mjs`.
 **Acceptance criteria:**
@@ -472,7 +472,7 @@ PACE mark from the pools. Port `tests/qr.test.mjs` and `tests/promo-pack.test.mj
 **Verification:**
 - [ ] `node parity/run.mjs social --brand IU && node --test tests/social-iu-*.test.mjs`
 **Dependencies:** T17
-**Files likely touched:** `formats/social/layouts/iu/**` (verbatim, AD-4), `formats/social/layouts/iu/render-png.mjs`, `scripts/moves.json`, `tests/social-iu-qr.test.mjs`, `tests/social-iu-promo.test.mjs`
+**Files likely touched:** `formats/social/layouts/scene/**` (verbatim, AD-4), `formats/social/layouts/scene/render-png.mjs`, `scripts/moves/social.json`, `tests/social-iu-qr.test.mjs`, `tests/social-iu-promo.test.mjs`
 **Pattern to follow:** `iu-panel-social-posts/render.mjs`, `iu-panel-social-posts/lib/iu/layouts/index.mjs:19-30`
 **Seat:** builder
 **Estimated scope:** M
@@ -504,7 +504,7 @@ speakers resolve local `speakers/` then `assets/panelists/`; photos through `cor
 **Verification:**
 - [ ] `node --test tests/deck-*.test.mjs && node scripts/verify-moves.mjs`
 **Dependencies:** CP1
-**Files likely touched:** `formats/deck/*` (verbatim, AD-4), `core/text.mjs`, `core/metrics.mjs`, `scripts/moves.json`, `tests/deck-text.test.mjs`
+**Files likely touched:** `formats/deck/*` (verbatim, AD-4), `core/text.mjs`, `core/metrics.mjs`, `scripts/moves/deck.json`, `tests/deck-text.test.mjs`
 **Pattern to follow:** `g-slides/render.mjs:55-120`, `g-slides/lib/paths.mjs`
 **Seat:** builder
 **Estimated scope:** M
@@ -518,7 +518,7 @@ deck's draw primitives and core Chromium. CLI `node stencil.mjs background [--sv
 **Verification:**
 - [ ] `node stencil.mjs background && identify out/host-background.png`
 **Dependencies:** T21
-**Files likely touched:** `formats/background/gen.mjs`, `formats/background/geometry.mjs`, `formats/background/render-svg.mjs`, `formats/background/render.mjs`, `scripts/moves.json`
+**Files likely touched:** `formats/background/gen.mjs`, `formats/background/geometry.mjs`, `formats/background/render-svg.mjs`, `formats/background/render.mjs`, `scripts/moves/deck.json`
 **Pattern to follow:** `g-slides/host-background/gen.mjs`
 **Seat:** builder
 **Estimated scope:** S
