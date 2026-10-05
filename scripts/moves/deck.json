@@ -45,14 +45,23 @@
         [
           "main().catch((err) => {\n  console.error(err);\n  process.exit(1);\n});",
           "if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {\n  main().catch((err) => {\n    console.error(err);\n    process.exit(1);\n  });\n}"
+        ],
+        [
+          "    else if (v === \"--no-optimize\") a.noOptimize = true;",
+          "    else if (v === \"--no-optimize\") a.noOptimize = true;\n    else if (v === \"--brand\") a.brand = String(argv[++i] || \"\");"
+        ],
+        [
+          "  const deckName = str(parsed.deck) || name;\n  const { config, problems, warnings } = normalize(parsed, deckName, rawText);",
+          "  if (args.brand) parsed.brand = args.brand; // stencil: --brand beats the file (plan AD-9)\n  const deckName = str(parsed.deck) || name;\n  const { config, problems, warnings } = normalize(parsed, deckName, rawText);"
         ]
       ]
     },
     {
       "src": "g-slides/render-svg.mjs",
       "dest": "formats/deck/render-svg.mjs",
-      "mode": "verbatim",
-      "rewrites": []
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "the dots grid comes from the brand (formats.deck.tokens.dotsGrid) when a pack names one, else lib/geometry.mjs DOTS (T24)"
     },
     {
       "src": "g-slides/render.mjs",
@@ -69,8 +78,9 @@
     {
       "src": "g-slides/lib/draw.mjs",
       "dest": "formats/deck/lib/draw.mjs",
-      "mode": "verbatim",
-      "rewrites": []
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "the dots grid comes from the brand (formats.deck.tokens.dotsGrid) when a pack names one, else lib/geometry.mjs DOTS (T24)"
     },
     {
       "src": "g-slides/lib/geometry.mjs",

@@ -65,7 +65,7 @@ function slideHeader(cfg, slide, eyebrow) {
     parts.push(D.text("eyebrow", "Eyebrow", GRID.x0 + r * 2 + SURFACE.eyebrowGap, y, eyebrow, spec, INK.lead, { upper: true }));
   }
   const logoFile = path.join(LOGO_BASE, cfg.brand.logo || "assets/oba-logo-white.png");
-  parts.push(D.brandLogo("brand-logo", "OBA logo", logoFile, GRID.x1, y - 2));
+  parts.push(D.brandLogo("brand-logo", `${String(cfg.brand.id || "OBA").split("_")[0]} logo`, logoFile, GRID.x1, y - 2));
   return parts.filter(Boolean).join("\n");
 }
 
@@ -1050,7 +1050,7 @@ export function buildSlideSvg(cfg, slide, { withFonts = true } = {}) {
   const body = [
     D.defs(cfg.brand),
     withFonts ? D.fontFaceCss() : "",
-    D.background(),
+    D.background(cfg.brand),
     slideChrome(cfg, slide, r.eyebrow(slide)),
     `  <g id="content" data-name="Content">`,
     r.draw(cfg, slide, ly),

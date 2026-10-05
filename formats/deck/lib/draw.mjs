@@ -70,14 +70,22 @@ export function imageDataUri(file) {
   if (file.startsWith("data:")) return file;
   if (!fs.existsSync(file)) return "";
   const ext = file.slice(file.lastIndexOf(".")).toLowerCase();
-  const mime = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
+  const mime = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : ext === ".svg" ? "image/svg+xml" : "image/jpeg";
   return `data:${mime};base64,${fs.readFileSync(file).toString("base64")}`;
 }
 
-/** Intrinsic size of a PNG or JPEG, read from the header — no image library needed. */
+/** Intrinsic size of a PNG, JPEG or SVG, read from the header — no image library needed. */
 export function imageSize(file) {
   try {
     const b = fs.readFileSync(file);
+    /* SVG logos (the IU lockup is vector): width/height attributes, else the viewBox. */
+    const svg = b.slice(0, 4096).toString("utf8").match(/<svg\b[^>]*>/);
+    if (svg) {
+      const attr = (k) => parseFloat((svg[0].match(new RegExp(`\\s${k}="([\\d.]+)`)) || [])[1]);
+      if (attr("width") && attr("height")) return { w: attr("width"), h: attr("height") };
+      const vb = svg[0].match(/viewBox="[\d.\s-]*?([\d.]+)\s+([\d.]+)"/);
+      if (vb) return { w: parseFloat(vb[1]), h: parseFloat(vb[2]) };
+    }
     if (b.slice(1, 4).toString("latin1") === "PNG") {
       return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
     }
@@ -152,6 +160,9 @@ ${gradStops(stops)}
 
 export function defs(brand, extra = "") {
   const hero = brand.gradient.map(([c, at]) => [c, at]);
+  /* The dots grid is a deck-scoped brand token (formats.deck.tokens.dotsGrid in the
+     pack); geometry's DOTS is the fallback. */
+  const dots = brand.dotsGrid || DOTS;
   const glass = SURFACE.glass.map(([c, at]) => [c, at * 100]);
 
   return `  <defs>
@@ -166,8 +177,8 @@ ${ellipticalRadial("bg-glow", 72, 42, 60, 55, [[brand.glow, 0], ["rgba(214,228,2
       <stop offset="0%" stop-color="rgba(11,18,32,0)"/>
       <stop offset="100%" stop-color="rgba(11,18,32,0.85)"/>
     </linearGradient>
-    <pattern id="dots-pattern" width="${DOTS.spacing}" height="${DOTS.spacing}" patternUnits="userSpaceOnUse">
-      <circle cx="${n(DOTS.spacing / 2)}" cy="${n(DOTS.spacing / 2)}" r="${DOTS.radius}" fill="rgba(255,255,255,${DOTS.alpha})"/>
+    <pattern id="dots-pattern" width="${dots.spacing}" height="${dots.spacing}" patternUnits="userSpaceOnUse">
+      <circle cx="${n(dots.spacing / 2)}" cy="${n(dots.spacing / 2)}" r="${dots.radius}" fill="rgba(255,255,255,${dots.alpha})"/>
     </pattern>
 ${ellipticalRadial("vignette", SURFACE.vignette.cx * 100, SURFACE.vignette.cy * 100, SURFACE.vignette.r * 100, SURFACE.vignette.r * 100 * (CANVAS.w / CANVAS.h), [
   ["rgba(11,18,32,0)", 0], ["rgba(11,18,32,0)", 55], [`rgba(11,18,32,${SURFACE.vignette.maxAlpha})`, 100],
@@ -196,12 +207,12 @@ ${extra}
  * dots are masked to fade in from the left so they never sit behind primary text, and
  * the scrim keeps foreground copy legible over the bright side of the gradient.
  */
-export function background() {
+export function background(brand = {}) {
   const full = `width="${CANVAS.w}" height="${CANVAS.h}"`;
   return `  <g id="background" data-name="Background">
     <rect id="bg-base" data-name="Backdrop gradient" ${full} fill="url(#bg-hero)"/>
     <rect id="bg-glow" data-name="Glow lobe" ${full} fill="url(#bg-glow)" opacity="0.45"/>
-${dotsLayer()}
+${dotsLayer(10, brand.dotsGrid || DOTS)}
     <rect id="bg-scrim" data-name="Scrim" ${full} fill="url(#bg-scrim)"/>
   </g>`;
 }
@@ -218,18 +229,18 @@ ${dotsLayer()}
  * alpha and stays pure vector. The bands are one group so Canva still imports the
  * texture as a single deletable layer.
  */
-function dotsLayer(bands = 10) {
-  const x0 = DOTS.maskFrom * CANVAS.w;
-  const x1 = DOTS.maskTo * CANVAS.w;
+function dotsLayer(bands = 10, dots = DOTS) {
+  const x0 = dots.maskFrom * CANVAS.w;
+  const x1 = dots.maskTo * CANVAS.w;
   const bandW = (x1 - x0) / bands;
   const rects = [];
   for (let i = 0; i < bands; i++) {
-    const o = DOTS.layerOpacity * ((i + 1) / bands);
+    const o = dots.layerOpacity * ((i + 1) / bands);
     rects.push(`      <rect x="${n(x0 + i * bandW)}" y="0" width="${n(bandW + 0.5)}" height="${CANVAS.h}"` +
       ` fill="url(#dots-pattern)" opacity="${n(o)}"/>`);
   }
   rects.push(`      <rect x="${n(x1)}" y="0" width="${n(CANVAS.w - x1)}" height="${CANVAS.h}"` +
-    ` fill="url(#dots-pattern)" opacity="${n(DOTS.layerOpacity)}"/>`);
+    ` fill="url(#dots-pattern)" opacity="${n(dots.layerOpacity)}"/>`);
   return `    <g id="bg-dots" data-name="Dots texture">\n${rects.join("\n")}\n    </g>`;
 }
 

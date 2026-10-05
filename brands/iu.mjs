@@ -91,5 +91,8 @@ export default {
     /* canva/IU-<name>.svg; the cards design calls this ground mode "dark". */
     thumb: { layout: "cards", options: { prefix: "IU", mode: "dark" } },
     social: { layout: "scene" },
+    /* The deck design with IU colours. Not yet an IU deck design: type is still the
+       deck's Inter and IBM Plex Mono, and there is no PACE plate. For the owner's look. */
+    deck: { layout: "deck" },
   },
 };

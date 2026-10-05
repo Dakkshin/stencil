@@ -77,7 +77,16 @@ export default {
     /* The thumbnail SVG carries the brand prefix: canva/OBA-<name>.svg (frozen name). */
     thumb: { layout: "classic", options: { prefix: "OBA" } },
     social: { layout: "classic" },
-    deck: { layout: "deck" },
+    deck: {
+      layout: "deck",
+      tokens: {
+        /* Deck-scoped, on purpose (g-slides SPEC.md, "The dots grid"): the social posts keep
+           the near-invisible brand texture (18px, 9% white x 0.55), which is right for a
+           glance in a feed; a slide is stared at for minutes, where that reads as
+           under-filled, so the deck raises it. Never write this back into the posts. */
+        dotsGrid: { spacing: 28, radius: 1.6, alpha: 0.12, layerOpacity: 0.75, maskFrom: 0.18, maskTo: 0.62 },
+      },
+    },
     background: { layout: "host" },
   },
 };

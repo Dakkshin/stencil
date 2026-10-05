@@ -66,6 +66,7 @@ function parseArgs(argv) {
     else if (v === "--watch") a.watch = true;
     else if (v === "--force-metrics") a.force = true;
     else if (v === "--no-optimize") a.noOptimize = true;
+    else if (v === "--brand") a.brand = String(argv[++i] || "");
     else if (v === "--slides") a.slides = parseSlideRange(argv[++i]);
     else if (v === "--help" || v === "-h") a.help = true;
     else if (v.startsWith("-")) {
@@ -437,6 +438,7 @@ async function buildDeck(name, args) {
     return false;
   }
 
+  if (args.brand) parsed.brand = args.brand; // stencil: --brand beats the file (plan AD-9)
   const deckName = str(parsed.deck) || name;
   const { config, problems, warnings } = normalize(parsed, deckName, rawText);
 
@@ -577,6 +579,7 @@ function inventory(name) {
   } catch (e) {
     return fail(e.message);
   }
+  if (args.brand) parsed.brand = args.brand; // stencil: --brand beats the file (plan AD-9)
   const deckName = str(parsed.deck) || name;
   const { config, problems, warnings } = normalize(parsed, deckName, rawText);
   const stems = arr(parsed.speakers).map(str).filter(Boolean);

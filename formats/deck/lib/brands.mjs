@@ -12,6 +12,7 @@ import { brandsFor, resolveBrand, pick } from "../../../core/brands.mjs";
 const KEYS = [
   "id", "label", "wordmark", "logo", "gradient", "glow", "ink", "inkOnAccent", "accent",
   "inkSoft", "dim", "textMuted", "textFaint", "pillBg", "tileFill", "line", "qrGold",
+  "dotsGrid",
 ];
 
 export const BRANDS = Object.fromEntries(brandsFor("deck").map((id) => [id, pick(resolveBrand(id, "deck"), KEYS)]));
