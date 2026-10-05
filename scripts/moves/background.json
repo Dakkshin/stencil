@@ -1,0 +1,73 @@
+{
+  "about": "Every file moved from a fork into Stencil. src is relative to Automation/, dest to stencil/. verbatim = equal to src after the literal rewrites (checked by scripts/verify-moves.mjs); adapted = provenance only.",
+  "moves": [
+    {
+      "src": "g-slides/host-background/gen.mjs",
+      "dest": "formats/background/gen.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { fileURLToPath } from \"node:url\";",
+          "import { fileURLToPath } from \"node:url\";\nimport { CANVA as CANVA_DIR } from \"../../core/paths.mjs\";"
+        ],
+        [
+          "const CANVA = path.join(HERE, \"canva\");",
+          "const CANVA = CANVA_DIR;"
+        ],
+        [
+          "async function main() {\n  const svgOnly = process.argv.includes(\"--svg-only\");",
+          "export async function main(argv = process.argv.slice(2)) {\n  const svgOnly = argv.includes(\"--svg-only\");"
+        ],
+        [
+          "main().catch((e) => { console.error(e); process.exitCode = 1; });",
+          "if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {\n  main().catch((e) => { console.error(e); process.exitCode = 1; });\n}"
+        ]
+      ]
+    },
+    {
+      "src": "g-slides/host-background/geometry.mjs",
+      "dest": "formats/background/geometry.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "from \"../lib/geometry.mjs\";",
+          "from \"../deck/lib/geometry.mjs\";"
+        ]
+      ]
+    },
+    {
+      "src": "g-slides/host-background/render.mjs",
+      "dest": "formats/background/render.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { launch } from \"../lib/chromium.mjs\";\nimport { CANVAS } from \"../lib/geometry.mjs\";",
+          "import { launch } from \"../deck/lib/chromium.mjs\";\nimport { CANVAS } from \"../deck/lib/geometry.mjs\";\nimport { OUT as OUT_DIR } from \"../../core/paths.mjs\";"
+        ],
+        [
+          "export const OUT = path.join(HERE, \"out\");",
+          "export const OUT = OUT_DIR;"
+        ],
+        [
+          "const SHELL = path.join(HERE, \"..\", \"shell.html\");",
+          "const SHELL = path.join(HERE, \"..\", \"deck\", \"shell.html\");"
+        ]
+      ]
+    },
+    {
+      "src": "g-slides/host-background/render-svg.mjs",
+      "dest": "formats/background/render-svg.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { BRANDS } from \"../../panel-kit/lib/brands.mjs\";\nimport { LOGO_BASE, PSP } from \"../lib/paths.mjs\";",
+          "import { BRANDS } from \"../deck/lib/brands.mjs\";\nimport { LOGO_BASE, PSP } from \"../deck/lib/paths.mjs\";"
+        ],
+        [
+          "} from \"../lib/draw.mjs\";",
+          "} from \"../deck/lib/draw.mjs\";"
+        ]
+      ]
+    }
+  ]
+}

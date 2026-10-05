@@ -36,7 +36,11 @@ const REL_ASSET = /^(?:[\w@. -]+\/)*([\w@. -]+\.(?:png|jpe?g|webp|svg|woff2|toml
 export function normalizePaths(text) {
   let out = text;
   for (const re of PATH_RES) out = out.replace(re, (m) => `<file:${decodeURI(path.basename(m))}>`);
-  return out;
+  /* The deck's photo cache names each downsampled photo by a hash of its source's
+     absolute path (.gen/_img/<16 hex>.jpg), so the name differs between checkouts while
+     the image does not. Names compare as one placeholder; the embedded image bytes are
+     still compared in the SVG and the PNG. */
+  return out.replace(/<file:[0-9a-f]{16}\.jpg>/g, "<file:photo-cache.jpg>");
 }
 
 function normalizeValue(v) {

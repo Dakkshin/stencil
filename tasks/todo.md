@@ -35,9 +35,9 @@ Source of truth: vault note `Ekwa Organization/Reference/Tools/Stencil.md`. Deta
 - [ ] T18: Social, OBA layout (M)
 - [ ] T19: Social, IU layout (M)
 - [ ] T20: Social gate (S)
-- [ ] T21: Deck (M)
-- [ ] T22: Background format (S)
-- [ ] T23: Deck and background gate (S)
+- [x] T21: Deck (M)
+- [x] T22: Background format (S)
+- [x] T23: Deck and background gate (S)
 - [ ] Checkpoint 2: `node parity/run.mjs thumb social deck background` passes on every real input;
       `node --test tests/` green with every fork test ported or accounted for. Blocks Phase 3.
 

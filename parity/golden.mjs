@@ -32,10 +32,13 @@ export const PARITY = path.join(ROOT, ".parity");
 export const OUTPUT_DIRS = [".gen", "out", "canva", "preview"];
 
 export const FORKS = ["podcast-thumbnails", "iu-podcast-thumbnails", "panel-social-posts", "iu-panel-social-posts", "zoom-banner", "iu-zoom-banner", "g-slides"];
+/* Siblings a fork reaches into at run time: g-slides/host-background imports
+   ../../panel-kit/lib/brands.mjs, the canonical panel-kit repo. */
+export const SIBLINGS = ["panel-kit"];
 const SKIP = new Set(["node_modules", ".git", ".venv", ".gen", "out", "canva", "preview", "legacy", ".d", "tasks"]);
 /* Caches that are content, not output: carried into the scratch copy, never compared.
    The social cutout cache keys on each photo's size and mtime, so copies keep mtimes. */
-export const CACHE_DIRS = [path.join(".gen", "cutouts")];
+export const CACHE_DIRS = [path.join(".gen", "cutouts"), path.join(".gen", "_img"), path.join(".gen", "_metrics.json")];
 
 /* Copy one file and keep its timestamps (cache keys depend on mtime). */
 function copyKeep(src, dest) {
@@ -104,12 +107,19 @@ export function supplyPools(forkDir, supply = {}) {
 export function prepareScratch() {
   if (fs.existsSync(SCRATCH)) fs.rmSync(SCRATCH, { recursive: true, force: true });
   const auto = path.join(SCRATCH, "Automation");
-  for (const fork of FORKS) {
+  for (const fork of [...FORKS, ...SIBLINGS]) {
     const src = path.join(AUTOMATION, fork);
     if (!fs.existsSync(src)) continue;
     copyTree(src, path.join(auto, fork));
     for (const cache of CACHE_DIRS) {
-      if (fs.existsSync(path.join(src, cache))) copyTree(path.join(src, cache), path.join(auto, fork, cache));
+      const from = path.join(src, cache);
+      if (!fs.existsSync(from)) continue;
+      const to = path.join(auto, fork, cache);
+      if (fs.statSync(from).isDirectory()) copyTree(from, to);
+      else {
+        fs.mkdirSync(path.dirname(to), { recursive: true });
+        copyKeep(from, to);
+      }
     }
     for (const nm of ["node_modules", "panel-kit/node_modules", ".venv"]) {
       const real = path.join(src, nm);
@@ -144,6 +154,7 @@ export function collect(root, dirs = OUTPUT_DIRS) {
     if (!fs.existsSync(dir) || caches.has(dir)) return;
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       const p = path.join(dir, e.name);
+      if (caches.has(p)) continue;
       if (e.isDirectory()) walk(p);
       else if (e.isFile()) out.push(path.relative(root, p));
     }

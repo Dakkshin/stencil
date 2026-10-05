@@ -1,0 +1,52 @@
+<!doctype html>
+<meta charset="utf-8">
+<!--
+  Dumb host for the renderer. It holds an SVG and nothing else.
+
+  There is deliberately no layout here: no positions, no type scale, no CSS variables
+  mirroring lib/geometry.mjs, no applyConfig(). The SVG that render-svg.mjs produces is
+  the single visual source, and this page exists only so Chrome can rasterize and print
+  it. If you find yourself adding a style rule that affects how a slide LOOKS, it
+  belongs in lib/geometry.mjs or lib/draw.mjs instead.
+
+  Fonts ride inside the SVG as base64 @font-face, so nothing is loaded from disk here.
+-->
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; }
+  body { overflow: hidden; }
+  #slot { width: 1920px; height: 1080px; }
+  #slot > svg { display: block; }
+
+  /* Print path. Chrome drops every background fill unless colour adjustment is forced,
+     which silently strips the slate gradient out of the PDF and leaves white slides. */
+  @page { size: 1920px 1080px; margin: 0; }
+  .deck .slide {
+    width: 1920px; height: 1080px;
+    break-after: page; page-break-after: always;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .deck .slide:last-child { break-after: auto; page-break-after: auto; }
+  .deck .slide > svg { display: block; }
+</style>
+<div id="slot"></div>
+<script>
+  // One slide, for screenshotting.
+  window.__setSlide = (svg) => {
+    const slot = document.getElementById("slot");
+    slot.className = "";
+    slot.style.width = "1920px";
+    slot.style.height = "1080px";
+    slot.innerHTML = svg;
+  };
+
+  // Every slide stacked, for printing to a single PDF.
+  window.__setDeck = (svgs) => {
+    const slot = document.getElementById("slot");
+    slot.className = "deck";
+    slot.style.width = "1920px";
+    slot.style.height = "auto";
+    slot.innerHTML = svgs.map((s) => `<div class="slide">${s}</div>`).join("");
+  };
+
+  window.__fontsReady = () => document.fonts.ready.then(() => true);
+</script>

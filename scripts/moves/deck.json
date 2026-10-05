@@ -1,0 +1,160 @@
+{
+  "about": "Every file moved from a fork into Stencil. src is relative to Automation/, dest to stencil/. verbatim = equal to src after the literal rewrites (checked by scripts/verify-moves.mjs); adapted = provenance only.",
+  "moves": [
+    {
+      "src": "g-slides/gen.mjs",
+      "dest": "formats/deck/gen.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { spawnSync } from \"node:child_process\";",
+          "import { spawnSync } from \"node:child_process\";\nimport { fileURLToPath } from \"node:url\";"
+        ],
+        [
+          "import { parseToml } from \"./lib/toml.mjs\";",
+          "import { parseToml } from \"../../core/toml.mjs\";"
+        ],
+        [
+          "  ROOT, AUTOMATION, DECKS, GEN, CANVA, OUT, ensureDirs, checkEnvironment,",
+          "  ROOT, AUTOMATION, WORKSPACE, DECKS, GEN, CANVA, OUT, ensureDirs, checkEnvironment,"
+        ],
+        [
+          "    if (fs.existsSync(path.join(ROOT, rel))) out.push(rel);",
+          "    if (fs.existsSync(path.join(WORKSPACE, rel))) out.push(rel);"
+        ],
+        [
+          "  const pngDir = path.join(ROOT, \"out\", deckName);",
+          "  const pngDir = path.join(OUT, deckName);"
+        ],
+        [
+          "  const svgDir = path.join(ROOT, \"canva\", deckName);",
+          "  const svgDir = path.join(CANVA, deckName);"
+        ],
+        [
+          "genPath: path.relative(ROOT, jsonFile)",
+          "genPath: path.relative(WORKSPACE, jsonFile)"
+        ],
+        [
+          "tool: \"g-slides\"",
+          "tool: \"deck\""
+        ],
+        [
+          "async function main() {\n  const args = parseArgs(process.argv.slice(2));",
+          "export async function main(argv = process.argv.slice(2)) {\n  const args = parseArgs(argv);"
+        ],
+        [
+          "main().catch((err) => {\n  console.error(err);\n  process.exit(1);\n});",
+          "if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {\n  main().catch((err) => {\n    console.error(err);\n    process.exit(1);\n  });\n}"
+        ]
+      ]
+    },
+    {
+      "src": "g-slides/render-svg.mjs",
+      "dest": "formats/deck/render-svg.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "g-slides/render.mjs",
+      "dest": "formats/deck/render.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "g-slides/shell.html",
+      "dest": "formats/deck/shell.html",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "g-slides/lib/draw.mjs",
+      "dest": "formats/deck/lib/draw.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "g-slides/lib/geometry.mjs",
+      "dest": "formats/deck/lib/geometry.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "g-slides/lib/slides.mjs",
+      "dest": "formats/deck/lib/slides.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "g-slides/lib/images.mjs",
+      "dest": "formats/deck/lib/images.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "g-slides/lib/text.mjs",
+      "dest": "formats/deck/lib/text.mjs",
+      "mode": "verbatim",
+      "rewrites": [],
+      "note": "deck-only until a second format measures text (plan A8)"
+    },
+    {
+      "src": "g-slides/lib/metrics.mjs",
+      "dest": "formats/deck/lib/metrics.mjs",
+      "mode": "verbatim",
+      "rewrites": [],
+      "note": "deck-only until a second format measures text (plan A8)"
+    },
+    {
+      "src": "g-slides/lib/chromium.mjs",
+      "dest": "formats/deck/lib/chromium.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "path.join(AUTOMATION, \"..\", \"OBA\", \"oba-website\", \"package.json\")",
+          "path.join(AUTOMATION, \"package.json\")"
+        ]
+      ],
+      "note": "AUTOMATION is the stencil root in formats/deck/lib/paths.mjs, so the fallback resolves from stencil"
+    },
+    {
+      "src": "g-slides/lib/paths.mjs",
+      "dest": "formats/deck/lib/paths.mjs",
+      "mode": "adapted",
+      "note": "same exports, resolved over core/paths and core/assets (one pool, no sibling reaches)"
+    },
+    {
+      "src": "g-slides/panel-kit/lib/brands.mjs",
+      "dest": "formats/deck/lib/brands.mjs",
+      "mode": "adapted",
+      "note": "BRANDS in the panel-kit shape, built from brand packs that have a deck design"
+    },
+    {
+      "src": "g-slides/tests/geometry.test.mjs",
+      "dest": "tests/deck-geometry.test.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "from \"../lib/",
+          "from \"../formats/deck/lib/"
+        ]
+      ]
+    },
+    {
+      "src": "g-slides/tests/text.test.mjs",
+      "dest": "tests/deck-text.test.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "from \"../lib/",
+          "from \"../formats/deck/lib/"
+        ]
+      ]
+    },
+    {
+      "src": "g-slides/tests/cli-json.test.mjs",
+      "dest": "tests/deck.test.mjs",
+      "mode": "adapted",
+      "note": "runs against a scratch workspace with a self-contained fixture deck; adds the frozen output contract check"
+    }
+  ]
+}

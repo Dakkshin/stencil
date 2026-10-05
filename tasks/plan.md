@@ -494,9 +494,11 @@ including campaign nesting. Port `panel-social-posts/tests/cli-json.test.mjs`.
 ## Task 21: Deck
 
 **Description:** Move g-slides into `formats/deck/`: `gen.mjs`, `render-svg.mjs`, `render.mjs`
-(PNG and PDF), `shell.html`, and `lib/{geometry,draw,slides,images}.mjs` (A8). `lib/text.mjs` and
-`lib/metrics.mjs` become `core/text.mjs` and `core/metrics.mjs`. Paths through `core/paths.mjs`;
-speakers resolve local `speakers/` then `assets/panelists/`; photos through `core/assets.mjs`.
+(PNG and PDF), `shell.html`, and `lib/{geometry,draw,slides,images,text,metrics}.mjs`, all
+verbatim. `lib/text.mjs` and `lib/metrics.mjs` stay in the deck until a second format measures
+text (A8, rule of two). The deck's own `lib/paths.mjs` is the one adapted file: same exports,
+resolved over `core/paths.mjs` and `core/assets.mjs`; `lib/brands.mjs` builds the panel-kit
+shaped registry from the packs. Speakers resolve local `speakers/` then `assets/panelists/`.
 **Acceptance criteria:**
 - [ ] `node stencil.mjs deck sep17-referral-growth` writes AD-3 deck outputs and the PDF
 - [ ] `--svg-only`, `--slides`, `--no-pdf`, `--watch`, `--list`, `--emit-json` behave as in `g-slides/gen.mjs:1-20`
@@ -504,7 +506,7 @@ speakers resolve local `speakers/` then `assets/panelists/`; photos through `cor
 **Verification:**
 - [ ] `node --test tests/deck-*.test.mjs && node scripts/verify-moves.mjs`
 **Dependencies:** CP1
-**Files likely touched:** `formats/deck/*` (verbatim, AD-4), `core/text.mjs`, `core/metrics.mjs`, `scripts/moves/deck.json`, `tests/deck-text.test.mjs`
+**Files likely touched:** `formats/deck/*` (verbatim, AD-4), `formats/deck/lib/paths.mjs`, `formats/deck/lib/brands.mjs`, `scripts/moves/deck.json`, `tests/deck.test.mjs`
 **Pattern to follow:** `g-slides/render.mjs:55-120`, `g-slides/lib/paths.mjs`
 **Seat:** builder
 **Estimated scope:** M
@@ -528,7 +530,9 @@ deck's draw primitives and core Chromium. CLI `node stencil.mjs background [--sv
 **Description:** Parity for the Sept 17 Referral Growth deck (the note's reference input),
 `sep24-dry-eye-growth`, `edge-cases`, and the host background.
 **Acceptance criteria:**
-- [ ] `node parity/run.mjs deck background` passes: every slide PNG and SVG, PDF page count and embedded fonts
+- [x] `node parity/run.mjs deck background` passes: every slide PNG and SVG, PDF page count and embedded fonts
+      (51 + 3 files exact; the Sept 17 deck fails its own overflow check in g-slides and in
+      Stencil identically, so its PNGs and PDF exist in neither; sep24 and edge-cases prove that path)
 **Verification:**
 - [ ] `node parity/run.mjs deck background`
 **Dependencies:** T21, T22

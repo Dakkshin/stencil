@@ -20,7 +20,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { ROOT, PARITY, loadCases, buildGolden, collect, copyOutputs, exec, pool, writeSynthetic } from "./golden.mjs";
-import { compareFile, sideBySide } from "./compare.mjs";
+import { compareFile, sideBySide, normalizePaths } from "./compare.mjs";
 import { parseToml } from "../core/toml.mjs";
 
 const WS_ROOT = path.join(process.env.STENCIL_PARITY_TMP || os.tmpdir(), "stencil-parity-ws");
@@ -59,11 +59,12 @@ async function runFormat(format, args) {
   fs.rmSync(ws, { recursive: true, force: true });
   const names = [];
   for (const spec of Object.values(cases.forks)) {
-    const src = path.join(ROOT, cases.stencilInputDir);
-    const dest = path.join(ws, cases.stencilInputDir);
+    /* A format with no input files (the host background) has no input folder. */
+    const src = cases.stencilInputDir ? path.join(ROOT, cases.stencilInputDir) : null;
+    const dest = cases.stencilInputDir ? path.join(ws, cases.stencilInputDir) : ws;
     fs.mkdirSync(dest, { recursive: true });
     for (const n of spec.cases) {
-      if (cases.stencilInputDir) fs.copyFileSync(path.join(src, `${n}.toml`), path.join(dest, `${n}.toml`));
+      if (src) fs.copyFileSync(path.join(src, `${n}.toml`), path.join(dest, `${n}.toml`));
       names.push(n);
     }
     for (const c of spec.synthetic || []) {
@@ -78,7 +79,7 @@ async function runFormat(format, args) {
 
   let selected = names;
   if (args.only) selected = selected.filter((n) => args.only.has(n));
-  if (args.brand) selected = selected.filter((n) => brandOf(path.join(ws, cases.stencilInputDir, `${n}.toml`)) === args.brand);
+  if (args.brand && cases.stencilInputDir) selected = selected.filter((n) => brandOf(path.join(ws, cases.stencilInputDir, `${n}.toml`)) === args.brand);
 
   console.log(`  stencil ${format}: ${selected.length} case(s)`);
   const failures = [];
@@ -118,9 +119,23 @@ async function runFormat(format, args) {
   }
   for (const rel of stencilFiles) if (!goldenFiles.has(rel) && inScope(rel)) rows.push({ rel, verdict: "FAIL", detail: "extra in Stencil (the fork did not write it)" });
 
+  /* A case that fails in the fork and in Stencil with the same message (an overflow check,
+     a validation error) is matching behaviour, not an engine difference: it is reported
+     as a warning, and its outputs are still compared file by file above. */
+  const said = (out) => normalizePaths(out).replace(/[\d.]+ MB/g, "N MB").trim();
+  const matched = [];
+  const goldenOnly = [];
+  for (const g of golden.failures) {
+    if (!selected.includes(g.name)) continue;
+    const st = failures.find((f) => f.name === g.name);
+    if (st && said(st.out) === said(g.out)) matched.push(g);
+    else goldenOnly.push(g);
+  }
+  const stencilOnly = failures.filter((f) => !matched.some((m) => m.name === f.name));
+
   const counts = { exact: 0, close: 0, FAIL: 0 };
   for (const r of rows) counts[r.verdict]++;
-  const pass = counts.FAIL === 0 && failures.length === 0 && golden.failures.length === 0 && rows.length > 0;
+  const pass = counts.FAIL === 0 && stencilOnly.length === 0 && goldenOnly.length === 0 && rows.length > 0;
   const secs = ((Date.now() - started) / 1000).toFixed(0);
 
   const lines = [
@@ -141,15 +156,16 @@ async function runFormat(format, args) {
     lines.push(`- ${fork} lacked ${used.length} photo${used.length === 1 ? "" : "s"} its cases use, supplied from the shared pool: ${used.map((b) => `\`${b}\``).join(", ")}`);
   }
   if (anySupplied) lines.push("");
-  for (const f of golden.failures) lines.push(`- fork run failed: ${f.fork} ${f.name}`, "", "```", f.out.trim(), "```", "");
-  for (const f of failures) lines.push(`- Stencil run failed: ${f.name}`, "", "```", f.out.trim(), "```", "");
+  for (const f of matched) lines.push(`- ${f.name} fails in the fork and in Stencil with the same message (matching behaviour; fix the input, not the engine):`, "", "```", f.out.trim().split("\n").slice(-6).join("\n"), "```", "");
+  for (const f of goldenOnly) lines.push(`- fork run failed: ${f.fork} ${f.name}`, "", "```", f.out.trim(), "```", "");
+  for (const f of stencilOnly) lines.push(`- Stencil run failed: ${f.name}`, "", "```", f.out.trim(), "```", "");
   const bad = rows.filter((r) => r.verdict === "FAIL");
   const close = rows.filter((r) => r.verdict === "close");
   if (bad.length) lines.push("| failed file | why |", "|---|---|", ...bad.map((r) => `| \`${r.rel}\` | ${r.detail.replace(/\|/g, "\\|")} |`), "");
   if (close.length) lines.push("| within tolerance | measure |", "|---|---|", ...close.map((r) => `| \`${r.rel}\` | ${r.detail} |`), "");
   const section = lines.join("\n");
 
-  return { format, pass, section, counts, rows, failures };
+  return { format, pass, section, counts, rows, failures: stencilOnly, matched };
 }
 
 function writeReport(sections) {
@@ -173,7 +189,7 @@ const results = [];
 for (const f of args.formats) results.push(await runFormat(f, args));
 const report = writeReport(results.map((r) => r.section));
 for (const r of results) {
-  console.log(`${r.pass ? "✔" : "✖"} ${r.format}: ${r.counts.exact} exact, ${r.counts.close} within tolerance, ${r.counts.FAIL} failed${r.failures.length ? `, ${r.failures.length} Stencil run(s) failed` : ""}`);
+  console.log(`${r.pass ? "✔" : "✖"} ${r.format}: ${r.counts.exact} exact, ${r.counts.close} within tolerance, ${r.counts.FAIL} failed${r.failures.length ? `, ${r.failures.length} Stencil run(s) failed` : ""}${r.matched.length ? `, ${r.matched.length} case(s) fail identically in fork and Stencil` : ""}`);
   for (const row of r.rows.filter((x) => x.verdict === "FAIL").slice(0, 12)) console.log(`    ✖ ${row.rel}: ${row.detail}`);
 }
 console.log(`report: ${path.relative(process.cwd(), report)}`);
