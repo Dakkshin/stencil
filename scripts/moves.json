@@ -1,6 +1,114 @@
 {
   "about": "Every file moved from a fork into Stencil. src is relative to Automation/, dest to stencil/. verbatim = equal to src after the literal rewrites (checked by scripts/verify-moves.mjs); adapted = provenance only.",
   "moves": [
-    { "src": "panel-social-posts/lib/toml.mjs", "dest": "core/toml.mjs", "mode": "verbatim", "rewrites": [] }
+    {
+      "src": "panel-social-posts/lib/toml.mjs",
+      "dest": "core/toml.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "zoom-banner/lib/geometry.mjs",
+      "dest": "formats/banner/geometry.mjs",
+      "mode": "verbatim",
+      "rewrites": [],
+      "note": "identical in iu-zoom-banner"
+    },
+    {
+      "src": "zoom-banner/banner-template.html",
+      "dest": "formats/banner/layouts/strip-oba/template.html",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "url(\"panel-kit/assets/fonts/",
+          "url(\"../../../../assets/fonts/"
+        ]
+      ]
+    },
+    {
+      "src": "zoom-banner/render-svg.mjs",
+      "dest": "formats/banner/layouts/strip-oba/render-svg.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "from \"./lib/geometry.mjs\";",
+          "from \"../../geometry.mjs\";\nimport { CANVA, FONTS, LOGOS, ROOT } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const OUT_DIR = path.join(__dirname, \"canva\");",
+          "const OUT_DIR = CANVA;"
+        ],
+        [
+          "const FONT_DIR = path.join(__dirname, \"panel-kit\", \"assets\", \"fonts\");",
+          "const FONT_DIR = FONTS;"
+        ],
+        [
+          "path.join(__dirname, \"..\", \"..\", \"OBA\", \"oba-website\", \"package.json\")",
+          "path.join(ROOT, \"package.json\")"
+        ]
+      ]
+    },
+    {
+      "src": "iu-zoom-banner/banner-template.html",
+      "dest": "formats/banner/layouts/strip-iu/template.html",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "url(\"panel-kit/assets/fonts/",
+          "url(\"../../../../assets/fonts/"
+        ],
+        [
+          "\"panel-kit/assets/pace-academy-logo.png\"",
+          "\"../../../../assets/logos/pace-academy-logo.png\""
+        ]
+      ]
+    },
+    {
+      "src": "iu-zoom-banner/render-svg.mjs",
+      "dest": "formats/banner/layouts/strip-iu/render-svg.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "from \"./lib/geometry.mjs\";",
+          "from \"../../geometry.mjs\";\nimport { CANVA, FONTS, LOGOS, ROOT } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const OUT_DIR = path.join(__dirname, \"canva\");",
+          "const OUT_DIR = CANVA;"
+        ],
+        [
+          "const FONT_DIR = path.join(__dirname, \"panel-kit\", \"assets\", \"fonts\");",
+          "const FONT_DIR = FONTS;"
+        ],
+        [
+          "path.join(__dirname, \"..\", \"..\", \"OBA\", \"oba-website\", \"package.json\")",
+          "path.join(ROOT, \"package.json\")"
+        ],
+        [
+          "path.join(__dirname, \"panel-kit\", \"assets\", \"pace-academy-logo.png\")",
+          "path.join(LOGOS, \"pace-academy-logo.png\")"
+        ]
+      ]
+    },
+    {
+      "src": "zoom-banner/render-figma-svg.mjs",
+      "dest": "formats/banner/render-figma-svg.mjs",
+      "mode": "verbatim",
+      "note": "identical in iu-zoom-banner",
+      "rewrites": [
+        [
+          "from \"./lib/geometry.mjs\";",
+          "from \"./geometry.mjs\";\nimport { OUT, ROOT } from \"../../core/paths.mjs\";"
+        ],
+        [
+          "path.join(__dirname, \"..\", \"..\", \"OBA\", \"oba-website\", \"package.json\")",
+          "path.join(ROOT, \"package.json\")"
+        ],
+        [
+          "const outDir = path.join(__dirname, \"out\");",
+          "const outDir = OUT;"
+        ]
+      ]
+    }
   ]
 }

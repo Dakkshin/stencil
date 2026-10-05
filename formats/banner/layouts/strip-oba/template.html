@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>OBA Zoom Banner — 640×200</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Fonts. Shared woff2 pool, borrowed from the sibling generator so all three
+   tools rasterize identically. Relative paths resolve under file:// too.
+   font-display:block (not swap) so document.fonts.ready actually gates the
+   screenshot instead of rasterizing fallback glyphs.
+--------------------------------------------------------------------------- */
+@font-face { font-family:"Inter"; src:url("../../../../assets/fonts/Inter-300-normal.woff2") format("woff2"); font-weight:300; font-display:block; }
+@font-face { font-family:"Inter"; src:url("../../../../assets/fonts/Inter-400-normal.woff2") format("woff2"); font-weight:400; font-display:block; }
+@font-face { font-family:"Inter"; src:url("../../../../assets/fonts/Inter-500-normal.woff2") format("woff2"); font-weight:500; font-display:block; }
+@font-face { font-family:"Inter"; src:url("../../../../assets/fonts/Inter-600-normal.woff2") format("woff2"); font-weight:600; font-display:block; }
+@font-face { font-family:"IBM Plex Mono"; src:url("../../../../assets/fonts/IBM-Plex-Mono-500-normal.woff2") format("woff2"); font-weight:500; font-display:block; }
+@font-face { font-family:"IBM Plex Mono"; src:url("../../../../assets/fonts/IBM-Plex-Mono-600-normal.woff2") format("woff2"); font-weight:600; font-display:block; }
+
+/* ---------------------------------------------------------------------------
+   OBA design tokens — palette mirrored from panel-social-posts/brands.mjs.
+   render.mjs overwrites the brand-dependent ones via window.__setBrand().
+
+   DELIBERATE DIVERGENCE from the siblings: their gradient/scrim/dots are all
+   horizontal (light lobe at 78% x), because a 1080-square post puts text left
+   and imagery right. This canvas is a 3.2:1 strip holding a row of equal
+   columns — a symmetric layout cannot sit on a left-to-right gradient without
+   one end of the row losing contrast. So the lobe moves to top-centre and the
+   scrim runs bottom-up, which lands the darkest ground under the smallest,
+   most muted text (the panelist roles). Same four OBA colour stops.
+--------------------------------------------------------------------------- */
+:root {
+  --ink-900:#16232c; --ink-800:#22323d; --ink-700:#31434f; --ink-600:#465a66;
+  --accent-600:#3d5361; --white:#ffffff;
+
+  --gradient-hero: radial-gradient(120% 140% at 50% 0%,
+    #5b7484 0%, #3e5361 30%, #263743 60%, #16232c 100%);
+  --gradient-hero-glow: radial-gradient(70% 60% at 50% 6%,
+    rgba(214,228,235,.5) 0%, rgba(214,228,235,0) 70%);
+
+  --text-muted: rgba(255,255,255,.66);
+  --text-faint: rgba(255,255,255,.60);
+  --line: rgba(255,255,255,.14);
+  --pill-bg: rgba(11,18,32,.42);
+  --accent-warm:#e2b552;
+
+  --font-sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* Geometry — inline defaults mirroring lib/geometry.mjs. */
+  --pad-x:20px; --pad-top:8px; --pad-bottom:8px;
+  --header-h:26px; --header-gap:4px; --band-gap:10px;
+  --name-gap:6px; --role-gap:2px;
+  --logo-h:26px;
+  --type-title:16px; --type-title-lh:1.18;
+  --type-body:11px; --type-body-lh:1.25;
+
+  --tile-w:86px; --tile-h:75px; --col-w:150px; --col-gap:26px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { background:#0d151b; font-family:var(--font-sans); }
+body { display:flex; align-items:flex-start; justify-content:center; padding:24px; }
+
+/* ---------------------------------------------------------------------------
+   The canvas. Everything inside is what gets screenshotted; the editor chrome
+   below lives outside it and never appears in the PNG.
+--------------------------------------------------------------------------- */
+#stage { transform-origin: top center; }
+.canvas {
+  position:relative; width:640px; height:200px; overflow:hidden;
+  background: var(--gradient-hero);
+  color: var(--white);
+  padding: var(--pad-top) var(--pad-x) var(--pad-bottom);
+  display:flex; flex-direction:column;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.layer { position:absolute; inset:0; pointer-events:none; }
+.glow  { background: var(--gradient-hero-glow); opacity:.42; }
+.dots {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.09) 1px, transparent 0);
+  background-size: 18px 18px;
+  opacity: 0.55;
+  -webkit-mask-image: linear-gradient(180deg, transparent 8%, #000 55%);
+  mask-image: linear-gradient(180deg, transparent 8%, #000 55%);
+}
+/* Bottom-up scrim: darkest ground sits under the name/role band. */
+.scrim {
+  background: linear-gradient(180deg, rgba(11,18,32,0) 38%, rgba(11,18,32,.34) 72%, rgba(11,18,32,.58) 100%);
+}
+
+/* --- header row ---------------------------------------------------------- */
+.header {
+  position:relative; z-index:3; flex:none;
+  height:var(--header-h);
+  display:flex; align-items:center; gap:10px;
+}
+.logo { height:var(--logo-h); width:auto; opacity:.96; flex:none; }
+.wordmark {
+  font-size:var(--type-title); font-weight:600; letter-spacing:-.01em; flex:none;
+}
+.eyebrow {
+  display:inline-flex; align-items:center; gap:10px; min-width:0;
+  font-family:var(--font-mono); font-size:var(--type-body); font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--text-muted);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.eyebrow::before {
+  content:""; width:6px; height:6px; border-radius:50%;
+  background:var(--accent-warm); flex:none;
+}
+.eyebrow.is-hidden, .date-chip.is-hidden, .logo.is-hidden, .wordmark.is-hidden { display:none; }
+.date-chip {
+  margin-left:auto; flex:none;
+  font-family:var(--font-mono); font-size:var(--type-body); font-weight:500;
+  letter-spacing:.10em; text-transform:uppercase; white-space:nowrap;
+  background:var(--pill-bg); border:1px solid var(--line);
+  border-radius:999px; padding:3px 9px;
+}
+
+/* --- title --------------------------------------------------------------- */
+.title {
+  position:relative; z-index:3; flex:none;
+  margin-top:var(--header-gap);
+  font-size:var(--type-title); font-weight:500;
+  line-height:var(--type-title-lh); letter-spacing:-.02em;
+  text-align:center; text-wrap:balance;
+}
+.title .accent { color:var(--accent-warm); }
+
+/* --- panelist band ------------------------------------------------------- */
+.panel-row {
+  position:relative; z-index:3;
+  margin-top:var(--band-gap);
+  flex:1; min-height:0;
+  display:flex; align-items:flex-start; justify-content:center;
+  gap:var(--col-gap);
+}
+.p-item { width:var(--col-w); display:flex; flex-direction:column; align-items:center; }
+.tile {
+  position:relative; width:var(--tile-w); height:var(--tile-h);
+  border-radius:6px; overflow:hidden; flex:none;
+  border:1px solid rgba(255,255,255,.22);
+  background:linear-gradient(165deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.05) 42%, rgba(11,18,32,.35) 100%);
+  box-shadow:0 8px 20px -8px rgba(11,18,32,.7), inset 0 0 0 1px rgba(255,255,255,.04);
+  display:flex; align-items:center; justify-content:center;
+}
+.tile img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.monogram {
+  font-size:22px; font-weight:300; color:rgba(255,255,255,.72); letter-spacing:.02em;
+}
+.p-name {
+  margin-top:var(--name-gap);
+  font-size:var(--type-body); font-weight:500; line-height:var(--type-body-lh);
+  text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  max-width:100%;
+}
+.p-role {
+  margin-top:var(--role-gap);
+  font-size:var(--type-body); font-weight:400; line-height:var(--type-body-lh);
+  color:var(--text-faint); text-align:center; text-wrap:balance;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+/* --- editor chrome (never screenshotted) --------------------------------- */
+#editor { width:640px; margin:20px auto 0; color:#d7e1e6; font-size:12px; }
+#editor textarea {
+  width:100%; height:260px; background:#101b22; color:#d7e1e6;
+  border:1px solid #24343d; border-radius:6px; padding:10px;
+  font-family:var(--font-mono); font-size:11px; line-height:1.5;
+}
+#editor button {
+  margin-top:8px; background:var(--accent-600); color:#fff; border:0;
+  border-radius:5px; padding:7px 14px; font-size:12px; cursor:pointer;
+}
+#editor .hint { opacity:.6; margin-bottom:6px; }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="canvas" id="canvas">
+    <div class="layer glow"></div>
+    <div class="layer dots"></div>
+    <div class="layer scrim"></div>
+
+    <div class="header">
+      <img class="logo is-hidden" id="logo" alt="" />
+      <div class="wordmark is-hidden" id="wordmark"></div>
+      <div class="eyebrow" id="eyebrow"></div>
+      <div class="date-chip" id="dateChip"></div>
+    </div>
+
+    <h1 class="title" id="title"></h1>
+
+    <div class="panel-row" id="panelRow"></div>
+  </div>
+</div>
+
+<div id="editor">
+  <div class="hint">Edit the JSON and hit Apply — this is the same shape gen.mjs writes to .gen/&lt;name&gt;.json</div>
+  <textarea id="cfgText" spellcheck="false"></textarea>
+  <button id="applyBtn">Apply</button>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Geometry defaults — mirror lib/geometry.mjs. render.mjs injects the exact
+   Node-side numbers via window.__setGeometry() before screenshotting.
+
+   Tile size is COMPUTED, not tabled: the face band is bottom-anchored and
+   absorbs whatever the header and title leave behind, so a two-line title
+   shrinks the tiles instead of overflowing the canvas.
+--------------------------------------------------------------------------- */
+const GEO = {
+  h: 200, padTop: 8, padBottom: 8,
+  headerH: 26, headerGap: 4, bandGap: 10, nameGap: 6, roleGap: 2, roleLines: 2,
+  title: 16, titleLh: 1.18, body: 11, bodyLh: 1.25,
+};
+const COLUMN_W = { 1: 200, 2: 160, 3: 150, 4: 142 };
+const COLUMN_GAP = { 1: 0, 2: 30, 3: 26, 4: 10 };
+const TILE_ASPECT = { 1: 1.4, 2: 1.35, 3: 1.15, 4: 1.0 };
+
+function computeTile(titleLines, count) {
+  const n = Math.max(1, Math.min(4, count || 1));
+  const lines = Math.max(1, Math.min(2, titleLines || 1));
+  const titleH = Math.round(GEO.title * GEO.titleLh * lines);
+  const nameH = Math.round(GEO.body * GEO.bodyLh);
+  const roleH = Math.round(GEO.body * GEO.bodyLh * GEO.roleLines);
+  const consumed =
+    GEO.padTop + GEO.headerH + GEO.headerGap + titleH + GEO.bandGap +
+    GEO.nameGap + nameH + GEO.roleGap + roleH + GEO.padBottom;
+  const tileH = Math.max(40, GEO.h - consumed);
+  const tileW = Math.min(Math.round(tileH * TILE_ASPECT[n]), COLUMN_W[n] - 24);
+  return { tileH, tileW };
+}
+
+window.__setGeometry = (g) => {
+  Object.assign(GEO, g || {});
+  const r = document.documentElement.style;
+  const px = (k, v) => r.setProperty(k, v + "px");
+  if (g.padX != null) px("--pad-x", g.padX);
+  if (g.padTop != null) px("--pad-top", g.padTop);
+  if (g.padBottom != null) px("--pad-bottom", g.padBottom);
+  if (g.headerH != null) px("--header-h", g.headerH);
+  if (g.headerGap != null) px("--header-gap", g.headerGap);
+  if (g.bandGap != null) px("--band-gap", g.bandGap);
+  if (g.nameGap != null) px("--name-gap", g.nameGap);
+  if (g.roleGap != null) px("--role-gap", g.roleGap);
+  if (g.logoH != null) px("--logo-h", g.logoH);
+  if (g.title != null) px("--type-title", g.title);
+  if (g.titleLh != null) r.setProperty("--type-title-lh", String(g.titleLh));
+  if (g.body != null) px("--type-body", g.body);
+  if (g.bodyLh != null) r.setProperty("--type-body-lh", String(g.bodyLh));
+};
+
+/* Brand override, so render.mjs can drive VET or any future preset straight
+   from brands.mjs instead of duplicating the palette here. The gradient is
+   rebuilt top-centre rather than at the sibling's 78% x — see the note above. */
+window.__setBrand = (b) => {
+  if (!b) return;
+  const r = document.documentElement.style;
+  if (Array.isArray(b.gradient) && b.gradient.length) {
+    const stops = b.gradient.map(([c, p]) => `${c} ${p}%`).join(", ");
+    r.setProperty("--gradient-hero", `radial-gradient(120% 140% at 50% 0%, ${stops})`);
+  }
+  if (b.glow) {
+    r.setProperty("--gradient-hero-glow",
+      `radial-gradient(70% 60% at 50% 6%, ${b.glow} 0%, rgba(214,228,235,0) 70%)`);
+  }
+  if (b.accent) r.setProperty("--accent-600", b.accent);
+  if (b.line) r.setProperty("--line", b.line);
+  if (b.textMuted) r.setProperty("--text-muted", b.textMuted);
+  if (b.pillBg) r.setProperty("--pill-bg", b.pillBg);
+  /* The title accent has to stay bright against the slate; the brand `accent`
+     is a background-weight colour and would vanish. Fall back to white-warm. */
+  r.setProperty("--accent-warm", b.titleAccent || "#e2b552");
+};
+
+/* Initials for the missing-photo fallback. Same derivation as the siblings:
+   drop trailing credentials, take the first two words. */
+function monogram(name) {
+  return String(name || "")
+    .replace(/,.*$/, "")
+    .split(/[\s·–—-]+/).filter(Boolean).slice(0, 2)
+    .map((w) => w[0]).join("").toUpperCase() || "?";
+}
+
+/* `~` toggles the accent colour: "A ~B~ C" -> A normal, B accent, C normal. */
+function renderTitle(el, title) {
+  el.textContent = "";
+  const parts = String(title || "").split("~");
+  parts.forEach((text, i) => {
+    if (!text) return;
+    const span = document.createElement("span");
+    if (i % 2 === 1) span.className = "accent";
+    span.textContent = text;
+    el.appendChild(span);
+  });
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  el.textContent = value || "";
+  el.classList.toggle("is-hidden", !value);
+  return el;
+}
+
+function applyConfig(cfg) {
+  cfg = cfg || {};
+  window.__currentConfig = cfg;
+
+  if (cfg.brand) window.__setBrand(cfg.brand);
+
+  /* Logo asset when available, text wordmark when not. */
+  const logo = document.getElementById("logo");
+  const wordmark = document.getElementById("wordmark");
+  if (cfg.logo) {
+    logo.src = cfg.logo;
+    logo.classList.remove("is-hidden");
+    wordmark.classList.add("is-hidden");
+  } else {
+    logo.classList.add("is-hidden");
+    wordmark.textContent = (cfg.brand && cfg.brand.wordmark) || "OBA";
+    wordmark.classList.remove("is-hidden");
+  }
+
+  setText("eyebrow", cfg.eyebrow);
+  setText("dateChip", cfg.date);
+
+  const titleEl = document.getElementById("title");
+  renderTitle(titleEl, cfg.title);
+
+  const list = Array.isArray(cfg.panelists) ? cfg.panelists.slice(0, 4) : [];
+  const n = Math.max(1, Math.min(4, list.length || 1));
+  const r = document.documentElement.style;
+  r.setProperty("--col-w", COLUMN_W[n] + "px");
+  r.setProperty("--col-gap", COLUMN_GAP[n] + "px");
+
+  const row = document.getElementById("panelRow");
+  row.textContent = "";
+  list.forEach((p) => {
+    const item = document.createElement("div");
+    item.className = "p-item";
+
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    const mono = document.createElement("div");
+    mono.className = "monogram";
+    mono.textContent = p.placeholder ? "?" : monogram(p.name);
+    tile.appendChild(mono);
+    if (p.img) {
+      const img = document.createElement("img");
+      img.src = p.img;
+      img.onerror = function () { this.style.display = "none"; };
+      tile.appendChild(img);
+    }
+    item.appendChild(tile);
+
+    const name = document.createElement("div");
+    name.className = "p-name";
+    name.textContent = p.placeholder ? "" : (p.name || "");
+    item.appendChild(name);
+
+    const role = document.createElement("div");
+    role.className = "p-role";
+    role.textContent = p.placeholder ? "" : (p.role || "");
+    item.appendChild(role);
+
+    row.appendChild(item);
+  });
+
+  /* Measure the title AFTER it is in the DOM, then size the tiles to whatever
+     height is left. This is why a long title shrinks faces instead of
+     spilling past the bottom edge. */
+  const lineH = GEO.title * GEO.titleLh;
+  const titleLines = Math.max(1, Math.min(2, Math.round(titleEl.offsetHeight / lineH)));
+  const { tileW, tileH } = computeTile(titleLines, n);
+  r.setProperty("--tile-w", tileW + "px");
+  r.setProperty("--tile-h", tileH + "px");
+  window.__titleLines = titleLines;
+}
+window.applyConfig = applyConfig;
+
+function setPreviewScale(s) {
+  document.getElementById("stage").style.transform = `scale(${s})`;
+}
+window.setPreviewScale = setPreviewScale;
+
+/* --- demo config so the file is useful opened directly in a browser ------- */
+const DEMO = {
+  eyebrow: "Expert Panel Webinar Series",
+  date: "Sep 17 · 12PM EDT",
+  title: "Building OD Partnerships That Actually Drive Patient Volume",
+  panelists: [
+    { name: "Chris Bonsall", role: "VP Revenue Gen @ Navigate Patient" },
+    { name: "Sean Hanlon", role: "Founder & CCO @ CoFi" },
+    { name: "Amanda Cardwell Carones", role: "Founder & Exec Dir @ Ophthalpreneurs" },
+    { name: "Christine Lapointe", role: "Independent Consultant" },
+  ],
+};
+
+document.getElementById("applyBtn").addEventListener("click", () => {
+  try { applyConfig(JSON.parse(document.getElementById("cfgText").value)); }
+  catch (e) { console.error("Invalid JSON:", e.message); }
+});
+
+document.getElementById("cfgText").value = JSON.stringify(DEMO, null, 2);
+document.documentElement.style.setProperty("--accent-warm", "#e2b552");
+applyConfig(DEMO);
+</script>
+</body>
+</html>

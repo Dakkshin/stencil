@@ -13,9 +13,9 @@ Source of truth: vault note `Ekwa Organization/Reference/Tools/Stencil.md`. Deta
 - [x] T6: OBA_LIGHT, IU_LIGHT and VET packs (S)
 - [x] T7: Content and asset import script (M)
 - [x] T8: Output contract, format registry and the CLI (M)
-- [ ] T9: Parity harness (M)
+- [x] T9: Parity harness (M)
 - [x] T10: Moves manifest and verifier (S)
-- [ ] Checkpoint 0: `node --test tests/` green; `node parity/golden.mjs banner` writes golden
+- [x] Checkpoint 0: `node --test tests/` green; `node parity/golden.mjs banner` writes golden
       outputs for all 5 panels; every fork's `git status` and file hashes unchanged. Blocks Phase 1.
 
 ## Phase 1: Pilot, the banner

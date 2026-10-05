@@ -16,12 +16,14 @@ export default {
     "zoom-banner": {
       inputDir: "panels",
       cases: ["cataract-panel", "dry-eye-growth-panel", "referral-growth-panel"],
+      supply: { headshots: "headshots" },
       build,
       emitJson,
     },
     "iu-zoom-banner": {
       inputDir: "panels",
       cases: ["oct-22-fee-schedule-reset", "oct-22-fee-schedule-reset-light"],
+      supply: { headshots: "headshots" },
       build,
       emitJson,
     },

@@ -127,9 +127,20 @@ async function runFormat(format, args) {
     `## ${format}${mode === "gen" ? " (sidecars only)" : ""}${args.brand ? ` — ${args.brand} only` : ""}`,
     "",
     `**${pass ? "PASS" : "FAIL"}** · ${rows.length} files: ${counts.exact} exact, ${counts.close} within tolerance, ${counts.FAIL} failed · ` +
-      `${selected.length} cases · ${secs}s · ${new Date().toISOString().slice(0, 16).replace("T", " ")}`,
+      `${selected.length} cases · ${secs}s · ${new Date().toLocaleString("sv-SE").slice(0, 16)}`,
     "",
   ];
+  /* Only the supplied files that fork's own golden sidecars name are worth reporting. */
+  let anySupplied = false;
+  for (const [fork, files] of Object.entries(golden.supplied || {})) {
+    const root = path.join(golden.dir, fork);
+    const sidecars = collect(root, [".gen"]).map((rel) => fs.readFileSync(path.join(root, rel), "utf8")).join("\n");
+    const used = files.map((f) => path.basename(f)).filter((b) => sidecars.includes(b));
+    if (!used.length) continue;
+    anySupplied = true;
+    lines.push(`- ${fork} lacked ${used.length} photo${used.length === 1 ? "" : "s"} its cases use, supplied from the shared pool: ${used.map((b) => `\`${b}\``).join(", ")}`);
+  }
+  if (anySupplied) lines.push("");
   for (const f of golden.failures) lines.push(`- fork run failed: ${f.fork} ${f.name}`, "", "```", f.out.trim(), "```", "");
   for (const f of failures) lines.push(`- Stencil run failed: ${f.name}`, "", "```", f.out.trim(), "```", "");
   const bad = rows.filter((r) => r.verdict === "FAIL");

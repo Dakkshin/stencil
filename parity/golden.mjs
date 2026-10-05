@@ -59,6 +59,36 @@ function copyTree(src, dest) {
   }
 }
 
+/**
+ * Give a scratch fork the shared-pool files it lacks (top-level files only, by name).
+ *
+ * Stencil resolves photos from one merged pool; a fork resolves from its own folder and a
+ * sibling or two. When a fork's folder is missing a photo another fork has (the banner
+ * fork's Sep 17 headshots were deleted from its working tree, say), the fork renders a
+ * monogram where Stencil renders the photo. That is content, not engine behaviour, so the
+ * golden run sees the same pool. No two pools hold different bytes under one name (checked
+ * on import), so supplying can only fill a gap, never swap a file. Every supplied file is
+ * listed in the report.
+ */
+export function supplyPools(forkDir, supply = {}) {
+  const supplied = [];
+  for (const [kind, rel] of Object.entries(supply)) {
+    const pool = path.join(ROOT, "assets", kind);
+    const dest = path.join(forkDir, rel);
+    if (!fs.existsSync(pool)) continue;
+    fs.mkdirSync(dest, { recursive: true });
+    for (const e of fs.readdirSync(pool, { withFileTypes: true })) {
+      if (!e.isFile() || e.name.startsWith(".")) continue;
+      const target = path.join(dest, e.name);
+      if (fs.existsSync(target)) continue;
+      assertWritable(target);
+      fs.copyFileSync(path.join(pool, e.name), target);
+      supplied.push(`${rel}/${e.name}`);
+    }
+  }
+  return supplied;
+}
+
 /** Fresh scratch copies of every fork, laid out like the real Automation folder. */
 export function prepareScratch() {
   if (fs.existsSync(SCRATCH)) fs.rmSync(SCRATCH, { recursive: true, force: true });
@@ -170,15 +200,17 @@ export async function buildGolden(format, { refresh = false, mode = "full", log 
   const hashes = Object.fromEntries(Object.keys(cases.forks).map((f) => [f, forkHash(f.split("/")[0])]));
   if (!refresh && fs.existsSync(stampFile)) {
     const stamp = JSON.parse(fs.readFileSync(stampFile, "utf8"));
-    if (JSON.stringify(stamp.hashes) === JSON.stringify(hashes)) return { dir: goldenDir, failures: stamp.failures || [], cached: true };
+    if (JSON.stringify(stamp.hashes) === JSON.stringify(hashes)) return { dir: goldenDir, failures: stamp.failures || [], supplied: stamp.supplied || {}, cached: true };
     log(`  golden ${format}: a fork changed since the last golden run, rebuilding`);
   }
 
   const auto = prepareScratch();
   fs.rmSync(goldenDir, { recursive: true, force: true });
   const failures = [];
+  const supplied = {};
   for (const [fork, spec] of Object.entries(cases.forks)) {
     const cwd = path.join(auto, spec.cwd || fork);
+    supplied[fork] = supplyPools(cwd, spec.supply);
     for (const c of spec.synthetic || []) {
       const src = fs.readFileSync(path.join(cwd, spec.inputDir, `${c.from}.toml`), "utf8");
       writeSynthetic(path.join(cwd, spec.inputDir), c, src);
@@ -199,8 +231,8 @@ export async function buildGolden(format, { refresh = false, mode = "full", log 
     copyOutputs(outRoot, path.join(goldenDir, fork), collect(outRoot));
   }
   fs.mkdirSync(goldenDir, { recursive: true });
-  fs.writeFileSync(stampFile, JSON.stringify({ format, mode, hashes, failures, at: new Date().toISOString() }, null, 2));
-  return { dir: goldenDir, failures, cached: false };
+  fs.writeFileSync(stampFile, JSON.stringify({ format, mode, hashes, failures, supplied, at: new Date().toISOString() }, null, 2));
+  return { dir: goldenDir, failures, supplied, cached: false };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

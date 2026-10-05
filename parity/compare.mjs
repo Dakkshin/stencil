@@ -26,7 +26,9 @@ const ROOTS = [
 
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const PATH_RES = ROOTS.flatMap((r) => [r, encodeURI(r)]).map((r) => new RegExp(`(?:file://)?${esc(r)}/[^"'<>)\\n]*`, "g"));
-const REL_ASSET = /^(?:[\w@. -]+\/)+([\w@. -]+\.(?:png|jpe?g|webp|svg|woff2|toml))$/i;
+/* A relative asset path ("assets/oba-logo-white.png") or a bare asset file name: the forks
+   kept logos beside their own registry, Stencil keeps them in assets/logos/. */
+const REL_ASSET = /^(?:[\w@. -]+\/)*([\w@. -]+\.(?:png|jpe?g|webp|svg|woff2|toml))$/i;
 
 /** Map absolute paths and file URIs under the known roots, and relative asset paths, to file names. */
 export function normalizePaths(text) {
