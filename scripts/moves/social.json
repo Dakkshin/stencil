@@ -150,7 +150,7 @@
       "dest": "formats/social/layouts/classic/render-png.mjs",
       "mode": "adapted",
       "rewrites": [],
-      "note": "the template half (speaker bounding boxes, brand override, __setFormat, the CDP canvas capture) as a function; Chrome from core/chromium.mjs, one browser per post instead of one per format"
+      "note": "the template half (speaker bounding boxes, brand override, __setFormat, the CDP canvas capture) as a function; Chrome from core/chromium.mjs, one browser per post instead of one per format, relaunched once if it crashes mid-post"
     },
     {
       "src": "panel-social-posts/brands.mjs",
@@ -348,7 +348,7 @@
       "dest": "formats/social/layouts/scene/render-png.mjs",
       "mode": "adapted",
       "rewrites": [],
-      "note": "Chrome rasterises the exact scene SVG at 2x, as a function; Chrome from core/chromium.mjs"
+      "note": "Chrome rasterises the exact scene SVG at 2x, as a function; Chrome from core/chromium.mjs, relaunched once if it crashes mid-post"
     }
   ]
 }
