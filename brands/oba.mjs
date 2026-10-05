@@ -56,10 +56,23 @@ export default {
   },
   formats: {
     banner: {
-      layout: "strip-oba",
-      /* The IU banner fork rendered legacy OBA panels with a 26px logo; the OBA fork's
-         template already draws the logo at 26px from its own geometry. */
-      tokens: { logoH: 26 },
+      layout: "strip-centre",
+      tokens: {
+        /* The IU banner fork rendered legacy OBA panels with a 26px logo; the OBA fork's
+           template already draws the logo at 26px from its own geometry. */
+        logoH: 26,
+        /* The centre-lobe strip's own values. The title accent is a warm gold because
+           the brand accent is a background-weight slate that vanishes on the ground;
+           roles sit on the darkest band, so they take .60 white, not the posts' .55;
+           the pill keeps the exact string the OBA SVG always wrote. */
+        strip: {
+          titleAccent: "#e2b552",
+          roleText: "rgba(255,255,255,0.60)",
+          pillBg: "rgba(11,18,32,0.42)",
+          logoLayer: ["oba-logo", "OBA logo"],
+          label: "OBA",
+        },
+      },
     },
     thumb: { layout: "classic" },
     social: { layout: "classic" },

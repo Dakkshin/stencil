@@ -14,7 +14,7 @@ export default {
   outDirs: { raster: "out", canva: "canva", sidecar: ".gen" },
   generate: { flags: ["--count", "--svg-only"], arg: "<name>" },
   preview: {
-    template: "formats/banner/layouts/strip-iu/template.html",
+    template: "formats/banner/layouts/strip-corner/template.html",
     apply: "applyConfig",
     scale: "setPreviewScale",
     mode: "config",

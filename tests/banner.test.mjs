@@ -97,3 +97,23 @@ test("a full build writes exactly the frozen banner outputs", async () => {
   const svg = fs.readFileSync(path.join(WS, "canva", "oba-sample.svg"), "utf8");
   assert.match(svg, /^<svg|^<\?xml/);
 });
+
+test("the banner designs never test a brand id; brands differ only by pack data", () => {
+  const dir = path.join(ROOT, "formats", "banner", "layouts");
+  for (const layout of fs.readdirSync(dir)) {
+    for (const f of fs.readdirSync(path.join(dir, layout))) {
+      const src = fs.readFileSync(path.join(dir, layout, f), "utf8");
+      assert.doesNotMatch(src, /\bbrandId\b|includes\("LIGHT"\)|startsWith\("IU"\)|=== "(IU|OBA|VET)/, `${layout}/${f} tests a brand id`);
+    }
+  }
+});
+
+test("VET, a legacy pack with no real banner input, renders through the centre design", () => {
+  fs.writeFileSync(path.join(WS, "panels", "vet-sample.toml"), PANEL("VET"));
+  const r = run(["vet-sample"]);
+  assert.equal(r.status, 0, r.stderr + r.stdout);
+  const svg = fs.readFileSync(path.join(WS, "canva", "vet-sample.svg"), "utf8");
+  assert.match(svg, /<!-- VBI Zoom banner/);
+  assert.match(svg, /fill="#e2b552"/, "the centre design's warm title accent");
+  assert.ok(fs.existsSync(path.join(WS, "out", "vet-sample.png")));
+});

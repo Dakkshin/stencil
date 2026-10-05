@@ -32,14 +32,19 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PANELS_DIR = inputDir("banner");
 const DEFAULT_BRAND = "IU";
 
-/* The legacy brand keys each layout's template and twin read (plan AD-2): exactly the
-   keys of the registry the fork shipped, so the object they see is the fork's object. */
-const OBA_KEYS = ["id", "label", "wordmark", "logo", "gradient", "glow", "ink", "inkOnAccent", "accent", "inkSoft", "dim", "textMuted", "textFaint", "pillBg", "tileFill", "line", "qrGold"];
-const IU_KEYS = ["id", "label", "wordmark", "logo", "logoH", "gradient", "glow", "dots", "ink", "inkOnAccent", "accent", "inkSoft", "dim", "textMuted", "textFaint", "pillBg", "tileFill", "tileFrame", "monoText", "line", "qrGold", "titleText", "wordmarkColor", "wave", "qrCaption", "qrFrame", "qrStroke", "scrim", "cePlate", "ceSeal", "ceInk", "arc", "arcOpacity"];
+/* The brand keys each design's template and twin read (plan AD-2): the keys of the
+   registry its fork shipped, plus `strip`, the banner's own values. */
+const CENTRE_KEYS = ["id", "label", "wordmark", "logo", "gradient", "glow", "ink", "inkOnAccent", "accent", "inkSoft", "dim", "textMuted", "textFaint", "pillBg", "tileFill", "line", "qrGold", "strip"];
+const CORNER_KEYS = ["id", "label", "wordmark", "logo", "logoH", "gradient", "glow", "dots", "ink", "inkOnAccent", "accent", "inkSoft", "dim", "textMuted", "textFaint", "pillBg", "tileFill", "tileFrame", "monoText", "line", "qrGold", "titleText", "wordmarkColor", "wave", "qrCaption", "qrFrame", "qrStroke", "scrim", "cePlate", "ceSeal", "ceInk", "arc", "arcOpacity", "strip"];
 
+/* Two banner designs (from the two forks), each brand-neutral: a brand picks one by
+   name in formats.banner.layout and supplies its colours in formats.banner.tokens.
+     strip-centre  top-centre lobe, dots, bottom-up scrim (the OBA design)
+     strip-corner  corner glow lobes, arc field, brand scrim, PACE plate and CE stamp
+                   for panels with a CE line (the IU design) */
 export const LAYOUTS = {
-  "strip-oba": { dir: path.join(HERE, "layouts", "strip-oba"), brandKeys: OBA_KEYS, ce: false },
-  "strip-iu": { dir: path.join(HERE, "layouts", "strip-iu"), brandKeys: IU_KEYS, ce: true },
+  "strip-centre": { dir: path.join(HERE, "layouts", "strip-centre"), brandKeys: CENTRE_KEYS, ce: false },
+  "strip-corner": { dir: path.join(HERE, "layouts", "strip-corner"), brandKeys: CORNER_KEYS, ce: true },
 };
 const templateOf = (layout) => path.join(LAYOUTS[layout].dir, "template.html");
 const twinOf = (layout) => path.join(LAYOUTS[layout].dir, "render-svg.mjs");

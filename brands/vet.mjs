@@ -54,7 +54,19 @@ export default {
     ],
   },
   formats: {
-    banner: { layout: "strip-oba" },
+    banner: {
+      layout: "strip-centre",
+      /* As the OBA banner drew VET: warm gold title accent, .60 white roles. The SVG
+         now takes VET's own muted text, line and pill colours, as the PNG always did. */
+      tokens: {
+        strip: {
+          titleAccent: "#e2b552",
+          roleText: "rgba(255,255,255,0.60)",
+          logoLayer: ["vbi-logo", "VBI logo"],
+          label: "VBI",
+        },
+      },
+    },
     social: { layout: "classic" },
   },
 };

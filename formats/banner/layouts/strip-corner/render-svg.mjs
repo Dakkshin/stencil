@@ -40,13 +40,26 @@ const FONT_DIR = FONTS;
 const SANS = "Inter";
 const MONO = "IBM Plex Mono";
 
-/* Tokens mirroring banner-template.html's :root + .canvas rules. */
-const ACCENT = "#e2b552";
-const TEXT_MUTED = "rgba(255,255,255,0.66)";
-const TEXT_FAINT = "rgba(255,255,255,0.60)";
+/* Tokens mirroring banner-template.html's :root + .canvas rules.
+   Dark values are fallbacks; per-brand values come from cfg.brand. */
+const ACCENT = "#6289D9";
+const TEXT_MUTED = "rgba(255,255,255,0.62)";
+const TEXT_FAINT = "rgba(255,255,255,0.44)";
 const LINE = "rgba(255,255,255,0.14)";
-const PILL_BG = "rgba(11,18,32,0.42)";
+const PILL_BG = "rgba(18,24,43,0.42)";
 const TILE_BORDER = "rgba(255,255,255,0.22)";
+
+function tokensFor(cfg) {
+  const b = (cfg && cfg.brand) || {};
+  return {
+    accent: b.accent || ACCENT,
+    textMuted: b.textMuted || TEXT_MUTED,
+    textFaint: b.textFaint || TEXT_FAINT,
+    titleText: b.titleText || "#ffffff",
+    line: b.line || LINE,
+    pillBg: b.pillBg || PILL_BG,
+  };
+}
 
 /* Font ascent/descent (as a fraction of font-size), measured from the
    embedded woff2 files in Chrome. Used to compute CSS-style baselines:
@@ -204,74 +217,112 @@ function fontFaceCss() {
 text{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}</style>`;
 }
 
-/* Zoom-banner background: the symmetric top-centre radial lobe, the glow,
-   the vertical dots mask and the bottom-up scrim — all mirroring
-   banner-template.html's CSS exactly (NOT the siblings' horizontal layout). */
+/* Zoom-banner background — same ground + lobes as iu-panel-social-posts
+   (lib/iu/tokens.mjs THEMES + atmosphere.mjs ground()): directional radial
+   (dark, cx 0.86 / cy 0.06) or diagonal linear (light), plus two soft glow
+   lobes (top-right clarity, bottom-left indigo). Mirrors banner-template.html. */
 function defs(cfg) {
   const brand = cfg.brand || {};
-  const stops =
-    (Array.isArray(brand.gradient) && brand.gradient.length
-      ? brand.gradient
-      : [["#5b7484", 0], ["#3e5361", 34], ["#263743", 62], ["#16232c", 100]])
-      .map(([c, p]) => `      <stop offset="${(p / 100).toFixed(3)}" stop-color="${c}"/>`)
-      .join("\n");
+  const strip = brand.strip || {};
+  const isLight = strip.tone === "light";
+  const grad = Array.isArray(brand.gradient) && brand.gradient.length
+    ? brand.gradient
+    : [["#1B2560", 0], ["#12182B", 55], ["#0A0F22", 100]];
+  const stops = grad
+    .map(([c, p]) => {
+      const off = Number(p) > 1 ? (Number(p) / 100).toFixed(3) : Number(p).toFixed(3);
+      return `      <stop offset="${off}" stop-color="${c}"/>`;
+    })
+    .join("\n");
 
-  /* rgba() -> rgb triplet for the glow stops. */
-  const glow = String(brand.glow || "rgba(214, 228, 235, 0.5)");
-  const m = glow.match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/);
-  const glowRgb = m ? `#${[m[1], m[2], m[3]].map((v) => Number(v).toString(16).padStart(2, "0")).join("")}` : "#d6e4eb";
+  // Lobe colours are brand values (formats.banner.tokens.strip.lobeA/lobeB).
+  const lobeA = strip.lobeA || { color: "#6289D9", alpha: 0.3 };
+  const lobeB = strip.lobeB || { color: "#7277D2", alpha: 0.22 };
 
-  /* CSS radial-gradient(120% 140% at 50% 0%) = ellipse rx 768 / ry 280
-     centred at (320, 0). Paint the circle (r=768) in a Y-scaled group. */
-  return `
-  <defs>
-    <radialGradient id="bg-gradient-hero" gradientUnits="userSpaceOnUse" cx="320" cy="0" r="768">
-${stops}
-    </radialGradient>
-    <radialGradient id="bg-gradient-glow" gradientUnits="userSpaceOnUse" cx="320" cy="12" r="448">
-      <stop offset="0" stop-color="${glowRgb}" stop-opacity="0.5"/>
-      <stop offset="0.7" stop-color="${glowRgb}" stop-opacity="0"/>
-    </radialGradient>
-    <pattern id="bg-dots" width="18" height="18" patternUnits="userSpaceOnUse">
-      <circle cx="1" cy="1" r="1" fill="#ffffff" fill-opacity="0.09"/>
-    </pattern>
-    <linearGradient id="bg-dots-mask" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#000000" stop-opacity="0"/>
-      <stop offset="0.08" stop-color="#000000" stop-opacity="0"/>
-      <stop offset="0.55" stop-color="#000000" stop-opacity="1"/>
-      <stop offset="1" stop-color="#000000" stop-opacity="1"/>
-    </linearGradient>
-    <mask id="bg-dots-mask-el" maskUnits="userSpaceOnUse" x="0" y="0" width="${CANVAS.w}" height="${CANVAS.h}">
-      <rect x="0" y="0" width="${CANVAS.w}" height="${CANVAS.h}" fill="url(#bg-dots-mask)"/>
-    </mask>
-    <linearGradient id="bg-scrim-grad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0b1220" stop-opacity="0"/>
+  // Use brand.scrim if present (array of [offset, color, alpha])
+  const scrimStops = Array.isArray(brand.scrim) && brand.scrim.length
+    ? brand.scrim.map(([o,c,a]) => `      <stop offset="${o}" stop-color="${c}" stop-opacity="${a}"/>`).join("\n")
+    : `      <stop offset="0" stop-color="#0b1220" stop-opacity="0"/>
       <stop offset="0.38" stop-color="#0b1220" stop-opacity="0"/>
       <stop offset="0.72" stop-color="#0b1220" stop-opacity="0.34"/>
-      <stop offset="1" stop-color="#0b1220" stop-opacity="0.58"/>
+      <stop offset="1" stop-color="#0b1220" stop-opacity="0.58"/>`;
+
+  const groundDef = isLight
+    ? `    <linearGradient id="bg-gradient-hero" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0.55" y2="1">
+ ${stops}
+    </linearGradient>`
+    : `    <radialGradient id="bg-gradient-hero" gradientUnits="userSpaceOnUse" cx="550.4" cy="12" r="832">
+ ${stops}
+    </radialGradient>`;
+
+  return `
+  <defs>
+${groundDef}
+    <radialGradient id="bg-lobe-a" gradientUnits="objectBoundingBox" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="${lobeA.color}" stop-opacity="${lobeA.alpha}"/>
+      <stop offset="1" stop-color="${lobeA.color}" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bg-lobe-b" gradientUnits="objectBoundingBox" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="${lobeB.color}" stop-opacity="${lobeB.alpha}"/>
+      <stop offset="1" stop-color="${lobeB.color}" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bg-scrim-grad" x1="0" y1="0" x2="0" y2="1">
+${scrimStops}
     </linearGradient>
     <linearGradient id="tile-fill" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/>
       <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.05"/>
-      <stop offset="1" stop-color="#0b1220" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#12182B" stop-opacity="0.35"/>
     </linearGradient>
     <filter id="tile-shadow" x="-40%" y="-40%" width="180%" height="220%">
-      <feDropShadow dx="0" dy="8" stdDeviation="20" flood-color="#0b1220" flood-opacity="0.7"/>
+      <feDropShadow dx="0" dy="8" stdDeviation="20" flood-color="#12182B" flood-opacity="0.7"/>
     </filter>
   </defs>`;
 }
 
-function background() {
+function background(cfg) {
+  const brand = cfg.brand || {};
+  const W = CANVAS.w;
+  const H = CANVAS.h;
+
+  // Outer ring expansion from bottom-left corner.
+  // Equal radial spacing (constant gap), softer than the social posts.
+  const arcCx = -0.26 * W;
+  const arcCy = 1.22 * H;
+  const arcColor = brand.arc || "#8BB3E2";
+  const [a0, a1] = brand.arcOpacity || [0.08, 0.03];
+  const strokeW = 1.1;
+  const far = Math.hypot(W - arcCx, 0 - arcCy);
+  const r0 = 0.28 * Math.min(W, H);
+  const gap = 22;
+  const steps = Math.floor((far - r0) / gap) + 1;
+
+  let arcsSvg = '';
+  for (let i = 0; i < steps; i++) {
+    const r = r0 + i * gap;
+    const t = i / Math.max(1, steps - 1);
+    const op = (a0 + (a1 - a0) * t).toFixed(3);
+    arcsSvg += `    <circle cx="${arcCx.toFixed(1)}" cy="${arcCy.toFixed(1)}" r="${r.toFixed(1)}" fill="none" stroke="${arcColor}" stroke-width="${strokeW}" stroke-opacity="${op}"/>\n`;
+  }
+
+  // Glow lobes per tokens.mjs (scaled to the 640x200 strip).
+  const isLightBg = (brand.strip || {}).tone === "light";
+  const lobeA = isLightBg
+    ? { cx: 0.92 * W, cy: 0.10 * H, rx: 0.60 * W, ry: 0.50 * H }
+    : { cx: 0.92 * W, cy: 0.12 * H, rx: 0.62 * W, ry: 0.50 * H };
+  const lobeB = isLightBg
+    ? { cx: 0.05 * W, cy: 0.96 * H, rx: 0.60 * W, ry: 0.42 * H }
+    : { cx: 0.04 * W, cy: 0.98 * H, rx: 0.60 * W, ry: 0.42 * H };
+
   return `
   <g id="bg" data-name="Background">
-    <g id="bg-gradient" data-name="Background gradient" transform="translate(320 0) scale(1 0.3645833) translate(-320 0)">
-      <rect id="bg-gradient-rect" data-name="Background gradient" x="-500" y="-1000" width="1640" height="2400" fill="url(#bg-gradient-hero)"/>
+    <rect id="bg-ground" data-name="Ground" x="0" y="0" width="${W}" height="${H}" fill="url(#bg-gradient-hero)"/>
+    <ellipse id="bg-lobe-a" data-name="Glow lobe top-right" cx="${lobeA.cx.toFixed(1)}" cy="${lobeA.cy.toFixed(1)}" rx="${lobeA.rx.toFixed(1)}" ry="${lobeA.ry.toFixed(1)}" fill="url(#bg-lobe-a)"/>
+    <ellipse id="bg-lobe-b" data-name="Glow lobe bottom-left" cx="${lobeB.cx.toFixed(1)}" cy="${lobeB.cy.toFixed(1)}" rx="${lobeB.rx.toFixed(1)}" ry="${lobeB.ry.toFixed(1)}" fill="url(#bg-lobe-b)"/>
+    <rect id="bg-scrim" data-name="Bottom scrim" x="0" y="0" width="${W}" height="${H}" fill="url(#bg-scrim-grad)"/>
+    <g id="arc-field" data-name="Arc field (corner expansion)">
+${arcsSvg}
     </g>
-    <g id="bg-glow" data-name="Glow lobe" opacity="0.42" transform="translate(320 12) scale(1 0.2678571) translate(-320 -12)">
-      <rect id="bg-glow-rect" data-name="Glow lobe" x="-500" y="-1000" width="1640" height="2400" fill="url(#bg-gradient-glow)"/>
-    </g>
-    <rect id="bg-dots" data-name="Dots texture" x="0" y="0" width="${CANVAS.w}" height="${CANVAS.h}" fill="url(#bg-dots)" opacity="0.55" mask="url(#bg-dots-mask-el)"/>
-    <rect id="bg-scrim" data-name="Bottom scrim" x="0" y="0" width="${CANVAS.w}" height="${CANVAS.h}" fill="url(#bg-scrim-grad)"/>
   </g>`;
 }
 
@@ -286,16 +337,41 @@ function pngSize(dataUri) {
 
 function header(cfg, ly) {
   const logo = cfg.logo || "";
+  const brand = cfg.brand || {};
+  const logoH = Number(brand.logoH || TYPE.logoH);
   const { w: lw, h: lh } = logo.startsWith("data:image/png")
     ? pngSize(logo)
-    : { w: 0, h: 0 };
-  const logoW = lw && lh ? (TYPE.logoH * lw) / lh : 0;
+    : (logo.startsWith("data:image/svg") ? { w: 462, h: 340 } : { w: 0, h: 0 });
+  const logoW = lw && lh ? (logoH * lw) / lh : 0;
   const logoX = CANVAS.padX;
   const logoY = CANVAS.padTop;
 
-  const eyebrow = String(cfg.eyebrow || "").toUpperCase();
+  const isIU = Boolean((brand.strip || {}).pace); // the PACE plate and CE suffix
+  const ce = cfg.ce || "";
+  const paceLogoPath = path.join(LOGOS, "pace-academy-logo.png");
+  let paceData = "";
+  if (isIU && ce && fs.existsSync(paceLogoPath)) {
+    paceData = `data:image/png;base64,${fs.readFileSync(paceLogoPath).toString("base64")}`;
+  }
+
+  let eyebrow = String(cfg.eyebrow || "").toUpperCase();
+  if (isIU && ce) {
+    let cred = String(ce).replace(/\s*credits?/i, "").trim().toUpperCase();
+    if (!/CE/i.test(cred)) cred = cred + " CE";
+    eyebrow = (eyebrow ? eyebrow + "  ·  " : "") + cred;
+  }
   const eyebrowTracking = 0.14 * TYPE.body;
-  const dotCx = logoX + logoW + 10 + 3; // logo + gap + half the 6px dot
+  let afterLogoX = logoX + logoW + 8;
+  let paceEl = "";
+  if (paceData) {
+    const pH = 14;
+    const pW = pH * (658 / 324);
+    const pX = afterLogoX;
+    const pY = CANVAS.padTop + (BANDS.headerH - pH) / 2;
+    paceEl = `    <image id="pace-plate" data-name="PACE plate" href="${paceData}" xlink:href="${paceData}" x="${pX.toFixed(2)}" y="${pY.toFixed(2)}" width="${pW.toFixed(2)}" height="${pH.toFixed(2)}" />`;
+    afterLogoX += pW + 6;
+  }
+  const dotCx = afterLogoX + 3; // gap + half dot
   const eyebrowX = dotCx + 3 + 10; // dot right + gap
   const eyebrowY = ly.headerBaseline;
 
@@ -308,18 +384,24 @@ function header(cfg, ly) {
   const chipY = CANVAS.padTop + (BANDS.headerH - chipH) / 2;
   const chipX = chipTextX - 9 - 1;
 
+  const T = tokensFor(cfg);
+  const isLightHdr = (cfg.brand.strip || {}).tone === "light";
+  const chipInk = isLightHdr ? (cfg.brand.titleText || "#12182B") : "#ffffff";
+  /* Canva layer name for the logo, so a brand's layer is named for that brand. */
+  const logoLayer = (cfg.brand.strip || {}).logoLayer || ["iu-logo", "IU logo"];
   const logoEl = logo
-    ? `    <image id="oba-logo" data-name="OBA logo" href="${logo}" xlink:href="${logo}" x="${logoX.toFixed(2)}" y="${logoY}" width="${logoW.toFixed(2)}" height="${TYPE.logoH}" opacity="0.96"/>`
-    : `    <text id="wordmark" data-name="Wordmark" x="${logoX}" y="${eyebrowY}" font-family="${SANS}" font-size="16" font-weight="600" letter-spacing="-0.16" fill="#ffffff">${escXml((cfg.brand && cfg.brand.wordmark) || "OBA")}</text>`;
+    ? `    <image id="${logoLayer[0]}" data-name="${logoLayer[1]}" href="${logo}" xlink:href="${logo}" x="${logoX.toFixed(2)}" y="${logoY}" width="${logoW.toFixed(2)}" height="${logoH}" opacity="0.96"/>`
+    : `    <text id="wordmark" data-name="Wordmark" x="${logoX}" y="${eyebrowY}" font-family="${SANS}" font-size="16" font-weight="600" letter-spacing="-0.16" fill="${T.titleText}">${escXml((cfg.brand && cfg.brand.wordmark) || "IU")}</text>`;
 
   return `
   <g id="header" data-name="Header">
-${logoEl}
-    <circle id="eyebrow-dot" data-name="Eyebrow dot" cx="${dotCx.toFixed(2)}" cy="${CANVAS.padTop + BANDS.headerH / 2}" r="3" fill="${ACCENT}"/>
-    <text id="eyebrow" data-name="Eyebrow" x="${eyebrowX.toFixed(2)}" y="${eyebrowY.toFixed(2)}" font-family="${MONO}" font-size="${TYPE.body}" font-weight="500" letter-spacing="${eyebrowTracking.toFixed(2)}" fill="${TEXT_MUTED}">${escXml(eyebrow)}</text>
+ ${logoEl}
+ ${paceEl}
+      <circle id="eyebrow-dot" data-name="Eyebrow dot" cx="${dotCx.toFixed(2)}" cy="${CANVAS.padTop + BANDS.headerH / 2}" r="3" fill="${T.accent}"/>
+      <text id="eyebrow" data-name="Eyebrow" x="${eyebrowX.toFixed(2)}" y="${eyebrowY.toFixed(2)}" font-family="${MONO}" font-size="${TYPE.body}" font-weight="500" letter-spacing="${eyebrowTracking.toFixed(2)}" fill="${T.textMuted}">${escXml(eyebrow)}</text>
     <g id="date-chip" data-name="Date chip">
-      <rect id="date-chip-pill" data-name="Date chip pill" x="${chipX.toFixed(2)}" y="${chipY.toFixed(2)}" width="${(chipW + 18 + 2).toFixed(2)}" height="${chipH.toFixed(2)}" rx="${(chipH / 2).toFixed(2)}" fill="${PILL_BG}" stroke="${LINE}" stroke-width="1"/>
-      <text id="date-chip-text" data-name="Date chip text" x="${chipTextX.toFixed(2)}" y="${eyebrowY.toFixed(2)}" font-family="${MONO}" font-size="${TYPE.body}" font-weight="500" letter-spacing="${chipTracking.toFixed(2)}" fill="#ffffff">${escXml(chipText)}</text>
+      <rect id="date-chip-pill" data-name="Date chip pill" x="${chipX.toFixed(2)}" y="${chipY.toFixed(2)}" width="${(chipW + 18 + 2).toFixed(2)}" height="${chipH.toFixed(2)}" rx="${(chipH / 2).toFixed(2)}" fill="${T.pillBg}" stroke="${T.line}" stroke-width="1"/>
+      <text id="date-chip-text" data-name="Date chip text" x="${chipTextX.toFixed(2)}" y="${eyebrowY.toFixed(2)}" font-family="${MONO}" font-size="${TYPE.body}" font-weight="500" letter-spacing="${chipTracking.toFixed(2)}" fill="${chipInk}">${escXml(chipText)}</text>
     </g>
   </g>`;
 }
@@ -371,6 +453,7 @@ function balanceTitleLines(title, maxW, fontSize) {
    text-anchor="middle" at the run's centre, mirroring the DOM's centred
    title block while keeping the accent fragment a single editable layer. */
 function titleBlock(cfg, ly) {
+  const T = tokensFor(cfg);
   const lines = ly.titleLinesArr || [];
   const tracking = -0.02 * TYPE.title;
   const spaceW = 0.27 * TYPE.title;
@@ -401,14 +484,17 @@ function titleBlock(cfg, ly) {
           x += runW + spaceW;
           const tag = ri > 0 ? `-${ri + 1}` : "";
           const name = `Title ${li + 1}${run.accent ? " accent" : ""}${ri > 0 ? ` part ${ri + 1}` : ""}`;
-          return `      <text id="title-line-${li + 1}${tag}-${run.accent ? "accent" : "plain"}" data-name="${name}" x="${cx.toFixed(2)}" y="${y}" text-anchor="middle" font-family="${SANS}" font-size="${TYPE.title}" font-weight="500" letter-spacing="${tracking.toFixed(2)}" fill="${run.accent ? ACCENT : "#ffffff"}">${escXml(run.words.join(" "))}</text>`;
+          return `      <text id="title-line-${li + 1}${tag}-${run.accent ? "accent" : "plain"}" data-name="${name}" x="${cx.toFixed(2)}" y="${y}" text-anchor="middle" font-family="${SANS}" font-size="${TYPE.title}" font-weight="500" letter-spacing="${tracking.toFixed(2)}" fill="${run.accent ? T.accent : T.titleText}">${escXml(run.words.join(" "))}</text>`;
         })
         .join("\n");
     })
     .join("\n");
 }
 
-function panelistTile(p, idx, ly) {
+function panelistTile(p, idx, ly, cfg) {
+  const T = tokensFor(cfg || {});
+  const brand = (cfg && cfg.brand) || {};
+  const monoFill = brand.monoText || "rgba(255,255,255,0.72)";
   const num = String(idx + 1).padStart(2, "0");
   const id = `guest-${num}`;
   const label = p.name || `Guest ${num}`;
@@ -430,7 +516,7 @@ function panelistTile(p, idx, ly) {
     `      <rect id="${id}-frame" data-name="Headshot frame ${num}" x="${tx.toFixed(2)}" y="${ty}" width="${tw}" height="${th}" rx="${rx}" fill="url(#tile-fill)"/>`,
   );
   parts.push(
-    `      <text id="${id}-monogram" data-name="Monogram ${num}" x="${cx.toFixed(2)}" y="${monoBaseline.toFixed(2)}" text-anchor="middle" font-family="${SANS}" font-size="22" font-weight="300" letter-spacing="0.44" fill="rgba(255,255,255,0.72)">${escXml(mono)}</text>`,
+    `      <text id="${id}-monogram" data-name="Monogram ${num}" x="${cx.toFixed(2)}" y="${monoBaseline.toFixed(2)}" text-anchor="middle" font-family="${SANS}" font-size="22" font-weight="300" letter-spacing="0.44" fill="${monoFill}">${escXml(mono)}</text>`,
   );
   if (p.img) {
     parts.push(
@@ -445,14 +531,14 @@ function panelistTile(p, idx, ly) {
   if (!p.placeholder) {
     const name = ellipsize(p.name || "", ly.ly.columnW, TYPE.body);
     parts.push(
-      `    <text id="${id}-name" data-name="Name ${num}" x="${cx.toFixed(2)}" y="${ly.nameBaseline.toFixed(2)}" text-anchor="middle" font-family="${SANS}" font-size="${TYPE.body}" font-weight="500" fill="#ffffff">${escXml(name)}</text>`,
+      `    <text id="${id}-name" data-name="Name ${num}" x="${cx.toFixed(2)}" y="${ly.nameBaseline.toFixed(2)}" text-anchor="middle" font-family="${SANS}" font-size="${TYPE.body}" font-weight="500" fill="${T.titleText}">${escXml(name)}</text>`,
     );
     const roleLines = wrap(p.role || "", ly.ly.columnW, TYPE.body, 0.52).slice(0, 2);
     const truncated = wrap(p.role || "", ly.ly.columnW, TYPE.body, 0.52).length > 2;
     roleLines.forEach((line, i) => {
       const text = i === 1 && truncated ? line.replace(/\s*$/, "") + "…" : line;
       parts.push(
-        `    <text id="${id}-role-${i + 1}" data-name="Role ${num} line ${i + 1}" x="${cx.toFixed(2)}" y="${(ly.roleBaseline + i * ly.roleLineH).toFixed(2)}" text-anchor="middle" font-family="${SANS}" font-size="${TYPE.body}" font-weight="400" fill="${TEXT_FAINT}">${escXml(text)}</text>`,
+        `    <text id="${id}-role-${i + 1}" data-name="Role ${num} line ${i + 1}" x="${cx.toFixed(2)}" y="${(ly.roleBaseline + i * ly.roleLineH).toFixed(2)}" text-anchor="middle" font-family="${SANS}" font-size="${TYPE.body}" font-weight="400" fill="${T.textFaint}">${escXml(text)}</text>`,
       );
     });
   }
@@ -461,18 +547,84 @@ function panelistTile(p, idx, ly) {
 }
 
 function panelists(cfg, ly) {
-  return ly.cols.map((c, i) => panelistTile(c.p, i, ly)).join("\n");
+  return ly.cols.map((c, i) => panelistTile(c.p, i, ly, cfg)).join("\n");
+}
+
+/* Full-detail small CE stamp matching the IU Panel Social Posts generator.
+   Serrated (40 teeth), hairline rings, rotated individual glyphs for ring text,
+   large count + label. Scaled for 640x200 banner (r~34px). */
+function smallCeStampIfNeeded(cfg) {
+  const brand = cfg.brand || {};
+  const ce = cfg.ce || "";
+  if (!ce || !brand) return "";
+
+  const isLight = (brand.strip || {}).tone === "light";
+  const seal = brand.ceSeal || (isLight ? "#2A3A71" : "#C8DDF5");
+  const ink = brand.ceInk || (isLight ? "#FFFFFF" : "#12182B");
+  const hair = isLight ? "rgba(255,255,255,0.45)" : "rgba(18,24,43,0.35)";
+
+  const m = String(ce).trim().match(/^(\d+(?:\.\d+)?)\s*(.*)$/);
+  const num = m ? m[1] : "1";
+  const label = (m ? (m[2] || "CE credit") : "CE credit").toUpperCase();
+
+  // Size for the banner (not too big, clear of canvas edge)
+  let r = 32;
+  const cx = CANVAS.w - 40;
+  const cy = CANVAS.h - 40;
+  const rotate = -10;
+
+  // Teeth
+  const teeth = 40;
+  const pts = [];
+  for (let i = 0; i < teeth * 2; i++) {
+    const a = (Math.PI * i) / teeth;
+    const rr = i % 2 === 0 ? r : r * 0.93;
+    pts.push(`${(cx + rr * Math.cos(a)).toFixed(2)} ${(cy + rr * Math.sin(a)).toFixed(2)}`);
+  }
+
+  // Ring text texture — visual match to social posts stamp (small size)
+  const rfSize = Math.max(5.2, r * 0.105);
+  const rt = r * 0.70;
+  const letters = "CONTINUINGCECOMPL";
+  let ringGlyphs = "";
+  const step = (2 * Math.PI) / letters.length;
+  let ang = -Math.PI / 2;
+  for (let i = 0; i < letters.length; i++) {
+    const ch = letters[i];
+    const mid = ang + step / 2;
+    const gx = cx + rt * Math.cos(mid);
+    const gy = cy + rt * Math.sin(mid);
+    const deg = (mid * 180) / Math.PI + 90;
+    ringGlyphs += `<g transform="rotate(${deg.toFixed(1)} ${gx.toFixed(1)} ${gy.toFixed(1)})">` +
+      `<text x="${gx.toFixed(1)}" y="${(gy - rfSize * 0.4).toFixed(1)}" text-anchor="middle" font-family="${MONO}" font-size="${rfSize.toFixed(1)}" fill="${ink}">${ch}</text></g>`;
+    ang += step;
+  }
+
+  // Center count + label
+  const countSize = Math.min(r * 0.72, 22);
+  const labelSize = Math.max(r * 0.14, 7.5);
+  const top = cy - (countSize * 0.45 + labelSize * 0.7);
+
+  return `
+  <g id="ce-stamp" data-name="CE stamp" transform="rotate(${rotate} ${cx} ${cy})">
+    <path id="stamp-seal" data-name="Stamp seal" d="M${pts.join(" L")} Z" fill="${seal}"/>
+    <circle cx="${cx}" cy="${cy}" r="${(r * 0.86).toFixed(2)}" fill="none" stroke="${hair}" stroke-width="${Math.max(1.2, r*0.012).toFixed(2)}"/>
+    <circle cx="${cx}" cy="${cy}" r="${(r * 0.60).toFixed(2)}" fill="none" stroke="${hair}" stroke-width="${Math.max(1.2, r*0.012).toFixed(2)}"/>
+    ${ringGlyphs}
+    <text id="stamp-count" data-name="Stamp count" x="${cx}" y="${top.toFixed(2)}" text-anchor="middle" font-family="${SANS}" font-size="${countSize.toFixed(1)}" font-weight="700" fill="${ink}">${num}</text>
+    <text id="stamp-label" data-name="Stamp label" x="${cx}" y="${(top + countSize * 0.85).toFixed(2)}" text-anchor="middle" font-family="${MONO}" font-size="${labelSize.toFixed(1)}" font-weight="600" fill="${ink}">${label}</text>
+  </g>`;
 }
 
 function buildSVG(cfg) {
   const ly = layout(cfg);
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${CANVAS.w}" height="${CANVAS.h}" viewBox="0 0 ${CANVAS.w} ${CANVAS.h}">
-  <!-- OBA Zoom banner — ${CANVAS.w}×${CANVAS.h}. Layered for Canva editing. -->
+  <!-- ${(cfg.brand && cfg.brand.strip && cfg.brand.strip.label) || "IU"} Zoom banner — ${CANVAS.w}×${CANVAS.h}. Layered for Canva editing. -->
   <!-- Each <text> / <rect> / <image> imports as an editable layer. -->
 ${fontFaceCss()}
 ${defs(cfg)}
-${background()}
+${background(cfg)}
 
 ${header(cfg, ly)}
 
@@ -481,8 +633,10 @@ ${titleBlock(cfg, ly)}
   </g>
 
   <g id="panelists" data-name="Panelists">
-${panelists(cfg, ly)}
+ ${panelists(cfg, ly)}
   </g>
+
+${smallCeStampIfNeeded(cfg)}
 </svg>
 `;
 }

@@ -273,9 +273,12 @@ window.__setBrand = (b) => {
   if (b.line) r.setProperty("--line", b.line);
   if (b.textMuted) r.setProperty("--text-muted", b.textMuted);
   if (b.pillBg) r.setProperty("--pill-bg", b.pillBg);
-  /* The title accent has to stay bright against the slate; the brand `accent`
-     is a background-weight colour and would vanish. Fall back to white-warm. */
-  r.setProperty("--accent-warm", b.titleAccent || "#e2b552");
+  /* `strip` holds the banner's own values (formats.banner.tokens.strip). The title
+     accent has to stay bright against the ground; the brand `accent` is a
+     background-weight colour and would vanish, so the strip names one. */
+  const s = b.strip || {};
+  if (s.roleText) r.setProperty("--text-faint", s.roleText);
+  r.setProperty("--accent-warm", b.titleAccent || s.titleAccent || "#e2b552");
 };
 
 /* Initials for the missing-photo fallback. Same derivation as the siblings:

@@ -16,19 +16,20 @@
     },
     {
       "src": "zoom-banner/banner-template.html",
-      "dest": "formats/banner/layouts/strip-oba/template.html",
-      "mode": "verbatim",
+      "dest": "formats/banner/layouts/strip-centre/template.html",
+      "mode": "adapted",
       "rewrites": [
         [
           "url(\"panel-kit/assets/fonts/",
           "url(\"../../../../assets/fonts/"
         ]
-      ]
+      ],
+      "note": "brand-neutral: brand values from formats.banner.tokens.strip, no brand id tests (T12)"
     },
     {
       "src": "zoom-banner/render-svg.mjs",
-      "dest": "formats/banner/layouts/strip-oba/render-svg.mjs",
-      "mode": "verbatim",
+      "dest": "formats/banner/layouts/strip-centre/render-svg.mjs",
+      "mode": "adapted",
       "rewrites": [
         [
           "from \"./lib/geometry.mjs\";",
@@ -46,12 +47,13 @@
           "path.join(__dirname, \"..\", \"..\", \"OBA\", \"oba-website\", \"package.json\")",
           "path.join(ROOT, \"package.json\")"
         ]
-      ]
+      ],
+      "note": "brand-neutral: brand values from formats.banner.tokens.strip, no brand id tests (T12)"
     },
     {
       "src": "iu-zoom-banner/banner-template.html",
-      "dest": "formats/banner/layouts/strip-iu/template.html",
-      "mode": "verbatim",
+      "dest": "formats/banner/layouts/strip-corner/template.html",
+      "mode": "adapted",
       "rewrites": [
         [
           "url(\"panel-kit/assets/fonts/",
@@ -61,12 +63,13 @@
           "\"panel-kit/assets/pace-academy-logo.png\"",
           "\"../../../../assets/logos/pace-academy-logo.png\""
         ]
-      ]
+      ],
+      "note": "brand-neutral: brand values from formats.banner.tokens.strip, no brand id tests (T12)"
     },
     {
       "src": "iu-zoom-banner/render-svg.mjs",
-      "dest": "formats/banner/layouts/strip-iu/render-svg.mjs",
-      "mode": "verbatim",
+      "dest": "formats/banner/layouts/strip-corner/render-svg.mjs",
+      "mode": "adapted",
       "rewrites": [
         [
           "from \"./lib/geometry.mjs\";",
@@ -88,7 +91,8 @@
           "path.join(__dirname, \"panel-kit\", \"assets\", \"pace-academy-logo.png\")",
           "path.join(LOGOS, \"pace-academy-logo.png\")"
         ]
-      ]
+      ],
+      "note": "brand-neutral: brand values from formats.banner.tokens.strip, no brand id tests (T12)"
     },
     {
       "src": "zoom-banner/render-figma-svg.mjs",

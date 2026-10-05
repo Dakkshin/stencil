@@ -101,7 +101,7 @@ body { display:flex; align-items:flex-start; justify-content:center; padding:24p
   content:""; width:6px; height:6px; border-radius:50%;
   background:var(--accent-warm); flex:none;
 }
-.eyebrow.is-hidden, .date-chip.is-hidden, .logo.is-hidden, .wordmark.is-hidden { display:none; }
+.eyebrow.is-hidden, .date-chip.is-hidden, .logo.is-hidden, .wordmark.is-hidden, .pace-logo.is-hidden { display:none; }
 .date-chip {
   margin-left:auto; flex:none;
   font-family:var(--font-mono); font-size:var(--type-body); font-weight:500;
@@ -250,30 +250,41 @@ window.__setGeometry = (g) => {
   if (g.bodyLh != null) r.setProperty("--type-body-lh", String(g.bodyLh));
 };
 
-/* Brand override — mirrors iu-panel-social-posts/brands.mjs + tokens.mjs.
-   Gradient/glow/dots/scrim/arcs all driven from brand so IU Depth/Air match
-   the social posts generator exactly. */
+/* Brand override. Everything brand-dependent comes from the brand object: its
+   palette, and `strip`, the banner's own values (formats.banner.tokens.strip in
+   brands/<id>.mjs): tone ("dark" radial ground or "light" diagonal ground),
+   the two glow lobes, and whether the PACE plate shows. No brand id is tested,
+   so any brand can wear this corner-lobe design. */
+const rgba = (hex, a) => {
+  const n = parseInt(String(hex).slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+};
 window.__setBrand = (b) => {
   if (!b) return;
   window.__currentBrand = b;
   const r = document.documentElement.style;
-  const light = String(b.id || "").includes("LIGHT");
+  const s = b.strip || {};
+  const light = s.tone === "light";
   if (Array.isArray(b.gradient) && b.gradient.length) {
     const stops = b.gradient.map(([c, p]) => `${c} ${p}%`).join(", ");
     r.setProperty("--gradient-hero", light
       ? `linear-gradient(151deg, ${stops})`
       : `radial-gradient(135% 130% at 86% 6%, ${stops})`);
   }
+  /* Lobe A is the brand glow on a dark ground and strip.lobeA on a light one
+     (as the fork drew it; the SVG twin always uses strip.lobeA). */
+  const A = s.lobeA || { color: "#8BB3E2", alpha: 0.38 };
+  const B = s.lobeB || { color: "#7277D2", alpha: 0.22 };
   if (light) {
     r.setProperty("--gradient-hero-glow",
-      `radial-gradient(60% 50% at 92% 10%, rgba(139,179,226,.38) 0%, rgba(139,179,226,0) 70%)`);
+      `radial-gradient(60% 50% at 92% 10%, ${rgba(A.color, A.alpha)} 0%, ${rgba(A.color, 0)} 70%)`);
     r.setProperty("--gradient-hero-glow-b",
-      `radial-gradient(60% 42% at 5% 96%, rgba(98,137,217,.16) 0%, rgba(98,137,217,0) 70%)`);
+      `radial-gradient(60% 42% at 5% 96%, ${rgba(B.color, B.alpha)} 0%, ${rgba(B.color, 0)} 70%)`);
   } else if (b.glow) {
     r.setProperty("--gradient-hero-glow",
       `radial-gradient(62% 50% at 92% 12%, ${b.glow} 0%, rgba(0,0,0,0) 70%)`);
     r.setProperty("--gradient-hero-glow-b",
-      `radial-gradient(60% 42% at 4% 98%, rgba(114,119,210,.22) 0%, rgba(114,119,210,0) 70%)`);
+      `radial-gradient(60% 42% at 4% 98%, ${rgba(B.color, B.alpha)} 0%, ${rgba(B.color, 0)} 70%)`);
   }
   if (b.accent) r.setProperty("--accent-600", b.accent);
   if (b.line) r.setProperty("--line", b.line);
@@ -395,8 +406,8 @@ function applyConfig(cfg) {
 
   if (cfg.brand) window.__setBrand(cfg.brand);
 
-  const brandId = (cfg.brandId || (cfg.brand && cfg.brand.id) || "").toUpperCase();
-  const isLight = brandId.includes("LIGHT");
+  const strip = (cfg.brand && cfg.brand.strip) || {};
+  const isLight = strip.tone === "light";
 
   /* Logo asset when available, text wordmark when not. */
   const logo = document.getElementById("logo");
@@ -458,7 +469,7 @@ function applyConfig(cfg) {
 
   // PACE logo in header (PNG path needs explicit asset; SVG path embeds base64)
   const paceEl = document.getElementById("paceLogo");
-  if (cfg.ce && (brandId.startsWith("IU"))) {
+  if (cfg.ce && strip.pace) {
     paceEl.src = "../../../../assets/logos/pace-academy-logo.png";
     paceEl.classList.remove("is-hidden");
     // append CE to eyebrow like SVG renderer does

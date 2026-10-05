@@ -69,9 +69,23 @@ export default {
   },
   formats: {
     banner: {
-      layout: "strip-iu",
-      /* A 200px strip header, not a 1080 post: the stacked lockup scales to 22px. */
-      tokens: { logoH: 22 },
+      layout: "strip-corner",
+      tokens: {
+        /* A 200px strip header, not a 1080 post: the stacked lockup scales to 22px. */
+        logoH: 22,
+        /* The corner-lobe strip's own values: dark ground, the two glow lobes (the
+           SVG draws both from these; the PNG takes lobe A from brand.glow on a dark
+           ground), the PACE plate beside the logo when a panel has a CE line, and the
+           Canva layer name for the logo. */
+        strip: {
+          tone: "dark",
+          lobeA: { color: "#6289D9", alpha: 0.3 },
+          lobeB: { color: "#7277D2", alpha: 0.22 },
+          pace: true,
+          logoLayer: ["iu-logo", "IU logo"],
+          label: "IU",
+        },
+      },
       options: { requireCe: true, eyebrow: "Insurance Untangled · Live" },
     },
     thumb: { layout: "cards" },

@@ -20,10 +20,10 @@ Source of truth: vault note `Ekwa Organization/Reference/Tools/Stencil.md`. Deta
 
 ## Phase 1: Pilot, the banner
 
-- [ ] T11: Banner format skeleton (M)
-- [ ] T12: One banner template and one SVG twin, driven by tokens (M)
-- [ ] T13: Banner tokens for the light and legacy packs, and the banner gate (S)
-- [ ] Checkpoint 1: `node parity/run.mjs banner` passes on all 5 real panels plus VET;
+- [x] T11: Banner format skeleton (M)
+- [x] T12: Make both banner designs brand-neutral (M)
+- [x] T13: Banner tokens for the light and legacy packs, and the banner gate (S)
+- [x] Checkpoint 1: `node parity/run.mjs banner` passes on all 5 real panels (20/20 exact), VET renders;
       side-by-sides in `.parity/look/banner/`. Blocks Phase 2. (Human look gates retirement, A4.)
 
 ## Phase 2: Formats
