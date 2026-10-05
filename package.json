@@ -12,7 +12,8 @@
     "gui": "node gui.mjs",
     "parity": "node parity/run.mjs",
     "import": "node scripts/import.mjs",
-    "verify-moves": "node scripts/verify-moves.mjs"
+    "verify-moves": "node scripts/verify-moves.mjs",
+    "cutout": "node formats/thumb/layouts/cards/cutout-cli.mjs"
   },
   "dependencies": {
     "express": "^4.21.2",

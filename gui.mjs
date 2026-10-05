@@ -33,6 +33,11 @@ if (!format || !withGui.includes(format)) {
 
 process.env.STENCIL_FORMAT = format;
 const schema = (await import(pathToFileURL(schemaFile(format)).href)).default;
+
+/* A format whose preview page is generated (the thumbnail cards template) builds it
+   before the GUI serves it. */
+const mod = await import(pathToFileURL(path.join(ROOT, "formats", format, "gen.mjs")).href);
+if (typeof mod.prepareGui === "function") await mod.prepareGui();
 const port = Number(process.env.PORT || portArg || 0);
 const { url, token } = await launch({ schema, root: ROOT, port, open: process.env.NO_OPEN !== "1" });
 

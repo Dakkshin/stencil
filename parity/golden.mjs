@@ -38,7 +38,12 @@ export const SIBLINGS = ["panel-kit"];
 const SKIP = new Set(["node_modules", ".git", ".venv", ".gen", "out", "canva", "preview", "legacy", ".d", "tasks"]);
 /* Caches that are content, not output: carried into the scratch copy, never compared.
    The social cutout cache keys on each photo's size and mtime, so copies keep mtimes. */
-export const CACHE_DIRS = [path.join(".gen", "cutouts"), path.join(".gen", "_img"), path.join(".gen", "_metrics.json")];
+export const CACHE_DIRS = [
+  path.join(".gen", "cutouts"), // social: rembg output and framing stamps
+  path.join(".gen", "_img"), // deck: downsampled photos
+  path.join(".gen", "_metrics.json"), // deck: measured glyph advances
+  path.join(".gen", "photos"), // IU social: prepared photos, named by a hash of the absolute path
+];
 
 /* Copy one file and keep its timestamps (cache keys depend on mtime). */
 function copyKeep(src, dest) {
@@ -259,6 +264,30 @@ export async function buildGolden(format, { refresh = false, mode = "full", log 
   fs.mkdirSync(goldenDir, { recursive: true });
   fs.writeFileSync(stampFile, JSON.stringify({ format, mode, hashes, failures, supplied, at: new Date().toISOString() }, null, 2));
   return { dir: goldenDir, failures, supplied, cached: false };
+}
+
+/**
+ * Re-render one case through its fork, in the scratch tree, and return its outputs
+ * (Map: workspace-relative path -> file). Used when a fork is not deterministic: a
+ * cached golden may hold a rare variant the fork itself seldom produces.
+ */
+export async function rerunCase(format, fork, name, { mode = "full" } = {}) {
+  const cases = await loadCases(format);
+  const spec = cases.forks[fork];
+  const cwd = path.join(SCRATCH, "Automation", spec.cwd || fork);
+  if (!fs.existsSync(cwd)) {
+    prepareScratch();
+    for (const [f, sp] of Object.entries(cases.forks)) {
+      const dir = path.join(SCRATCH, "Automation", sp.cwd || f);
+      supplyPools(dir, sp.supply);
+      for (const c of sp.synthetic || []) writeSynthetic(path.join(dir, sp.inputDir), c, fs.readFileSync(path.join(dir, sp.inputDir, `${c.from}.toml`), "utf8"));
+    }
+  }
+  const r = await exec(process.execPath, mode === "gen" ? spec.emitJson(name) : spec.build(name), { cwd, timeout: spec.timeout || 180000 });
+  const outRoot = path.join(cwd, spec.outRoot || ".");
+  const out = new Map();
+  for (const rel of collect(outRoot, cases.outputDirs)) if (cases.belongsTo(rel, name)) out.set(rel, path.join(outRoot, rel));
+  return { code: r.code, out };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

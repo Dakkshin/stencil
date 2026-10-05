@@ -413,7 +413,7 @@ VET gets a render test, not a parity case.
 `--list`, `--list --json`, `--emit-json`, `--watch`), routes by the resolved brand's
 `formats.thumb.layout`, and writes AD-3 names (`canva/OBA-<name>.svg` or `canva/IU-<name>.svg`,
 `preview/<name>.png`). `render-png.mjs` screenshots the layout's template. Parity over every
-real episode (79 OBA, 4 IU).
+real episode (78 OBA, 4 IU: the earlier 79 counted the fork's template).
 **Acceptance criteria:**
 - [ ] `node parity/run.mjs thumb` passes for every case
 - [ ] `tests/thumb.test.mjs` ports both forks' `cli-json` tests

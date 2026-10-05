@@ -42,6 +42,12 @@ const DEFAULT_BRAND = "IU";
               (iu-podcast-thumbnails v3) */
 export const LAYOUTS = { classic, cards };
 
+/* gui.mjs calls this before serving: the schema previews with the cards template, which is
+   generated (layouts/cards/index.mjs ensureTemplate) and absent until the first IU build. */
+export async function prepareGui() {
+  cards.ensureTemplate();
+}
+
 const thumbBrands = () => brandsFor("thumb").filter((id) => LAYOUTS[layoutFor(id, "thumb")]);
 
 const HELP = () => `Podcast thumbnail generator (2560x1440)
