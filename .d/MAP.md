@@ -1,114 +1,109 @@
-# MAP: Stencil (migration map of the seven source repos)
-<!-- d-map: sha=none date=2026-10-05 -->
+# MAP: Stencil
+<!-- d-map: sha=unstamped date=2026-10-05 -->
 
-> Hierarchical summary for agents. Load only the section you need. Design lives in the
-> vault note `Ekwa Organization/Reference/Tools/Stencil.md`; this describes the SOURCE
-> code Stencil folds, as it is on 2026-10-05. Rewrite it once `stencil/` has code.
+> Hierarchical summary for agents. Load only the section you need. Requirements live in
+> the vault note `Ekwa Organization/Reference/Tools/Stencil.md` and `tasks/plan.md`; this
+> describes the code as it is. Written by `d-tour`, stamped by `d-map --stamp`.
 
 ## What it is
 
-Seven Node ESM generators (`Automation/<repo>/`) that turn one TOML into a layered Canva
-SVG plus a Chrome-rendered PNG (and a PDF for decks). Load-bearing invariant for the
-merge: same input, same output; a fork only retires after its real output matches.
+One engine renders five surfaces (banner, thumb, social, deck, background) for five brand
+packs, replacing seven forked generator repos. Load-bearing invariant: for every real input,
+Stencil's sidecar, SVG and PNG equal the fork's (`node parity/run.mjs <format>`), and output
+names never change (`core/contract.mjs`).
 
 ## Commands
 
-- Test, per repo: `node --test tests/` (green on 2026-10-05: thumbs 2, iu-thumbs 20,
-  social 2, iu-social 14, banner 2, iu-banner has no tests, g-slides 66)
-- Build, per repo: `node gen.mjs <name>` (`--svg-only`, `--emit-json`, `--list --json`)
-- Tools on this host: Node 26.8.1, `/usr/bin/google-chrome-stable`, ImageMagick `compare`,
-  `xmllint`, `pdfinfo`, `pdffonts`. Playwright resolves locally or from `../../OBA/oba-website`.
+- Test: `node --test tests/` · Gates: `d-gate` (tests + `node scripts/verify-moves.mjs`)
+- Build: `node stencil.mjs <format> [<name>...] [--brand <id>]`
+- Parity: `node parity/run.mjs <format>...` then `node parity/look.mjs` (report `.parity/report.md`)
+- Content: `node scripts/import.mjs` (from the forks; idempotent) · GUI: `node gui.mjs <format>`
 
 ## Areas
 
-### Banner, OBA (`zoom-banner/`)
-Purpose: 640x200 Zoom banner. Output `out/<stem>.png`, `out/<stem>@3x.png`, `canva/<stem>.svg`.
-Key files: `gen.mjs` (normalize 89-155, brand default OBA at 100), `banner-template.html`
-(PNG truth, brand pushed in by `window.__setBrand`), `render-svg.mjs` (hand-mirrored twin),
-`render-figma-svg.mjs`, `lib/geometry.mjs` (114 lines).
-Brand: `raw.brand` looked up in `panel-kit/lib/brands.mjs` BRANDS (OBA, VET) at 19.
+### Core (`core/`)
+Purpose: what two or more formats share. `paths.mjs` (ROOT, WORKSPACE, pools, outputs),
+`assets.mjs` (one lookup order, photo stems), `brands.mjs` (registry), `contract.mjs` (frozen
+names, name guard), `chromium.mjs`, `svg.mjs`, `toml.mjs` (the one parser).
+Pattern: `core/brands.mjs:64-72` resolveBrand: pack id and label, base tokens, format override.
+Invariants: no path outside the repo or workspace; core never imports a format.
+Tests: `tests/assets.test.mjs`, `tests/brands.test.mjs`, `tests/contract.test.mjs`
 
-### Banner, IU (`iu-zoom-banner/`)
-Purpose: same pipeline. `render.mjs`, `render-figma-svg.mjs`, `lib/geometry.mjs` identical to OBA.
-Divergence: `gen.mjs` adds brand default IU and a required `ce` for IU (105-110);
-`panel-kit/lib/brands.mjs` adds IU and IU_LIGHT with extra tokens (scrim, arc, ce*), drops VET;
-the template and twin change the atmosphere itself (OBA top-centre lobe and dots, IU corner
-lobes, second glow, arcs, PACE logo, CE stamp). Values plus atmosphere code, not a whole layout.
+### Brand packs (`brands/`)
+Purpose: data only. `tokens` (palette, logo, wordmark) and `formats.<f>.{layout, tokens, options}`.
+Invariants: id and label stated once; a layout must be listed in `formats/index.mjs`; every
+override carries its reason in a comment. Tests: `tests/brands.test.mjs`
 
-### Thumbnail, OBA (`podcast-thumbnails/`)
-Purpose: 1280x720 at 2x. Output `canva/OBA-<name>.svg`, `preview/<name>.png`, `.gen/<name>.json`.
-Key files: `gen.mjs` (normalize 125, outputs 263), `oba-thumbnail-template.html` (PNG truth),
-`render-svg.mjs` (layout 145, buildSVG 462, approximate widths `factor = 0.52`).
-Brand: none, OBA is hard-coded in the template and the twin.
+### Format registry and CLI (`formats/index.mjs`)
+Purpose: the five formats and their design names; `stencil.mjs` dispatches to
+`formats/<f>/gen.mjs` `main(argv)` after the cross-format name guard (`stencil.mjs:60`).
 
-### Thumbnail, IU (`iu-podcast-thumbnails/`)
-Purpose: a different design (v3 portrait cards), not a reskin. Output `canva/IU-<name>.svg`,
-`preview/<name>.png`. Theme by `mode = "dark" | "light"` (`gen.mjs` 174).
-Pattern: both renderers run `compose()` (`lib/layout.mjs` 172) on one config; template is
-built from `template/iu-thumbnail.src.html` by `scripts/build-template.mjs`; `scripts/fidelity.mjs`
-fails above MAE 0.02. Own `.d/MAP.md` has the deep map.
+### Banner (`formats/banner/`)
+Purpose: 640x200 strip. `gen.mjs` (normalize 86, LAYOUTS 45), `render-png.mjs`, designs
+`layouts/strip-centre` (OBA) and `layouts/strip-corner` (IU), brand-neutral via `brand.strip`.
+Tests: `tests/banner.test.mjs`
 
-### Social, OBA (`panel-social-posts/`)
-Purpose: square/story/portrait posts. Output `canva/<name>-<format>.svg`,
-`out/<name>-<format>@2x.png`, optional nesting `out/<campaign>/<person>/<format>/` (gen 255).
-Key files: `gen.mjs` (normalize 184), `template.html` + `speaker-template.html` (PNG truth),
-`render-svg.mjs` (computeLayout 182, twin), `lib/cutout.mjs`, `lib/portrait-fit.mjs` (sharp).
-Brand: `--brand` or `cfg.brand` in root `brands.mjs` (OBA, VET, OBA_LIGHT at 18).
+### Thumbnail (`formats/thumb/`)
+Purpose: 2560x1440. `gen.mjs` (LAYOUTS 43, buildEpisode 166), `render-png.mjs` (agreedCapture),
+`layouts/classic` (OBA, Google Fonts, two-session agreement) and `layouts/cards` (IU v3,
+generated `template.html` from `template.src.html`). Tests: `tests/thumb*.test.mjs`
 
-### Social, IU (`iu-panel-social-posts/`)
-Purpose: a different renderer, not a reskin. One scene graph emits the SVG and Chrome
-rasterises that exact SVG (`render.mjs`), so PNG and SVG agree by construction.
-Key files: `lib/iu/layouts/index.mjs` (post type to layout, 19-30), `lib/iu/tokens.mjs`,
-`lib/iu/components.mjs`, `lib/iu/scene.mjs`, `lib/qr.mjs` (QR selection), `lib/iu/qr.mjs`.
-Brand: `--brand` or `cfg.brand`, default IU (gen 242), root `brands.mjs` (IU, IU_LIGHT at 26).
-Rule: every event card keeps its PACE plate and CE seal.
+### Social (`formats/social/`)
+Purpose: square/portrait/story posts. `gen.mjs` (LAYOUTS 62, normalize 220, buildPost 444),
+shared `cutout.mjs`, `portrait-fit.mjs`, `qr.mjs`; `layouts/classic` (OBA HTML templates) and
+`layouts/scene` (IU scene graph, Chrome rasterises the SVG). Tests: `tests/social*.test.mjs`
 
-### Deck (`g-slides/`)
-Purpose: 1920x1080 deck. Output `canva/<deck>/NN-<type>.svg`, `out/<deck>/NN-<type>@2x.png`,
-`out/<deck>.pdf`, `.gen/<deck>.json`. SVG is the only visual source; Chrome screenshots and
-prints those strings. Pattern to copy: `layout()` then pure `draw()`, overflow fails the build.
-Key files: `lib/paths.mjs` (all sibling reaches), `lib/chromium.mjs`, `lib/text.mjs`,
-`lib/metrics.mjs`, `lib/draw.mjs`, `lib/geometry.mjs`, `lib/slides.mjs`, `render-svg.mjs`.
-Brand: `cfg.brandId` in `panel-kit/lib/brands.mjs`, OBA only (render-svg 1091).
+### Deck (`formats/deck/`)
+Purpose: 1920x1080 deck, SVG first, PNG and PDF from the same strings. Verbatim g-slides except
+`lib/paths.mjs` (same exports over core) and `lib/brands.mjs` (panel-kit shape from packs).
+Tests: `tests/deck.test.mjs`, `tests/deck-geometry.test.mjs`, `tests/deck-text.test.mjs`
 
-### GUI kit (`panel-kit/`)
-Purpose: canonical source of the vendored `<repo>/panel-kit/` copies (GUI server, brands,
-fonts, logo). Contract: `panel-kit/docs/CONTRACT.md` (`--list --json`, `--emit-json`).
-Invariant: vendored copies are generated by `scripts/vendor.mjs`; lib is identical in all seven
-except `brands.mjs` in social, iu-social and iu-banner.
+### Background (`formats/background/`)
+Purpose: the fixed Zoom host background, on the deck's draw primitives. Tests: `tests/background.test.mjs`
+
+### Parity harness (`parity/`)
+Purpose: fork goldens in `$TMPDIR` scratch copies (`golden.mjs`), file verdicts (`compare.mjs:146`),
+the runner with identical-failure and repeat-render rules (`run.mjs:50`), cases per format
+(`parity/cases/<f>.mjs`), contact sheets (`look.mjs`).
+Invariants: never writes inside a fork; caches (`CACHE_DIRS`) are carried, never compared.
+Tests: `tests/parity.test.mjs`
+
+### Moves and import (`scripts/`)
+Purpose: `moves/<format>.json` records every file moved from a fork; `verify-moves.mjs` proves
+verbatim ones; `apply-moves.mjs` writes them; `import.mjs` copies content with fork mtimes.
+Tests: `tests/moves.test.mjs`
+
+### GUI (`panel-kit/`)
+Purpose: vendored panel-kit, unchanged. `gui.mjs <format>` sets STENCIL_FORMAT; root `gen.mjs`
+forwards the kit's CLI calls. Tests: `tests/gui.test.mjs`
 
 ## Flows
 
 ```
-<inputs>/<name>.toml ─ gen.mjs normalize ─ .gen/<name>.json ─┬─ render-svg.mjs ─ canva/*.svg
-  (brand from cfg.brand / --brand / mode)                    └─ render.mjs (Chrome) ─ out|preview/*.png [+ .pdf]
-OBA thumb, OBA social, banners: PNG from an HTML template, SVG from a hand-mirrored twin
-IU thumb: one compose() for both · IU social and deck: Chrome rasterises the SVG itself
-missing photo: monogram · missing QR: empty frame · bad TOML: collected problems, exit 1
+<inputs>/<name>.toml + brands/<id>.mjs
+  -> formats/<f>/gen.mjs normalize (brand from --brand, file, default IU; layout from the pack)
+  -> .gen/<name>.json -> layout twin -> canva/*.svg -> Chrome -> out|preview/*.png [+ .pdf]
+missing photo: monogram · missing QR: empty frame · bad input: problems listed, exit 1
+parity: fork in scratch (golden) vs Stencil in scratch workspace -> .parity/report.md + look/
 ```
 
 ## Gotchas
 
-- Not git repos: `iu-podcast-thumbnails`, `iu-zoom-banner`, `g-slides`. The git repos
-  (`podcast-thumbnails`, `panel-social-posts`, `iu-panel-social-posts`, `zoom-banner`) carry
-  uncommitted work. Read only; never commit or reset in a source repo.
-- Fonts differ by brand: OBA `Inter-400-normal.woff2` is not the IU `Inter-400.woff2`
-  (different builds), IU adds Inter Display and EB Garamond. Keep both sets.
-- Headshot pools: 82 unique names across all repos, no same-name different-bytes clash.
-- `.gen/<name>.json` embeds the whole brand object and logo data URI (banner gen 141-151).
-- Doc vs code: g-slides `SPEC.md` says no `package.json` and brands from
-  `../panel-social-posts`; the code has a `package.json` and reads its vendored `panel-kit`.
-- Doc vs code: the Stencil note frames IU divergence as values plus shared fixes; the IU
-  thumbnail and IU social are whole redesigns (v3 cards, scene graph) built after 2026-10-02.
-- OBA was retired 2026-09-28; its machinery stays because IU reuses it.
+- Content (inputs, photos, panelists, QRs, outputs, `.gen/cutouts`) is gitignored; `node scripts/import.mjs` restores it.
+- Deleting `.gen/` drops the seeded social cutout cache; re-run the import before a social build.
+- The OBA thumbnail loads Inter from Google Fonts; under load Chrome may lay text out 1/64 px differently.
+- The Sept 17 deck fails its own overflow check (slide 7) in g-slides and Stencil alike.
+- Vendor panel-kit only as `node ../panel-kit/scripts/vendor.mjs stencil`; no target overwrites every fork.
+- Moved social designs still key on brand ids internally (kept for parity; follow-up in decisions).
+- Commit through `d-gate` with `set -o pipefail`: a piped gate hides its exit code.
 
 ## Where to look (task → files)
 
 | If the task is about… | Start at |
 |---|---|
-| Banner parity or atmosphere | `zoom-banner/banner-template.html` vs `iu-zoom-banner/banner-template.html` |
-| Brand tokens | the three `brands.mjs` registries above, `iu-panel-social-posts/lib/iu/tokens.mjs` |
-| Shared photo, cutout, QR logic | `panel-social-posts/lib/`, `iu-panel-social-posts/lib/qr.mjs` |
-| Exact text metrics | `g-slides/lib/metrics.mjs`, `iu-podcast-thumbnails/lib/layout.mjs` |
-| Deck rendering and PDF | `g-slides/render.mjs`, `g-slides/shell.html` |
-| GUI | `panel-kit/docs/CONTRACT.md`, `<repo>/gui/schema.mjs` |
+| A new brand | `brands/iu.mjs`, `README.md` (Brands), `tests/brands.test.mjs` |
+| An output name | `core/contract.mjs`, then the format's twin and `render-png.mjs` |
+| A parity failure | `.parity/report.md`, `.parity/look/<format>/`, `parity/compare.mjs` |
+| Photo or QR lookup | `core/assets.mjs`, `formats/social/qr.mjs` |
+| A deck slide | `formats/deck/render-svg.mjs`, `formats/deck/lib/geometry.mjs` |
+| The GUI | `gui.mjs`, `gen.mjs`, `formats/<f>/schema.mjs` |
