@@ -158,7 +158,8 @@ export function compareFile(rel, gFile, sFile, tolerance = []) {
 export function sideBySide(gFile, sFile, outFile) {
   fs.mkdirSync(path.dirname(outFile), { recursive: true });
   const diff = `${outFile}.diff.png`;
-  magick(["compare", gFile, sFile, "-compose", "src", "-highlight-color", "#ff2d55", "-lowlight-color", "#00000000", diff]);
+  /* Changed pixels red on flat dark grey, so an identical pair shows a blank panel. */
+  magick(["compare", gFile, sFile, "-compose", "src", "-highlight-color", "#ff2d55", "-lowlight-color", "#3a3a3a", diff]);
   const parts = fs.existsSync(diff) ? [gFile, sFile, diff] : [gFile, sFile];
   magick([...parts, "-background", "#808080", "-splice", "8x0", "+append", "-resize", "2400x>", outFile]);
   fs.rmSync(diff, { force: true });

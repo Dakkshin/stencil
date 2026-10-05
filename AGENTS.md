@@ -12,11 +12,12 @@
 
 ## Commands
 
-- Test: `node --test tests/`
-- Build: `node stencil.mjs <format> [<name>...] [--brand <id>]` (formats: banner, thumb, social, deck, background)
-- Parity: `node parity/run.mjs <format>` (fork vs Stencil on every real input; report in `.parity/report.md`)
-- Moves: `node scripts/verify-moves.mjs` (every verbatim-moved file equals its fork source)
-- Gates: `d-gate` (commands in `.d/gates`)
+- Test: `node --test tests/` · Gates: `d-gate` (tests + moves, from `.d/gates`)
+- Build: `node stencil.mjs <format> [<name>...] [--brand <id>]` (banner, thumb, social, deck, background)
+- Content: `node scripts/import.mjs` (copy inputs, photos, panelists, QRs, fonts, logos from the forks; idempotent)
+- Parity: `node parity/run.mjs <format>...` then `node parity/look.mjs` (report `.parity/report.md`, sheets `.parity/look/`)
+- Moves: `node scripts/verify-moves.mjs` (every verbatim move equals its fork source plus declared rewrites)
+- GUI: `node gui.mjs <format>` (`NO_OPEN=1` headless); vendor the kit only as `node ../panel-kit/scripts/vendor.mjs stencil`
 
 ## Context map
 
