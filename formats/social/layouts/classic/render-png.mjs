@@ -118,6 +118,11 @@ async function renderCanvas(browser, cfg, format, bboxes = {}) {
   }
 }
 
+/* Chrome itself has crashed mid-run on a busy machine (parity lanes render side by side),
+   and a dead browser takes every later page of the post with it. Such a failure gets one
+   fresh browser and one more try; anything else, or a second failure, is real. */
+const chromeGone = (e) => /has been closed|Target crashed|Browser closed|disconnected/i.test(String(e?.message || e));
+
 /**
  * Render one post. jobs: [{ format, out }] with `out` the PNG path to write.
  * Returns the paths written.
@@ -127,18 +132,27 @@ export async function render(rawCfg, jobs) {
   const cfg = normalizeConfig(rawCfg);
   const bboxes = await attachSpeakerBBoxes(cfg);
   const written = [];
-  const browser = await launch();
+  let browser = await launch();
   try {
     for (const { format, out } of jobs) {
       if (!FORMATS[format]) throw new Error(`the classic layout has no "${format}" format`);
-      const buf = await renderCanvas(browser, cfg, format, bboxes);
+      let buf;
+      try {
+        buf = await renderCanvas(browser, cfg, format, bboxes);
+      } catch (e) {
+        if (!chromeGone(e)) throw e;
+        console.warn(`  ! Chrome closed during the ${format} render (${String(e.message).split("\n")[0]}); relaunching once`);
+        await browser.close().catch(() => {});
+        browser = await launch();
+        buf = await renderCanvas(browser, cfg, format, bboxes);
+      }
       fs.mkdirSync(path.dirname(out), { recursive: true });
       fs.writeFileSync(out, buf);
       console.log(`✓ ${out} (${buf.length.toLocaleString()} bytes)`);
       written.push(out);
     }
   } finally {
-    await browser.close();
+    await browser.close().catch(() => {});
   }
   return written;
 }
