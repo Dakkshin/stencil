@@ -1,5 +1,5 @@
 # MAP: Stencil
-<!-- d-map: sha=e774ba2 date=2026-10-05 -->
+<!-- d-map: sha=9301f68 date=2026-10-05 -->
 
 > Hierarchical summary for agents. Load only the section you need. Requirements live in
 > the vault note `Ekwa Organization/Reference/Tools/Stencil.md` and `tasks/plan.md`; this
