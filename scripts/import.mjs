@@ -120,6 +120,12 @@ for (const job of JOBS) {
       }
 
       const dest = path.join(ROOT, destRel);
+      /* Starter templates are seeded once, then owned by Stencil (their comments name
+         Stencil's commands and pools), so an existing one is never a conflict. */
+      if (TEMPLATE_RENAMES[key] && fs.existsSync(dest)) {
+        stats.same++;
+        continue;
+      }
       const existing = planned.get(destRel) ?? (fs.existsSync(dest) ? sha(fs.readFileSync(dest)) : null);
       if (existing) {
         if (existing === sha(data)) {

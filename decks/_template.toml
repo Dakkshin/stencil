@@ -1,4 +1,4 @@
-# OBA slide deck. Copy to decks/<name>.toml, then:  node gen.mjs <name>
+# OBA slide deck. Copy to decks/<name>.toml, then:  node stencil.mjs deck <name>
 #
 # PARSER LIMITS (lib/toml.mjs): single-level [tables], [[arrays-of-tables]], strings,
 # ints, bools and arrays. No nested tables, no inline tables, no dates, no multi-line
@@ -12,7 +12,7 @@
 # the sponsor slide is to delete [sponsor] — not to edit `order`. Numbering closes up.
 
 deck  = "sep17-referral-growth"   # output stem; defaults to this file's name
-brand = "OBA"                     # OBA | VET — tokens come from ../panel-social-posts/brands.mjs
+brand = "OBA"                     # a pack in brands/ with a deck design (OBA; IU is colours only)
 
 # Optional. Omit to use the default:
 #   cover, sponsor, agenda, spotlights, offer_primary, offer_secondary, qa, closing
@@ -32,7 +32,7 @@ order = [
 ]
 
 # Speaker profile stems, in presentation order. Each resolves against speakers/<stem>.toml
-# first, then the shared pool at ../panel-social-posts/panelists/<stem>.toml.
+# first, then the shared pool at assets/panelists/<stem>.toml.
 # Max 6 on the cover — past that a cover stops being a cover, so it is a hard error.
 speakers = ["sean-hanlon", "chris-bonsall", "amanda-cardwell", "christine-lapointe"]
 

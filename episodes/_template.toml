@@ -1,5 +1,6 @@
 # Insurance Untangled episode thumbnail — copy this file to epXXX.toml and fill it in.
-# Drop guest photos into ../headshots/ and reference them by filename below.
+# Drop guest photos into assets/headshots/ and reference them by filename below.
+# Build with:  node stencil.mjs thumb <name>
 
 brand = "IU"
 mode = "dark"          # "dark" (Depth ground, default) or "light" (Air ground)
@@ -28,8 +29,8 @@ title = [
 # Headline copy never shows an em dash (it is rendered as a comma).
 
 # One block per guest / panelist.
-#   photo   = filename inside ../headshots/  (e.g. "jane-doe.jpg")
-#             OR a path relative to the iu-podcast-thumbnails folder.
+#   photo   = filename inside assets/headshots/  (e.g. "jane-doe.jpg")
+#             OR a path relative to the Stencil folder.
 #             Omit photo to show an initials card.
 #   role    = designation, e.g. "Practice Owner"
 #   company = OPTIONAL. Shown after the designation: "Practice Owner · Smith Dental Group".

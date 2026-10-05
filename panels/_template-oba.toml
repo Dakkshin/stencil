@@ -1,5 +1,5 @@
 # zoom-banner — panel config template.
-# Copy to panels/<name>.toml and edit. Rebuild with:  node gen.mjs <name>
+# Copy to panels/<name>.toml and edit. Rebuild with:  node stencil.mjs banner <name>
 #
 # The add-a-panelist loop: append a [[panelists]] block, re-run, done.
 # Max 4 panelists; the row re-centres and the faces resize automatically.
@@ -15,8 +15,8 @@ date    = "Jan 1 · 12PM EDT"              # right-aligned chip
 # `~` toggles the accent colour: "A ~B~ C" -> A normal, B accent, C normal.
 title   = "Your Panel Name"
 
-# `photo` resolves against this tool's own headshots/ by bare filename, then
-# the shared ../podcast-thumbnails/headshots/ pool, or give an absolute path /
+# `photo` resolves against the shared assets/headshots/ pool by bare filename,
+# or give an absolute path /
 # data: URI. Missing photo -> monogram tile.
 # Keep `role` under 40 chars or it will not fit two lines.
 [[panelists]]

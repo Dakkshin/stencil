@@ -1,5 +1,6 @@
 # OBA podcast thumbnail — copy this file to epXXX.toml and fill it in.
-# Drop guest photos into ../headshots/ and reference them by filename below.
+# Drop guest photos into assets/headshots/ and reference them by filename below.
+# Build with:  node stencil.mjs thumb <name>
 
 brand = "OBA"
 episode = 0            # just for humans — not rendered
@@ -19,8 +20,8 @@ title = [
                        #   Portrait placeholders until photos arrive.
 
 # One block per guest / panelist.
-#   photo = filename inside ../headshots/  (e.g. "deep-parikh.jpg")
-#        OR a path relative to the podcast-thumbnails folder.
+#   photo = filename inside assets/headshots/  (e.g. "deep-parikh.jpg")
+#        OR a path relative to the Stencil folder.
 #   Omit photo to show a monogram placeholder tile.
 [[guests]]
 name = "Full Name, MD"

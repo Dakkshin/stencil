@@ -1,5 +1,5 @@
 # IU panel social post — copy this file to <name>.toml and fill it in.
-# Then run:  node gen.mjs <name>
+# Then run:  node stencil.mjs social <name>
 
 post_type = "the_intro"        # the_intro | intro_panel_one | intro_panel_two |
                                 # one_more_day | happening_today | panel | speaker_promo
