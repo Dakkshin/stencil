@@ -46,6 +46,195 @@
       "mode": "adapted",
       "rewrites": [],
       "note": "lines 102-193 (resolvePhoto, normalizeResult, normalize); photos resolve through core/assets.mjs; normalize returns null instead of exiting so the format CLI owns the exit code"
+    },
+    {
+      "src": "iu-podcast-thumbnails/lib/geometry.mjs",
+      "dest": "formats/thumb/layouts/cards/geometry.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-podcast-thumbnails/lib/layout.mjs",
+      "dest": "formats/thumb/layouts/cards/layout.mjs",
+      "mode": "verbatim",
+      "rewrites": [],
+      "note": "its function sources are inlined into template.html by build-template.mjs, so it must stay byte-identical"
+    },
+    {
+      "src": "iu-podcast-thumbnails/lib/widths.json",
+      "dest": "formats/thumb/layouts/cards/widths.json",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-podcast-thumbnails/lib/motif.mjs",
+      "dest": "formats/thumb/layouts/cards/motif.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { fileURLToPath } from \"node:url\";",
+          "import { fileURLToPath } from \"node:url\";\nimport { LOGOS } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const REVERSED_LOGO = path.join(ROOT, \"assets\", \"iu-logo-reversed.svg\");",
+          "const REVERSED_LOGO = path.join(LOGOS, \"iu-logo-reversed.svg\");"
+        ]
+      ]
+    },
+    {
+      "src": "iu-podcast-thumbnails/lib/cutout.mjs",
+      "dest": "formats/thumb/layouts/cards/cutout.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { fileURLToPath } from \"node:url\";",
+          "import { fileURLToPath } from \"node:url\";\nimport { ROOT as STENCIL_ROOT } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const ROOT = path.join(__dirname, \"..\");",
+          "const ROOT = STENCIL_ROOT;"
+        ],
+        [
+          "export const CUTOUT_DIR = path.join(ROOT, \"headshots\", \"cutouts\");",
+          "export const CUTOUT_DIR = path.join(ROOT, \"assets\", \"headshots\", \"cutouts\");"
+        ]
+      ],
+      "note": "cut-outs live in the repo headshot pool (assets/headshots/cutouts, imported from the fork's headshots/cutouts); the rembg venv is stencil/.venv"
+    },
+    {
+      "src": "iu-podcast-thumbnails/lib/cutout.py",
+      "dest": "formats/thumb/layouts/cards/cutout.py",
+      "mode": "verbatim",
+      "rewrites": [],
+      "note": "the rembg helper cutout.mjs ensureCutout() runs; identical in panel-social-posts and iu-panel-social-posts"
+    },
+    {
+      "src": "iu-podcast-thumbnails/scripts/cutout.mjs",
+      "dest": "formats/thumb/layouts/cards/cutout-cli.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { ensureCutout, hasAlpha } from \"../lib/cutout.mjs\";",
+          "import { ensureCutout, hasAlpha } from \"./cutout.mjs\";\nimport { ROOT as STENCIL_ROOT } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const ROOT = path.join(__dirname, \"..\");",
+          "const ROOT = STENCIL_ROOT;"
+        ],
+        [
+          "const HEADSHOTS = path.join(ROOT, \"headshots\");",
+          "const HEADSHOTS = path.join(ROOT, \"assets\", \"headshots\");"
+        ]
+      ],
+      "note": "optional (the fork's `npm run cutout`); pass photo names, since with none it walks the whole shared pool"
+    },
+    {
+      "src": "iu-podcast-thumbnails/template/iu-thumbnail.src.html",
+      "dest": "formats/thumb/layouts/cards/template.src.html",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-podcast-thumbnails/scripts/build-template.mjs",
+      "dest": "formats/thumb/layouts/cards/build-template.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { verifyTemplate, G } from \"../lib/geometry.mjs\";",
+          "import { verifyTemplate, G } from \"./geometry.mjs\";"
+        ],
+        [
+          "import { SHARED } from \"../lib/layout.mjs\";",
+          "import { SHARED } from \"./layout.mjs\";"
+        ],
+        [
+          "import { atmosphereFragment, petalInner, verifyMotif } from \"../lib/motif.mjs\";",
+          "import { atmosphereFragment, petalInner, verifyMotif } from \"./motif.mjs\";\nimport { FONTS, LOGOS, ROOT as STENCIL_ROOT } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const ROOT = path.join(__dirname, \"..\");",
+          "const ROOT = STENCIL_ROOT;"
+        ],
+        [
+          "const SRC = path.join(ROOT, \"template\", \"iu-thumbnail.src.html\");",
+          "const SRC = path.join(__dirname, \"template.src.html\");"
+        ],
+        [
+          "const OUT = path.join(ROOT, \"iu-thumbnail-template.html\");",
+          "const OUT = path.join(__dirname, \"template.html\");"
+        ],
+        [
+          "const FONT_DIR = path.join(ROOT, \"fonts\");",
+          "const FONT_DIR = FONTS;"
+        ],
+        [
+          "const LOGO = path.join(ROOT, \"assets\", \"iu-logo.png\");",
+          "const LOGO = path.join(LOGOS, \"iu-logo.png\");"
+        ],
+        [
+          "const LOGO_REVERSED = path.join(ROOT, \"assets\", \"iu-logo-reversed.svg\");",
+          "const LOGO_REVERSED = path.join(LOGOS, \"iu-logo-reversed.svg\");"
+        ]
+      ],
+      "note": "writes the gitignored formats/thumb/layouts/cards/template.html from the pooled fonts and logos; still throws on CSS drift"
+    },
+    {
+      "src": "iu-podcast-thumbnails/render-svg.mjs",
+      "dest": "formats/thumb/layouts/cards/render-svg.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { CANVAS, PAD, LOGO, LOGO_H, CHIP, KICKER, G } from \"./lib/geometry.mjs\";",
+          "import { CANVAS, PAD, LOGO, LOGO_H, CHIP, KICKER, G } from \"./geometry.mjs\";"
+        ],
+        [
+          "import { compose, textWidth, baseline } from \"./lib/layout.mjs\";",
+          "import { compose, textWidth, baseline } from \"./layout.mjs\";"
+        ],
+        [
+          "import { atmosphereFragment, petalTriad, substitutePaint, THEME_PAINT } from \"./lib/motif.mjs\";",
+          "import { atmosphereFragment, petalTriad, substitutePaint, THEME_PAINT } from \"./motif.mjs\";\nimport { CANVA, FONTS, LOGOS, WORKSPACE } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const OUT_DIR = path.join(__dirname, \"canva\");",
+          "const OUT_DIR = CANVA;"
+        ],
+        [
+          "const FONT_DIR = path.join(__dirname, \"fonts\");",
+          "const FONT_DIR = FONTS;"
+        ],
+        [
+          "const LOGO_PATH = path.join(__dirname, \"assets\", \"iu-logo.png\");",
+          "const LOGO_PATH = path.join(LOGOS, \"iu-logo.png\");"
+        ],
+        [
+          "const LOGO_REVERSED = path.join(__dirname, \"assets\", \"iu-logo-reversed.svg\");",
+          "const LOGO_REVERSED = path.join(LOGOS, \"iu-logo-reversed.svg\");"
+        ],
+        [
+          "path.relative(__dirname, outSvg)",
+          "path.relative(WORKSPACE, outSvg)"
+        ],
+        [
+          "path.relative(__dirname, outPng)",
+          "path.relative(WORKSPACE, outPng)"
+        ]
+      ],
+      "note": "theme from the sidecar's mode (the IU_LIGHT pack sets it, see cards/normalize.mjs); writes canva/IU-<name>.svg"
+    },
+    {
+      "src": "iu-podcast-thumbnails/gen.mjs",
+      "dest": "formats/thumb/layouts/cards/normalize.mjs",
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "lines 106-269 (detectCutout, resolvePhoto, resolvePhotoRaw, normalizeResult, normalize); photos resolve through core/assets.mjs; mode takes the brand pack's default (formats.thumb.options.mode); normalize returns null instead of exiting"
+    },
+    {
+      "src": "iu-podcast-thumbnails/scripts/fidelity.mjs",
+      "dest": "formats/thumb/layouts/cards/fidelity.mjs",
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "Chrome through core/chromium.mjs launch(); canva/ and preview/ from core/paths.mjs (the workspace)"
     }
   ]
 }
