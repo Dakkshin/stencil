@@ -235,6 +235,27 @@
       "mode": "adapted",
       "rewrites": [],
       "note": "Chrome through core/chromium.mjs launch(); canva/ and preview/ from core/paths.mjs (the workspace)"
+    },
+    {
+      "src": "podcast-thumbnails/render.mjs",
+      "dest": "formats/thumb/render-png.mjs",
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "renderPage() kept line for line (identical in iu-podcast-thumbnails/render.mjs:80-96), one browser per capture as before; Chrome through core/chromium.mjs; the design template is passed in; the config arrives in memory instead of -c globs; demos dropped; a design may ask for agreeing captures (classic: 2, against Chrome's load-dependent text layout)"
+    },
+    {
+      "src": "podcast-thumbnails/gui/schema.mjs",
+      "dest": "formats/thumb/schema.mjs",
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "union with iu-podcast-thumbnails/gui/schema.mjs (next entry); brand options from the packs with a thumb design"
+    },
+    {
+      "src": "iu-podcast-thumbnails/gui/schema.mjs",
+      "dest": "formats/thumb/schema.mjs",
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "mode, company and hook (the last read by the fork's normalize but never in its schema) join the OBA fields"
     }
   ]
 }
