@@ -106,6 +106,10 @@ function normalizeResult(raw, base, opts = {}) {
     } catch (e) {
       problems.push(e.message);
     }
+    if (layout && !LAYOUTS[layout]) {
+      problems.push(`brand ${brandId} names banner design "${layout}", which does not exist (have: ${Object.keys(LAYOUTS).join(", ")})`);
+      layout = "";
+    }
   }
 
   const ce = raw.ce || raw["event.ce"] || (raw.event && raw.event.ce) || "";

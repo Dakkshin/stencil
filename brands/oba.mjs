@@ -18,8 +18,6 @@ export default {
     "IBM-Plex-Mono-600-normal.woff2",
   ],
   tokens: {
-    id: "OBA",
-    label: "Ophthalmology Business Academy",
     wordmark: "OBA",
     logo: "oba-logo-white.png",
     gradient: [

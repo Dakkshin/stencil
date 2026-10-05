@@ -17,8 +17,6 @@ export default {
     "EBGaramond-500-italic.woff2",
   ],
   tokens: {
-    id: "IU_LIGHT",
-    label: "Insurance Untangled (light)",
     wordmark: "INSURANCE UNTANGLED",
     logo: "iu-logo.png",
     logoH: 94,

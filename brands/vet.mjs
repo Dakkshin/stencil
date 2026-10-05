@@ -18,8 +18,6 @@ export default {
     "IBM-Plex-Mono-600-normal.woff2",
   ],
   tokens: {
-    id: "VET",
-    label: "Veterinary Business Institute",
     wordmark: "VBI",
     logo: "vbi-logo-white.png",
     gradient: [

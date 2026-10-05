@@ -117,3 +117,9 @@ test("VET, a legacy pack with no real banner input, renders through the centre d
   assert.match(svg, /fill="#e2b552"/, "the centre design's warm title accent");
   assert.ok(fs.existsSync(path.join(WS, "out", "vet-sample.png")));
 });
+
+test("the banner's designs are exactly the ones the format registry lists", async () => {
+  const { LAYOUTS } = await import("../formats/banner/gen.mjs");
+  const { FORMATS } = await import("../formats/index.mjs");
+  assert.deepEqual(Object.keys(LAYOUTS).sort(), [...FORMATS.banner.layouts].sort());
+});

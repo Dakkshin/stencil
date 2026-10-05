@@ -20,8 +20,6 @@ export default {
     "EBGaramond-500-italic.woff2",
   ],
   tokens: {
-    id: "IU",
-    label: "Insurance Untangled",
     wordmark: "INSURANCE UNTANGLED",
     logo: "iu-logo-reversed.svg",
     /* The lockup is stacked (462x340), so it needs far more height than the OBA mark:

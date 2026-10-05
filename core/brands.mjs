@@ -61,11 +61,14 @@ export function layoutFor(id, format) {
   return formatEntry(getPack(id), format).layout;
 }
 
-/** Base tokens with this format's overrides on top. */
+/**
+ * The brand object a format reads: the pack's id and label, its base tokens, then this
+ * format's overrides. A pack states id and label once, at the top.
+ */
 export function resolveBrand(id, format) {
   const pack = getPack(id);
   const entry = formatEntry(pack, format);
-  return structuredClone({ ...pack.tokens, ...(entry.tokens || {}) });
+  return structuredClone({ id: pack.id, label: pack.label, ...pack.tokens, ...(entry.tokens || {}) });
 }
 
 /** Format-level settings that are not colours (rules such as a required CE line). */

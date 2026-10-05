@@ -10,12 +10,13 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
+/* `layouts` are the design names a brand pack may pick in formats.<id>.layout. */
 export const FORMATS = {
-  banner: { title: "Zoom banner (640x200)", forks: ["zoom-banner", "iu-zoom-banner"] },
-  thumb: { title: "Podcast thumbnail (2560x1440)", forks: ["podcast-thumbnails", "iu-podcast-thumbnails"] },
-  social: { title: "Panel social posts (square, portrait, story)", forks: ["panel-social-posts", "iu-panel-social-posts"] },
-  deck: { title: "Panel slide deck (SVG, PNG, PDF)", forks: ["g-slides"] },
-  background: { title: "Zoom host background (1920x1080)", forks: ["g-slides/host-background"] },
+  banner: { title: "Zoom banner (640x200)", layouts: ["strip-centre", "strip-corner"], forks: ["zoom-banner", "iu-zoom-banner"] },
+  thumb: { title: "Podcast thumbnail (2560x1440)", layouts: ["classic", "cards"], forks: ["podcast-thumbnails", "iu-podcast-thumbnails"] },
+  social: { title: "Panel social posts (square, portrait, story)", layouts: ["classic", "scene"], forks: ["panel-social-posts", "iu-panel-social-posts"] },
+  deck: { title: "Panel slide deck (SVG, PNG, PDF)", layouts: ["deck"], forks: ["g-slides"] },
+  background: { title: "Zoom host background (1920x1080)", layouts: ["host"], forks: ["g-slides/host-background"] },
 };
 
 export function formatIds() {

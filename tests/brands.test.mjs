@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import {
   brandIds, getPack, resolveBrand, layoutFor, formatOptions, pick, normalizeBrandId, brandsFor,
 } from "../core/brands.mjs";
+import { FORMATS } from "../formats/index.mjs";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const { registries } = JSON.parse(fs.readFileSync(path.join(ROOT, "tests", "fixtures", "legacy-brands.json"), "utf8"));
@@ -83,4 +84,31 @@ test("every pack's fonts and logo exist in the asset pool", { skip: !fs.existsSy
 test("brandsFor lists the packs with a design for a format", () => {
   assert.ok(brandsFor("thumb").includes("OBA"));
   assert.ok(brandsFor("thumb").includes("IU"));
+});
+
+test("every pack is data, names only real formats and designs, and has a known status", () => {
+  for (const id of brandIds()) {
+    const pack = getPack(id);
+    assert.doesNotThrow(() => structuredClone(pack), `${id}: a pack is data only (no functions)`);
+    assert.ok(["active", "legacy"].includes(pack.status), `${id}: status must be active or legacy, got ${pack.status}`);
+    assert.equal(typeof pack.label, "string", `${id}: label`);
+    for (const [format, entry] of Object.entries(pack.formats || {})) {
+      assert.ok(FORMATS[format], `${id}: formats.${format} is not a format (have: ${Object.keys(FORMATS).join(", ")})`);
+      assert.ok(FORMATS[format].layouts.includes(entry.layout), `${id}: formats.${format}.layout "${entry.layout}" is not a ${format} design (have: ${FORMATS[format].layouts.join(", ")})`);
+      for (const k of Object.keys(entry)) assert.ok(["layout", "tokens", "options"].includes(k), `${id}: formats.${format}.${k} is not a pack key (layout, tokens, options)`);
+    }
+  }
+});
+
+test("a pack states id and label once; the resolved brand carries them", () => {
+  for (const id of brandIds()) {
+    const pack = getPack(id);
+    assert.equal(pack.tokens.id, undefined, `${id}: tokens.id duplicates the pack id`);
+    assert.equal(pack.tokens.label, undefined, `${id}: tokens.label duplicates the pack label`);
+    for (const format of Object.keys(pack.formats || {})) {
+      const b = resolveBrand(id, format);
+      assert.equal(b.id, pack.id);
+      assert.equal(b.label, pack.label);
+    }
+  }
 });
