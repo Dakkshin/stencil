@@ -38,15 +38,15 @@ Source of truth: vault note `Ekwa Organization/Reference/Tools/Stencil.md`. Deta
 - [x] T21: Deck (M)
 - [x] T22: Background format (S)
 - [x] T23: Deck and background gate (S)
-- [ ] Checkpoint 2: `node parity/run.mjs thumb social deck background` passes on every real input;
+- [x] Checkpoint 2: `node parity/run.mjs thumb social deck background` passes on every real input;
       `node --test tests/` green with every fork test ported or accounted for. Blocks Phase 3.
 
 ## Phase 3: Packs and surface
 
 - [x] T24: Finish the brand packs (S)
 - [x] T25: One GUI for every surface (S)
-- [ ] T26: Docs and the map (S)
-- [ ] Checkpoint 3: `d-gate` green; full parity report; GUI smoke; side-by-sides presented to
+- [x] T26: Docs and the map (S)
+- [x] Checkpoint 3: `d-gate` green; full parity report; GUI smoke; side-by-sides presented to
       the owner. Retirement and the GitHub repo wait for the owner's yes.
 
 ## Standing gates (every task)

@@ -105,5 +105,26 @@ apart from its declared import and path rewrites (`scripts/moves/<format>.json`)
 
 ## Status
 
-See `tasks/todo.md` and the parity report. No fork is retired: each retires only after its
-format passes parity and the owner has looked at the output.
+Built 2026-10-05. Every real input in the seven forks renders through Stencil with the same
+files the fork writes, byte for byte (`node parity/run.mjs`, 2026-10-05):
+
+| Format | Real inputs | Files compared | Result |
+|---|---|---|---|
+| banner | 5 panels | 20 | all exact |
+| thumb | 82 episodes (78 OBA, 4 IU) | 246 | all exact |
+| social | 52 posts (30 OBA, 22 IU), every requested size | 316 | all exact |
+| deck | 3 decks | 51 | all exact |
+| background | 1 | 3 | all exact |
+
+Known behaviour carried over from the forks, not introduced here:
+
+- The Sept 17 Referral Growth deck fails its own overflow check on slide 7 (a stat label meets
+  the role line), in g-slides and in Stencil alike. Shorten that copy to get its PNGs and PDF.
+- The OBA thumbnail and social templates load fonts from Google Fonts. Under heavy machine
+  load Chrome can lay text out a fraction of a pixel differently, so the OBA thumbnail keeps the
+  PNG two browser sessions agree on, and both renderers retry once after a stalled page load.
+  Local fonts would remove this at the root but change pixels, so that waits for a look.
+
+No fork is retired and no GitHub repo exists yet: each fork retires after its format's contact
+sheets (`.parity/look/README.md`) have had a person's look. See `tasks/todo.md` and
+`.d/decisions.tsv` for what was decided along the way and why.
