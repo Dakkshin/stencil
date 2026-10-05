@@ -1,0 +1,1198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel Social Post Template — OBA design system</title>
+
+<!--
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Panel Social Post Template                                              │
+  │  Data-driven social-media posts for panelists, styled with the OBA       │
+  │  design system (cinematic slate gradient, two-tone headlines, IBM Plex   │
+  │  Mono eyebrows, Inter light titles — same tokens as the podcast / panel  │
+  │  thumbnails).                                                            │
+  │                                                                          │
+  │  FORMATS: square 1080×1080 · portrait 1080×1350 · story 1080×1920 ·      │
+  │           landscape 1200×630. Export at 2× DPR via render.mjs.           │
+  │  POST TYPES: the_intro, intro_panel_one, intro_panel_two,                │
+  │              one_more_day, happening_today, panel.                       │
+  │                                                                          │
+  │  HOW TO USE                                                              │
+  │  1. Open this file in a browser.                                         │
+  │  2. Pick a format (top right) + a post-type demo.                        │
+  │  3. "Edit JSON" → paste your post config → Render.                       │
+  │  4. Export via `node render.mjs -c <config.json>` (retina-crisp PNG) or  │
+  │     `node gen.mjs <post>` (SVG + PNG together).                          │
+  └──────────────────────────────────────────────────────────────────────────┘
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   Bundled fonts (exact woff2 files from podcast-thumbnails/fonts)
+   so renders stay pixel-consistent offline and online.
+   ============================================================ */
+@font-face { font-family: "Inter"; src: url("../../../../assets/fonts/Inter-300-normal.woff2") format("woff2"); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../../../../assets/fonts/Inter-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../../../../assets/fonts/Inter-500-normal.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../../../../assets/fonts/Inter-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../../../../assets/fonts/IBM-Plex-Mono-500-normal.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../../../../assets/fonts/IBM-Plex-Mono-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+
+/* ============================================================
+   OBA design tokens (mirrored from oba-website/src/app/globals.css)
+   + brand overrides driven by body[data-brand]
+   ============================================================ */
+:root {
+  --ink-900: #16232c;
+  --ink-800: #22323d;
+  --ink-700: #31434f;
+  --ink-600: #465a66;
+  --accent-600: #3d5361;
+  --white: #ffffff;
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+
+  /* Cinematic slate backdrop — identical to --gradient-hero in globals.css */
+  --gradient-hero: radial-gradient(
+    115% 90% at 78% 30%,
+    #5b7484 0%,
+    #3e5361 34%,
+    #263743 62%,
+    #16232c 100%
+  );
+  --gradient-hero-glow: radial-gradient(
+    60% 55% at 72% 42%,
+    rgba(214, 228, 235, 0.5) 0%,
+    rgba(214, 228, 235, 0) 70%
+  );
+
+  --brand-accent: #3d5361;
+  --brand-dim: rgba(255, 255, 255, 0.55);
+  --brand-muted: rgba(255, 255, 255, 0.66);
+  --brand-faint: rgba(255, 255, 255, 0.55);
+  --brand-pill: rgba(11, 18, 32, 0.42);
+  --brand-line: rgba(255, 255, 255, 0.14);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: #0d151b;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ============================================================
+   Canvas + formats
+   ============================================================ */
+.canvas {
+  width: 1080px;
+  height: 1080px;
+  position: relative;
+  overflow: hidden;
+  color: var(--white);
+  background: var(--gradient-hero);
+  padding: 46px 56px 42px;
+  display: flex;
+  flex-direction: column;
+}
+.canvas.format-square    { width: 1080px;  height: 1080px; padding: 46px 56px 42px; }
+.canvas.format-portrait  { width: 1080px;  height: 1350px; padding: 54px 64px 50px; }
+.canvas.format-story     { width: 1080px;  height: 1920px; padding: 58px 64px 58px; }
+.canvas.format-landscape { width: 1200px;  height: 630px;  padding: 40px 52px 36px; }
+
+/* ---- background layers ---- */
+.layer { position: absolute; inset: 0; pointer-events: none; }
+.glow { background: var(--gradient-hero-glow); opacity: 0.45; }
+.dots {
+  background-image: radial-gradient(circle at 1px 1px, var(--brand-dots, rgba(255, 255, 255, 0.10)) 1px, transparent 0);
+  background-size: 18px 18px;
+  opacity: 0.75;
+  -webkit-mask-image: linear-gradient(90deg, transparent 24%, #000 70%);
+  mask-image: linear-gradient(90deg, transparent 24%, #000 70%);
+}
+.scrim {
+  background: linear-gradient(
+    90deg,
+    rgba(11, 18, 32, 0.52) 0%,
+    rgba(11, 18, 32, 0.26) 40%,
+    rgba(11, 18, 32, 0) 60%
+  );
+}
+
+/* ---- top bar ---- */
+.top {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-muted);
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.eyebrow::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-accent);
+  flex: none;
+}
+.logo {
+  height: 40px;
+  width: auto;
+  opacity: 0.95;
+  flex: none;
+}
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+.wordmark {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--white);
+  white-space: nowrap;
+}
+
+/* ---- badge row (urgency / countdown) ---- */
+.badge-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  min-height: 0;
+}
+.urgency {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-ink-on-accent, #16232c);
+  background: var(--brand-accent);
+  padding: 10px 22px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.countdown {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.countdown-num {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 54px;
+  line-height: 1;
+  color: var(--brand-accent);
+  letter-spacing: -0.02em;
+}
+.countdown-label {
+  font-family: var(--font-mono);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-muted);
+  white-space: nowrap;
+}
+
+/* ---- middle: title + headshot rail ---- */
+.middle {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  min-height: 0;
+}
+.format-story .middle {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 56px;
+}
+.title-col { flex: 1; min-width: 0; max-width: 640px; }
+.format-story .title-col { max-width: 760px; }
+.format-landscape .title-col { max-width: 620px; }
+.format-landscape .middle { align-items: flex-start; }
+.title { margin: 0; }
+.title h1 {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: 54px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  text-wrap: balance;
+}
+.format-portrait .title h1 { font-size: 60px; }
+.format-story .title h1 { font-size: 74px; }
+.format-landscape .title h1 { font-size: 44px; }
+.title .dim { color: var(--brand-dim); }
+
+/* ---- compact 4+ panelist sizing (mirrors MANY4 in lib/geometry.mjs) ----
+   Toggled by render() when guests.length >= 4. Keeps the 3-line headline to
+   one line per fragment beside the 2×2 grid instead of wrapping to 5–6. */
+.canvas.many .title h1 { font-size: 39px; }
+.canvas.format-portrait.many .title h1 { font-size: 43px; }
+.canvas.format-story.many .title h1 { font-size: 53px; }
+.canvas.format-landscape.many .title h1 { font-size: 32px; }
+.canvas.many .qr-below-frame { width: 124px; height: 124px; }
+.canvas.many .qr-below-cta .scan-to { font-size: 12px; }
+.canvas.many .qr-below-cta .register { font-size: 18px; }
+.canvas.many .qr { height: 77px; width: 77px; }
+.canvas.format-story.many .qr { height: 112px; width: 112px; }
+.canvas.many .cta { font-size: 13px; padding: 10px 22px; }
+.canvas.format-story.many .cta { font-size: 18px; padding: 14px 32px; }
+
+/* ---- QR below headline (square group posts only, when event.qr is set) ----
+   Mirrors GROUP_QR in lib/geometry.mjs + the speaker-promo QR block style:
+   frosted frame + SCAN TO / REGISTER stacked below, left-aligned under the
+   headline. Speaker-promo top-right QR is unchanged. */
+.qr-below {
+  margin-top: 24px;
+  width: fit-content;
+  text-align: center;
+}
+.qr-below-frame {
+  width: 158px;
+  height: 158px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+.qr-below-img {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+}
+.qr-below-cta {
+  margin-top: 4px;
+  line-height: 1.05;
+}
+.qr-below-cta .scan-to {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 15px;
+  color: #ffffff;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+.qr-below-cta .register {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 23px;
+  color: #ffffff;
+  opacity: 0.8;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+
+/* Column of centred rows rather than a grid, so a row holding fewer tiles than
+   the widest one (the 2-over-1 pyramid for three panelists) centres itself. */
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  flex: none;
+}
+.rail-row {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+}
+.tile {
+  position: relative;
+  flex: none; /* size comes from the inline width/height, not the flex row */
+  border-radius: 18px;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 20px 48px -12px rgba(11, 18, 32, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.05) 42%,
+    rgba(11, 18, 32, 0.35) 100%
+  );
+}
+.monogram {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 34px;
+}
+.tile img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+.tile figcaption {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 2;
+}
+.tile-label {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  background: var(--brand-pill);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.tile-label { min-width: 0; }
+.format-story .tile-label { font-size: 16px; }
+.rail.circle .tile figcaption { display: none; }
+.rail.circle .tile { border-radius: 50%; }
+
+/* ---- footer ---- */
+.bottom { position: relative; margin-top: 24px; }
+.rule { border-top: 1px solid var(--brand-line); }
+.byline { padding-top: 16px; }
+.guest-name {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--white);
+}
+.guest-role {
+  margin-top: 3px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.4;
+}
+.byline .sep { color: rgba(255, 255, 255, 0.4); margin: 0 7px; }
+.byline.many .guest-name { font-size: 22px; }
+.byline.many .guest-role { font-size: 16px; }
+.format-story .guest-name { font-size: 30px; }
+.format-story .guest-role { font-size: 20px; }
+.format-landscape .guest-name { font-size: 20px; }
+.format-landscape .guest-role { font-size: 14px; }
+
+.foot-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 16px;
+  flex-wrap: wrap;
+}
+.category {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-faint);
+  white-space: nowrap;
+}
+.category::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand-accent);
+  flex: none;
+}
+.event {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+}
+.event .sep { color: rgba(255, 255, 255, 0.35); }
+.event .website { color: var(--brand-muted); font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.04em; }
+.format-landscape .event { font-size: 14px; }
+.cta {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  color: var(--brand-ink-on-accent, #16232c);
+  background: var(--brand-accent);
+  border-radius: 999px;
+  padding: 12px 26px;
+  white-space: nowrap;
+}
+.format-story .cta { font-size: 22px; padding: 18px 40px; }
+.qr {
+  height: 96px;
+  width: 96px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex: none;
+}
+.format-story .qr { height: 140px; width: 140px; }
+.waveform { display: flex; align-items: flex-end; gap: 3px; }
+.waveform span {
+  width: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* ---- OBA_LIGHT (inverted) overrides ----
+   The light gradient can't carry white text, so hard-coded light-on-dark
+   surfaces switch to ink. Brand-driven tokens (eyebrow, category, pills,
+   rule, dim line) already arrive dark via the OBA_LIGHT preset. */
+body[data-brand="OBA_LIGHT"] .title h1 { color: #16232c; }
+body[data-brand="OBA_LIGHT"] .guest-name { color: #16232c; }
+body[data-brand="OBA_LIGHT"] .guest-role { color: rgba(22, 35, 44, 0.66); }
+body[data-brand="OBA_LIGHT"] .byline .sep { color: rgba(22, 35, 44, 0.4); }
+body[data-brand="OBA_LIGHT"] .event { color: rgba(22, 35, 44, 0.8); }
+body[data-brand="OBA_LIGHT"] .event .sep { color: rgba(22, 35, 44, 0.35); }
+body[data-brand="OBA_LIGHT"] .waveform span { background: rgba(22, 35, 44, 0.3); }
+body[data-brand="OBA_LIGHT"] .scrim {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.25) 40%,
+    rgba(255, 255, 255, 0) 60%
+  );
+}
+body[data-brand="OBA_LIGHT"] .tile { border-color: rgba(22, 35, 44, 0.16); }
+body[data-brand="OBA_LIGHT"] .qr-below-frame {
+  background: rgba(22, 35, 44, 0.06);
+  border-color: #16232c;
+}
+body[data-brand="OBA_LIGHT"] .qr-below-cta .scan-to,
+body[data-brand="OBA_LIGHT"] .qr-below-cta .register { color: #16232c; }
+
+/* ============================================================
+   Toolbar (not part of the exported post)
+   ============================================================ */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  background: #101b22;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.toolbar .tb-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+.toolbar .tb-sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 2px;
+}
+.tb-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tb-actions button {
+  font: 500 12px var(--font-sans);
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.tb-actions button:hover { background: rgba(255, 255, 255, 0.12); }
+.tb-actions button.active {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.tb-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+
+.stage {
+  margin: 24px auto;
+  position: relative;
+  transform-origin: top left;
+}
+
+/* ============================================================
+   JSON editor (not part of the exported post)
+   ============================================================ */
+.editor {
+  max-width: 1280px;
+  margin: 0 auto 40px;
+  padding: 0 20px;
+}
+.editor textarea {
+  width: 100%;
+  height: 320px;
+  resize: vertical;
+  background: #0d151b;
+  color: #d7e1e6;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 14px;
+  font: 12px/1.55 var(--font-mono);
+  outline: none;
+}
+.editor textarea:focus { border-color: rgba(255, 255, 255, 0.35); }
+.editor-actions { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.editor-actions button {
+  font: 500 13px var(--font-sans);
+  color: #0d151b;
+  background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.editor-actions button.secondary { background: transparent; color: rgba(255, 255, 255, 0.75); }
+.editor .err { font: 12px var(--font-mono); color: #ff8f8f; margin-left: 6px; }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+
+  <div class="toolbar" id="toolbar">
+    <div>
+      <span class="tb-title">Panel Social Post Template</span>
+      <span class="tb-sub">square · portrait · story · landscape — OBA / VBI styling</span>
+    </div>
+    <div class="tb-actions">
+      <div class="tb-group" id="formatGroup">
+        <button data-format="square" class="active">Square</button>
+        <button data-format="portrait">Portrait</button>
+        <button data-format="story">Story</button>
+        <button data-format="landscape">Landscape</button>
+      </div>
+      <div class="tb-group" id="brandGroup">
+        <button data-brand="OBA" class="active">OBA</button>
+        <button data-brand="VET">VBI</button>
+        <button data-brand="OBA_LIGHT">Light</button>
+      </div>
+      <button id="editBtn">Edit JSON</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="canvas format-square" id="canvas" role="img" aria-label="Panel social post preview">
+      <div class="layer glow"></div>
+      <div class="layer dots"></div>
+      <div class="layer scrim"></div>
+
+      <header class="top">
+        <span class="eyebrow" id="eyebrow"></span>
+        <div class="brand-lockup">
+          <img class="logo" id="logo" src="../../../../assets/logos/oba-logo-white.png" alt="">
+          <span class="wordmark" id="wordmark"></span>
+        </div>
+      </header>
+
+      <div class="badge-row" id="badgeRow"></div>
+
+      <div class="middle" id="middle">
+        <div class="title-col" id="titleCol"></div>
+        <div class="rail" id="rail"></div>
+      </div>
+
+      <footer class="bottom" id="bottom">
+        <div class="rule"></div>
+        <div class="byline" id="byline"></div>
+        <div class="foot-row" id="footRow">
+          <div class="category" id="category"></div>
+          <div class="event" id="event"></div>
+          <img class="qr hidden" id="qr" alt="QR">
+          <div class="cta" id="cta"></div>
+          <div class="waveform" id="waveform"></div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="editor hidden" id="editor">
+    <textarea id="cfgText" spellcheck="false"></textarea>
+    <div class="editor-actions">
+      <button id="applyCfg">Apply</button>
+      <button class="secondary" id="copyCfg">Copy JSON</button>
+      <button class="secondary" id="closeEditor">Close</button>
+      <span class="err" id="cfgErr"></span>
+    </div>
+  </div>
+
+<script>
+/* ============================================================
+   Inline geometry defaults — mirror lib/geometry.mjs.
+   render.mjs injects the exact Node-side numbers via window.__setGeometry,
+   so the exported PNG always uses the shipped geometry.
+   ============================================================ */
+const GEOMETRY = {
+  FORMATS: {
+    square:    { w: 1080, h: 1080, pad: 56, padTop: 46, padBottom: 42 },
+    portrait:  { w: 1080, h: 1350, pad: 64, padTop: 54, padBottom: 50 },
+    story:     { w: 1080, h: 1920, pad: 64, padTop: 58, padBottom: 58 },
+    landscape: { w: 1200, h: 630,  pad: 52, padTop: 40, padBottom: 36 },
+  },
+};
+
+/* render.mjs injects the exact Node-side geometry so exported PNGs always
+   use the shipped numbers (lib/geometry.mjs). */
+window.__setGeometry = (geom) => {
+  if (geom && geom.FORMATS) Object.assign(GEOMETRY.FORMATS, geom.FORMATS);
+};
+
+/* ============================================================
+   Brands (inline defaults). render.mjs injects real logo data URIs
+   via window.__setBrand.
+   ============================================================ */
+const BRANDS = {
+  OBA: {
+    label: "Ophthalmology Business Academy",
+    wordmark: "OBA",
+    logo: "../../../../assets/logos/oba-logo-white.png",
+    gradient: [["#5b7484", 0], ["#3e5361", 34], ["#263743", 62], ["#16232c", 100]],
+    glow: "rgba(214, 228, 235, 0.5)",
+    dots: "rgba(255,255,255,0.10)",
+    inkOnAccent: "#ffffff",
+    accent: "#3d5361",
+    dim: "rgba(255,255,255,0.55)",
+    textMuted: "rgba(255,255,255,0.66)",
+    textFaint: "rgba(255,255,255,0.55)",
+    pillBg: "rgba(11,18,32,0.42)",
+    line: "rgba(255,255,255,0.14)",
+  },
+  VET: {
+    label: "Veterinary Business Institute",
+    wordmark: "VBI",
+    wordmarkColor: "#ffffff",
+    logo: "",
+    gradient: [["#12332b", 0], ["#0b241f", 40], ["#061512", 78], ["#040c0a", 100]],
+    glow: "rgba(230, 242, 10, 0.16)",
+    dots: "rgba(255,255,255,0.10)",
+    inkOnAccent: "#061512",
+    accent: "#E6F20A",
+    dim: "rgba(230,242,10,0.55)",
+    textMuted: "rgba(230,242,10,0.72)",
+    textFaint: "rgba(230,242,10,0.6)",
+    pillBg: "rgba(4,12,10,0.5)",
+    line: "rgba(230,242,10,0.22)",
+  },
+  OBA_LIGHT: {
+    label: "OBA Light (inverted)",
+    wordmark: "OBA",
+    wordmarkColor: "#16232c",
+    logo: "",
+    gradient: [["#ffffff", 0], ["#e9eff3", 38], ["#cfdae2", 72], ["#b7c7d2", 100]],
+    glow: "rgba(61, 83, 97, 0.18)",
+    dots: "rgba(22,35,44,0.25)",
+    inkOnAccent: "#ffffff",
+    accent: "#3d5361",
+    dim: "rgba(22,35,44,0.55)",
+    textMuted: "rgba(22,35,44,0.66)",
+    textFaint: "rgba(22,35,44,0.55)",
+    pillBg: "rgba(11,18,32,0.42)",
+    line: "rgba(22,35,44,0.16)",
+  },
+};
+
+const WAVE_HEIGHTS = [40, 70, 55, 90, 60, 100, 50, 85, 65, 45, 75, 55, 95, 60, 40, 80];
+
+let currentConfig = null;
+let currentFormat = "square";
+let currentBrand = "OBA";
+
+/* render.mjs injects exact brand objects (logo as data URI) here. */
+window.__BRAND_OVERRIDES = {};
+window.__setBrandOverride = (id, brand) => { window.__BRAND_OVERRIDES[id] = brand; };
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]));
+}
+
+function initials(name) {
+  return String(name)
+    .replace(/,.*$/, "")
+    .split(/[\s·–—-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+}
+
+function applyBrand(brandId) {
+  currentBrand = brandId;
+  const b = (window.__BRAND_OVERRIDES && window.__BRAND_OVERRIDES[brandId]) ||
+    BRANDS[brandId] || BRANDS.OBA;
+  const root = document.documentElement;
+  if (b.gradient) {
+    root.style.setProperty(
+      "--gradient-hero",
+      `radial-gradient(115% 90% at 78% 30%, ${b.gradient
+        .map(([c, p]) => `${c} ${p}%`)
+        .join(", ")})`,
+    );
+  }
+  if (b.glow) {
+    root.style.setProperty(
+      "--gradient-hero-glow",
+      `radial-gradient(60% 55% at 72% 42%, ${b.glow} 0%, rgba(0,0,0,0) 70%)`,
+    );
+  }
+  root.style.setProperty("--brand-accent", b.accent);
+  root.style.setProperty("--brand-ink-on-accent", b.inkOnAccent || "#16232c");
+  root.style.setProperty("--brand-dim", b.dim);
+  root.style.setProperty("--brand-muted", b.textMuted);
+  root.style.setProperty("--brand-faint", b.textFaint);
+  root.style.setProperty("--brand-pill", b.pillBg);
+  root.style.setProperty("--brand-line", b.line);
+  root.style.setProperty("--brand-dots", b.dots || "rgba(255,255,255,0.10)");
+  const logo = document.getElementById("logo");
+  const wm = document.getElementById("wordmark");
+  if (b.logo && (b.logo.startsWith("data:") || b.logo.startsWith("../../../../assets/"))) {
+    logo.src = b.logo;
+    logo.style.display = "";
+    if (wm) wm.style.display = "none";
+  } else {
+    logo.style.display = "none";
+    if (wm) {
+      wm.textContent = b.wordmark || "";
+      wm.style.display = b.wordmark ? "" : "none";
+      wm.style.color = b.wordmarkColor || "#ffffff";
+    }
+  }
+  document.body.dataset.brand = brandId;
+  document.querySelectorAll("#brandGroup button[data-brand]").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.brand === brandId);
+  });
+}
+window.__setBrand = applyBrand;
+
+function setFormat(fmt) {
+  currentFormat = fmt;
+  const canvas = document.getElementById("canvas");
+  canvas.className = "canvas format-" + fmt;
+  document.querySelectorAll("#formatGroup button[data-format]").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.format === fmt);
+  });
+  if (currentConfig) render(currentConfig);
+}
+window.__setFormat = setFormat;
+
+/* Mirrors TILE_GROW / rowPlan / tileLayout in lib/geometry.mjs — keep in sync. */
+const TILE_GROW = 1.2;
+
+function rowPlanFor(n, fmt) {
+  if (n === 3 && (fmt === "square" || fmt === "portrait")) return [2, 1];
+  if (n === 4 && (fmt === "square" || fmt === "portrait")) return [2, 2];
+  if (n >= 7) {
+    const plan = [];
+    for (let left = n; left > 0; left -= 4) plan.push(Math.min(4, left));
+    return plan;
+  }
+  if (n >= 5) {
+    const plan = [];
+    for (let left = n; left > 0; left -= 3) plan.push(Math.min(3, left));
+    return plan;
+  }
+  return [n];
+}
+
+function tileLayoutFor(fmt, count) {
+  const F = GEOMETRY.FORMATS[fmt] || GEOMETRY.FORMATS.square;
+  const availW = F.w - F.pad * 2;
+  const railShare = fmt === "landscape" ? 0.54 : fmt === "story" ? 1.0 : 0.47;
+  const railMaxW = availW * railShare;
+  const gap = fmt === "story" ? 22 : 18;
+  const n = Math.max(count, 1);
+  const rowCounts = rowPlanFor(n, fmt);
+  const cols = Math.max.apply(null, rowCounts);
+  const rows = rowCounts.length;
+  if (n >= 7) {
+    const size = Math.min((railMaxW - (cols - 1) * gap) / cols, (F.h * 0.55 * TILE_GROW - gap * (rows - 1)) / rows);
+    return { cols, rows, rowCounts, tileW: size, tileH: size, gap, circle: true };
+  }
+  if (n <= 2) {
+    const tileW = Math.min((railMaxW - (cols - 1) * gap) / cols, 360 * TILE_GROW);
+    const tileH = Math.min(tileW * 1.25, F.h * 0.62);
+    return { cols, rows, rowCounts, tileW, tileH, gap, circle: false };
+  }
+  if (n <= 4) {
+    if (rows > 1) {
+      let rShare = railShare;
+      if (fmt === "portrait") rShare = 0.40;
+      const rMaxW = availW * rShare;
+      let tileW = (rMaxW - gap) / cols;
+      let tileH = tileW * 1.15;
+      const maxTileH = (F.h * 0.40 * TILE_GROW - gap) / rows;
+      tileH = Math.min(tileH, maxTileH);
+      tileW = tileH / 1.15;
+      const maxW = ({ square: 230, portrait: 200 }[fmt] || 200) * TILE_GROW;
+      if (tileW > maxW) {
+        tileW = maxW;
+        tileH = tileW * 1.15;
+      }
+      return { cols, rows, rowCounts, tileW, tileH, gap, circle: false };
+    }
+    const tileW = (railMaxW - (cols - 1) * gap) / cols;
+    return { cols, rows, rowCounts, tileW, tileH: tileW * 1.25, gap, circle: false };
+  }
+  const tileW = (railMaxW - (cols - 1) * gap) / cols;
+  return { cols, rows, rowCounts, tileW, tileH: tileW * 1.3, gap, circle: false };
+}
+
+function render(cfg) {
+  const guests = (cfg.panelists || []).filter(Boolean);
+  const n = guests.length;
+
+  /* Compact 4+ sizing (mirrors MANY4) — setFormat() rebuilds className, but it
+     always re-calls render(), so the toggle re-applies. */
+  document.getElementById("canvas").classList.toggle("many", n >= 4);
+
+  document.getElementById("eyebrow").textContent = cfg.eyebrow || "";
+
+  const titleHTML = (cfg.title || [])
+    .map((frag) =>
+      `<span class="${frag.dim ? "dim" : ""}">${esc(frag.text)}</span>${frag.br ? "<br>" : ""}`,
+    )
+    .join("");
+  document.getElementById("titleCol").innerHTML =
+    `<div class="title"><h1>${titleHTML}</h1></div>` +
+    (currentFormat === "square" && cfg.event && cfg.event.qr
+      ? `<div class="qr-below"><div class="qr-below-frame"><div class="qr-below-img" style="background-image:url(&quot;${esc(cfg.event.qr)}&quot;)"></div></div><div class="qr-below-cta"><div class="scan-to">SCAN TO</div><div class="register">REGISTER</div></div></div>`
+      : "");
+
+  /* Badge row: urgency (happening_today) or countdown (one_more_day). */
+  const badgeRow = document.getElementById("badgeRow");
+  let badgeHTML = "";
+  if (cfg.urgency) {
+    badgeHTML += `<div class="urgency">${esc(cfg.urgency)}</div>`;
+  }
+  if (cfg.countdown && (cfg.countdown.number || cfg.countdown.label)) {
+    badgeHTML += `<div class="countdown"><span class="countdown-num">${esc(cfg.countdown.number || "")}</span>` +
+      (cfg.countdown.label ? `<span class="countdown-label">${esc(cfg.countdown.label)}</span>` : "") + `</div>`;
+  }
+  badgeRow.innerHTML = badgeHTML;
+  badgeRow.style.display = badgeHTML ? "" : "none";
+
+  /* Headshot rail. */
+  const rail = document.getElementById("rail");
+  const tl = tileLayoutFor(currentFormat, Math.max(n, 1));
+  rail.className = "rail" + (tl.circle ? " circle" : "");
+  rail.style.gap = `${tl.gap}px`;
+  const monoSize = tl.tileW * 0.26;
+  const tileHTML = (g) => {
+    const img = g.photo
+      ? `<img src="${esc(g.photo)}" alt="${esc(g.name)}" onerror="this.style.display='none'">`
+      : "";
+    return (
+      `<figure class="tile" title="${esc(g.name)}" style="width:${tl.tileW}px;height:${tl.tileH}px">` +
+      `<div class="monogram" style="font-size:${monoSize.toFixed(0)}px">${esc(initials(g.name)) || "?"}</div>` +
+      img +
+      `<figcaption>` +
+      `<span class="tile-label">${g.photo ? esc(g.short || g.name) : "Portrait"}</span>` +
+      `</figcaption></figure>`
+    );
+  };
+  /* One centred row per entry in rowCounts, so short rows sit in the middle. */
+  let cursor = 0;
+  rail.innerHTML = (tl.rowCounts || [guests.length])
+    .map((count) => {
+      const row = guests.slice(cursor, cursor + count);
+      cursor += count;
+      return `<div class="rail-row" style="gap:${tl.gap}px">${row.map(tileHTML).join("")}</div>`;
+    })
+    .join("");
+
+  /* Byline. */
+  const byline = document.getElementById("byline");
+  byline.className = "byline" + (n > 1 ? " many" : "");
+  const real = guests.filter((g) => !g.placeholder);
+  if (real.length === 1) {
+    const g = real[0];
+    const cred = g.credentials ? `, ${esc(g.credentials)}` : "";
+    byline.innerHTML =
+      `<div class="guest-name">${esc(g.name)}${cred}</div>` +
+      ((g.role || g.company) ? `<div class="guest-role">${[g.role, g.company].filter(Boolean).join(" · ")}</div>` : "");
+  } else if (real.length > 1) {
+    const names = real.map((g) => esc(g.name)).join('<span class="sep">·</span>');
+    const roles = real.every((g) => g.role || g.company)
+      ? real.map((g) => [g.role, g.company].filter(Boolean).join(" · ")).join('<span class="sep">·</span>')
+      : "";
+    byline.innerHTML =
+      `<div class="guest-name">With ${names}</div>` +
+      (roles ? `<div class="guest-role">${roles}</div>` : "");
+  } else {
+    byline.innerHTML = "";
+  }
+
+  /* Footer. */
+  document.getElementById("category").textContent = cfg.category || "";
+
+  const ev = cfg.event || {};
+  const parts = [];
+  if (ev.date) parts.push(esc(ev.date));
+  if (ev.time) parts.push(esc(ev.time));
+  if (ev.website) parts.push(`<span class="website">${esc(ev.website)}</span>`);
+  document.getElementById("event").innerHTML =
+    parts.length ? parts.map((p, i) => (i ? `<span class="sep">·</span>${p}` : p)).join("") : "";
+
+  const cta = document.getElementById("cta");
+  cta.textContent = ev.cta || "";
+  cta.style.display = ev.cta ? "" : "none";
+
+  const qr = document.getElementById("qr");
+  /* Square group posts show the QR below the headline instead, so the footer
+     QR is hidden there to avoid duplication. Other formats keep footer QR. */
+  const qrBelowHeadline = currentFormat === "square" && !!ev.qr;
+  if (ev.qr && !qrBelowHeadline) {
+    qr.src = ev.qr;
+    qr.classList.remove("hidden");
+  } else {
+    qr.removeAttribute("src");
+    qr.classList.add("hidden");
+  }
+
+  document.getElementById("waveform").innerHTML = WAVE_HEIGHTS.map(
+    (h) => `<span style="height:${((h / 100) * 24).toFixed(1)}px"></span>`,
+  ).join("");
+}
+
+function applyConfig(cfg) {
+  currentConfig = JSON.parse(JSON.stringify(cfg));
+  if (cfg.brand) applyBrand(cfg.brand);
+  render(currentConfig);
+  window.__currentConfig = currentConfig;
+  return currentConfig;
+}
+window.applyConfig = applyConfig;
+
+/* ---- demo presets ---- */
+const DEMO_POST = {
+  name: "the_intro",
+  postType: "the_intro",
+  brand: "OBA",
+  eyebrow: "OBA · Expert Panel",
+  title: [
+    { text: "Eye care, ", br: true },
+    { text: "rethought.", br: true },
+    { text: "Four leaders on the modern practice.", dim: true },
+  ],
+  category: "Practice Growth · Leadership",
+  event: {
+    name: "OBA Expert Panel",
+    date: "Aug 26th, 2026",
+    time: "8:00 PM – 9:00 PM",
+    website: "oba.academy",
+    cta: "Register Now",
+  },
+  panelists: [
+    { name: "Shanika Esparaz", credentials: "MD", role: "Ophthalmologist", company: "Founder", quote: "The patient experience starts before the patient ever arrives." },
+    { name: "Deep Parikh", credentials: "MD", role: "Ophthalmologist", company: "Entrepreneur" },
+    { name: "Omar R. Shakir", credentials: "MD, MBA", role: "Ophthalmologist", company: "" },
+    { name: "Sarah Duval", credentials: "COE, COA", role: "Practice Administrator", company: "" },
+  ],
+};
+
+const DEMOS = {
+  the_intro: { ...DEMO_POST, name: "the_intro", postType: "the_intro", eyebrow: "OBA · Expert Panel" },
+  intro_panel_one: {
+    ...DEMO_POST,
+    name: "intro_panel_one",
+    postType: "intro_panel_one",
+    eyebrow: "OBA · Meet the Panel",
+    title: [
+      { text: "Meet Shanika ", br: true },
+      { text: "Esparaz, MD.", br: true },
+      { text: "Ophthalmologist · Founder", dim: true },
+    ],
+    panelists: [DEMO_POST.panelists[0]],
+  },
+  intro_panel_two: {
+    ...DEMO_POST,
+    name: "intro_panel_two",
+    postType: "intro_panel_two",
+    eyebrow: "OBA · Meet the Panel",
+    title: [
+      { text: "Meet Deep ", br: true },
+      { text: "Parikh, MD.", br: true },
+      { text: "Ophthalmologist · Entrepreneur", dim: true },
+    ],
+    panelists: [DEMO_POST.panelists[1]],
+  },
+  one_more_day: {
+    ...DEMO_POST,
+    name: "one_more_day",
+    postType: "one_more_day",
+    eyebrow: "OBA · Expert Panel",
+    countdown: { number: "1", label: "More day to go" },
+    title: [
+      { text: "One more day ", br: true },
+      { text: "to the panel.", br: true },
+    ],
+  },
+  happening_today: {
+    ...DEMO_POST,
+    name: "happening_today",
+    postType: "happening_today",
+    eyebrow: "OBA · Expert Panel",
+    urgency: "Happening today!",
+    title: [
+      { text: "Tonight at 8 PM.", br: true },
+      { text: "See you there.", br: true },
+    ],
+  },
+  panel: {
+    ...DEMO_POST,
+    name: "panel",
+    postType: "panel",
+    eyebrow: "OBA · Expert Panel",
+    title: [
+      { text: "The modern ", br: true },
+      { text: "practice panel.", br: true },
+      { text: "Four leaders. One conversation.", dim: true },
+    ],
+  },
+};
+
+/* ---- preview scaling ---- */
+function setPreviewScale(s) {
+  const stage = document.getElementById("stage");
+  const canvas = document.getElementById("canvas");
+  canvas.style.transform = `scale(${s})`;
+  canvas.style.transformOrigin = "top left";
+  const F = GEOMETRY.FORMATS[currentFormat] || GEOMETRY.FORMATS.square;
+  stage.style.width = `${F.w * s}px`;
+  stage.style.height = `${F.h * s}px`;
+}
+window.setPreviewScale = setPreviewScale;
+
+function fitPreview() {
+  const tb = document.getElementById("toolbar").offsetHeight;
+  const F = GEOMETRY.FORMATS[currentFormat] || GEOMETRY.FORMATS.square;
+  const s = Math.min(1, (window.innerWidth - 48) / F.w, (window.innerHeight - tb - 48) / F.h);
+  setPreviewScale(Math.max(s, 0.2));
+}
+
+/* ---- toolbar wiring ---- */
+document.querySelectorAll("#formatGroup button[data-format]").forEach((btn) => {
+  btn.addEventListener("click", () => setFormat(btn.dataset.format));
+});
+document.querySelectorAll("#brandGroup button[data-brand]").forEach((btn) => {
+  btn.addEventListener("click", () => { applyBrand(btn.dataset.brand); if (currentConfig) render(currentConfig); });
+});
+
+const editor = document.getElementById("editor");
+const cfgText = document.getElementById("cfgText");
+const cfgErr = document.getElementById("cfgErr");
+
+document.getElementById("editBtn").addEventListener("click", () => {
+  cfgText.value = JSON.stringify(currentConfig, null, 2);
+  cfgErr.textContent = "";
+  editor.classList.toggle("hidden");
+  if (!editor.classList.contains("hidden")) cfgText.focus();
+});
+document.getElementById("applyCfg").addEventListener("click", () => {
+  try {
+    applyConfig(JSON.parse(cfgText.value));
+    cfgErr.textContent = "✓ rendered";
+  } catch (e) {
+    cfgErr.textContent = "Invalid JSON: " + e.message;
+  }
+});
+document.getElementById("closeEditor").addEventListener("click", () => editor.classList.add("hidden"));
+document.getElementById("copyCfg").addEventListener("click", async () => {
+  const json = JSON.stringify(currentConfig, null, 2);
+  try {
+    await navigator.clipboard.writeText(json);
+    cfgErr.textContent = "✓ copied";
+  } catch {
+    cfgText.value = json;
+    cfgText.select();
+    document.execCommand("copy");
+    cfgErr.textContent = "✓ copied";
+  }
+});
+
+/* ---- init ---- */
+applyBrand("OBA");
+applyConfig(DEMOS.the_intro);
+fitPreview();
+window.addEventListener("resize", fitPreview);
+</script>
+</body>
+</html>
