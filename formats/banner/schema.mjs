@@ -3,9 +3,10 @@
  * front door (panel-kit/docs/CONTRACT.md §3.1). Brand options come from the packs that
  * have a banner design, so adding a brand file adds it here.
  */
+import { defineSchema } from "../../panel-kit/lib/index.mjs";
 import { brandsFor } from "../../core/brands.mjs";
 
-export default {
+export default defineSchema({
   tool: "banner",
   title: "Zoom Banner",
   configDir: "panels",
@@ -60,4 +61,4 @@ export default {
       ],
     },
   ],
-};
+});

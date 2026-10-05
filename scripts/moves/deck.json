@@ -165,6 +165,29 @@
       "dest": "tests/deck.test.mjs",
       "mode": "adapted",
       "note": "runs against a scratch workspace with a self-contained fixture deck; adds the frozen output contract check"
+    },
+    {
+      "src": "g-slides/gui/schema.mjs",
+      "dest": "formats/deck/schema.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { defineSchema } from \"../panel-kit/lib/index.mjs\";",
+          "import { defineSchema } from \"../../panel-kit/lib/index.mjs\";\nimport { brandsFor } from \"../../core/brands.mjs\";"
+        ],
+        [
+          "  tool: \"g-slides\",",
+          "  tool: \"deck\","
+        ],
+        [
+          "  assetDirs: { headshots: \"headshots\", qrs: \"qrs\", logos: \"logos\" },",
+          "  assetDirs: { headshots: \"assets/headshots\", qrs: \"assets/qrs\", logos: \"assets/sponsors\" },"
+        ],
+        [
+          "{ path: \"brand\", label: \"Brand\", type: \"enum\", options: [\"OBA\", \"VET\"], default: \"OBA\" },",
+          "{ path: \"brand\", label: \"Brand\", type: \"enum\", options: brandsFor(\"deck\"), default: \"OBA\" },"
+        ]
+      ]
     }
   ]
 }
