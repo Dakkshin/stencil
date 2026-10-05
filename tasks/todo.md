@@ -11,7 +11,7 @@ Source of truth: vault note `Ekwa Organization/Reference/Tools/Stencil.md`. Deta
 - [x] T4: Chromium loader and SVG helpers (S)
 - [x] T5: Brand registry and the OBA and IU packs (M)
 - [x] T6: OBA_LIGHT, IU_LIGHT and VET packs (S)
-- [ ] T7: Content and asset import script (M)
+- [x] T7: Content and asset import script (M)
 - [ ] T8: Output contract, format registry and the CLI (M)
 - [ ] T9: Parity harness (M)
 - [x] T10: Moves manifest and verifier (S)
