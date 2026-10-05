@@ -1,0 +1,51 @@
+{
+  "about": "Every file moved from a fork into Stencil. src is relative to Automation/, dest to stencil/. verbatim = equal to src after the literal rewrites (checked by scripts/verify-moves.mjs); adapted = provenance only.",
+  "moves": [
+    {
+      "src": "podcast-thumbnails/oba-thumbnail-template.html",
+      "dest": "formats/thumb/layouts/classic/template.html",
+      "mode": "verbatim",
+      "rewrites": [],
+      "note": "the classic PNG truth; keeps its Google Fonts link (plan A12) and its embedded logo, which the classic SVG reads"
+    },
+    {
+      "src": "podcast-thumbnails/render-svg.mjs",
+      "dest": "formats/thumb/layouts/classic/render-svg.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { fileURLToPath } from \"node:url\";",
+          "import { fileURLToPath } from \"node:url\";\nimport { CANVA, FONTS, LOGOS, ROOT } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const OUT_DIR = path.join(__dirname, \"canva\");",
+          "const OUT_DIR = CANVA;"
+        ],
+        [
+          "const FONT_MEDIA_DIR = path.join(__dirname, \"fonts\");",
+          "const FONT_MEDIA_DIR = FONTS;"
+        ],
+        [
+          "path.join(__dirname, \"..\", \"oba-website\", \"package.json\")",
+          "path.join(ROOT, \"package.json\")"
+        ],
+        [
+          "const templatePath = path.join(__dirname, \"oba-thumbnail-template.html\");",
+          "const templatePath = path.join(__dirname, \"template.html\");"
+        ],
+        [
+          "const logoPath = path.join(__dirname, \"..\", \"oba-website\", \"public\", \"images\", \"oba-logo-white.png\");",
+          "const logoPath = path.join(LOGOS, \"oba-logo-white.png\");"
+        ]
+      ],
+      "note": "the logo still comes from the data URI in template.html (its bytes differ from assets/logos/oba-logo-white.png, which is only the fallback); writes canva/OBA-<name>.svg"
+    },
+    {
+      "src": "podcast-thumbnails/gen.mjs",
+      "dest": "formats/thumb/layouts/classic/normalize.mjs",
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "lines 102-193 (resolvePhoto, normalizeResult, normalize); photos resolve through core/assets.mjs; normalize returns null instead of exiting so the format CLI owns the exit code"
+    }
+  ]
+}
