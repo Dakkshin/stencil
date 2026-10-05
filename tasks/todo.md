@@ -6,7 +6,7 @@ Source of truth: vault note `Ekwa Organization/Reference/Tools/Stencil.md`. Deta
 ## Phase 0: Foundations
 
 - [x] T1: Scaffold the repository and the one dependency set (S)
-- [ ] T2: One TOML parser (S)
+- [x] T2: One TOML parser (S)
 - [ ] T3: Paths, workspace and the single asset pool (S)
 - [ ] T4: Chromium loader and SVG helpers (S)
 - [ ] T5: Brand registry and the OBA and IU packs (M)
@@ -14,7 +14,7 @@ Source of truth: vault note `Ekwa Organization/Reference/Tools/Stencil.md`. Deta
 - [ ] T7: Content and asset import script (M)
 - [ ] T8: Output contract, format registry and the CLI (M)
 - [ ] T9: Parity harness (M)
-- [ ] T10: Moves manifest and verifier (S)
+- [x] T10: Moves manifest and verifier (S)
 - [ ] Checkpoint 0: `node --test tests/` green; `node parity/golden.mjs banner` writes golden
       outputs for all 5 panels; every fork's `git status` and file hashes unchanged. Blocks Phase 1.
 

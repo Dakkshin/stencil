@@ -1,1 +1,2 @@
 tests: node --test tests/
+moves: node scripts/verify-moves.mjs
