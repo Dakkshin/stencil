@@ -1,0 +1,208 @@
+# OBA slide deck. Copy to decks/<name>.toml, then:  node gen.mjs <name>
+#
+# PARSER LIMITS (lib/toml.mjs): single-level [tables], [[arrays-of-tables]], strings,
+# ints, bools and arrays. No nested tables, no inline tables, no dates, no multi-line
+# strings — any of those throw with a line number.
+#
+# ALL TOP-LEVEL KEYS MUST APPEAR BEFORE THE FIRST [table] HEADER. Once a header is read,
+# every bare key below it belongs to that table. gen.mjs fails loudly and names the line
+# rather than silently re-homing the key.
+#
+# SLIDE ORDER IS DERIVED. A section renders only if its table exists, so the way to drop
+# the sponsor slide is to delete [sponsor] — not to edit `order`. Numbering closes up.
+
+deck  = "sep17-referral-growth"   # output stem; defaults to this file's name
+brand = "OBA"                     # OBA | VET — tokens come from ../panel-social-posts/brands.mjs
+
+# Optional. Omit to use the default:
+#   cover, sponsor, agenda, spotlights, offer_primary, offer_secondary, qa, closing
+# "spotlights" expands to one slide per speaker, in the order listed below.
+# "divider:Some Text" injects a section-divider slide anywhere you like.
+order = [
+  "cover",
+  "sponsor",
+  "agenda",
+  "stat",
+  "divider:Meet the panel",
+  "spotlights",
+  "offer_primary",
+  "offer_secondary",
+  "qa",
+  "closing",
+]
+
+# Speaker profile stems, in presentation order. Each resolves against speakers/<stem>.toml
+# first, then the shared pool at ../panel-social-posts/panelists/<stem>.toml.
+# Max 6 on the cover — past that a cover stops being a cover, so it is a hard error.
+speakers = ["sean-hanlon", "chris-bonsall", "amanda-cardwell", "christine-lapointe"]
+
+# ---------------------------------------------------------------------------- event ---
+[event]
+name     = "OBA Expert Panel"              # printed bottom-left on every content slide
+category = "Practice Growth · Referrals"
+date     = "September 17, 2026"
+time     = "8:00 PM – 9:00 PM ET"
+format   = "Live Zoom Panel · 60 min"
+cost     = "Complimentary for attendees"
+website  = "oba.academy"
+
+# ---------------------------------------------------------------------------- cover ---
+[cover]
+# One string per line. Prefix a line with "~" to set it in the dimmed second tone —
+# the two-tone headline is the brand's signature (OBA BRAND.md §6). Max 3 lines.
+title    = ["Where Referral Growth", "~Actually Comes From"]
+subtitle = "Four operators on the systems that fill a schedule without more ad spend."
+
+# -------------------------------------------------------------------------- sponsor ---
+# Delete this whole block to drop the sponsor slide.
+#
+# Two matching cards on one band. The LEFT card is the story: the sponsor's mark as a
+# masthead across the top, then `description` and `detail` grouped beneath it. The RIGHT
+# card is the proof: a label pill, then one hairline-separated row per entry. `cta` +
+# `website` join into the single mono line under both cards — they are NOT a button.
+#
+# `level` sets the slide's HEADER EYEBROW, so the card carries no pill repeating it, and
+# there is no title: the mark states the name. If the logo has not arrived yet, `name` is
+# set as the card's headline in the mark's place instead — so a sponsor without artwork
+# still reads. The mark is a fixed 760x280 badge and does not grow to fill space; copy
+# that does not fit overruns the card and the build names it.
+[sponsor]
+level       = "Presenting Sponsor"
+name        = "Navigate Patient Solutions"
+logo        = "navigate.png"    # bare filename resolves to logos/; missing = `name` as headline
+description = "Referral infrastructure for ophthalmology practices — intake, routing and follow-up in one system."
+# Optional second paragraph. It sits directly under `description`, as one copy group.
+detail      = "Built for practices that want every referral tracked from first call to post-op."
+# Optional label pill over the proof rows. Omit it and the first row starts at the top.
+proof_label = "Client proof"
+cta         = "Learn more about Navigate"
+website     = "navigatepatientsolutions.com"
+
+# Up to 4, rendered as hairline-separated rows inside the proof card. Each `text` must
+# fit TWO lines at body size in the card (~670px) — but four rows only close on the band
+# at ONE line each, so in practice keep them short. `stars` is optional and defaults to
+# none: a proof point that is a metric rather than a client quote should not grow a
+# rating it never claimed.
+[[sponsor_proof]]
+text   = "“Cut our referral response time to under six hours”"
+source = "Multi-site retina group"
+stars  = 5
+
+[[sponsor_proof]]
+text   = "18% lift in converted referrals in the first quarter."
+source = "Independent ASC"
+
+# --------------------------------------------------------------------------- agenda ---
+[agenda]
+heading = "What we're covering"
+
+# 4 or 5 topics. Both counts fill the band; 6 does not fit and is a build failure.
+# `note` must fit ONE line at body size (~110 characters); a second line is a build
+# failure, not a smaller font.
+[[topic]]
+title = "Where referrals actually originate"
+note  = "Mapping the five real sources before you spend money on any of them."
+
+[[topic]]
+title = "The first-touch window"
+note  = "Why response time beats every other lever you can pull."
+
+[[topic]]
+title = "Building the referral loop"
+note  = "Closing the report-back cycle so the referrer sends the next one."
+
+[[topic]]
+title = "Measuring what matters"
+note  = "The three numbers that predict next quarter's volume."
+
+# ------------------------------------------------------------------------------ stat ---
+# Optional pattern interrupt: one big number and one line, centred, no footer. Text-only
+# works too (omit `value`). Only ever use a figure the client can stand behind.
+[stat]
+value  = "41%"
+text   = "of referred patients never book with the practice they were sent to."
+note   = "Which stage of the handoff loses them, and who should own it?"   # optional, under the line
+source = "OBA practice survey, 2026"
+
+# ---------------------------------------------------------------- speaker overrides ---
+# Optional, and usually unnecessary. `bio` (exactly 3) and `tags` (2–3) drive the
+# spotlight slide. Each bio point fits at most TWO lines (~150 characters). Put them in
+# the shared profile once they are stable; use a block here only when THIS deck needs
+# to frame someone differently.
+#
+# `stat` + `stat_label` put one number the audience should remember on the spotlight,
+# right-aligned on the name row ("17,000+" / "Eye-care providers on CoFi"). `website`
+# prints on the spotlight tag row and under the name on the closing slide. All optional.
+#
+# [[speaker_override]]
+# ref        = "sean-hanlon"
+# stat       = "17,000+"
+# stat_label = "Eye-care providers on CoFi"
+# website    = "cofimd.com"
+# bio        = ["...", "...", "..."]
+# tags       = ["Referral Systems", "Commercial Ops", "Practice Growth"]
+
+# -------------------------------------------------------------------- primary offer ---
+[offer_primary]
+headline = "Every attendee leaves with the Referral Audit"
+support  = "A 12-point worksheet that finds where your referral pipeline leaks — usable the morning after this call."
+# The QR sits in a glass PANEL, sized to its contents and centred in the band. These
+# three fill it, top to bottom: the panel's title, a value badge, then the code.
+panel_title = "The Referral Audit"     # optional; names the thing being offered
+value    = "$450 value"           # optional badge pill inside the panel
+url      = "oba.academy/referral-audit"
+cta      = "Scan to get it"       # caption under the QR; balanced to 2 lines if long
+qr       = "referral-audit.png"   # bare filename resolves to qrs/; missing = empty frame
+
+# 3 or 4. Three render as one row, four as a 2x2 grid.
+[[benefit]]
+title = "Find the leak in one sitting"
+note  = "Twelve questions, ninety minutes, one ranked list of fixes."
+
+[[benefit]]
+title = "Benchmark against 200 practices"
+note  = "See where your response time actually sits."
+
+[[benefit]]
+title = "A 30-day sequence"
+note  = "The exact follow-up cadence the panel uses."
+
+[[benefit]]
+title = "Templates included"
+note  = "Report-back letters and intake scripts, ready to send."
+
+# ------------------------------------------------------------------ secondary offer ---
+[offer_secondary]
+headline = "Bring it to your whole team"
+support  = "The OBA Practice Cohort runs the same audit across your front desk, techs and surgeons."
+items    = [
+  "Six live working sessions",
+  "A named OBA operator on every call",
+  "Your own referral dashboard",
+  "Peer benchmarking against the cohort",
+]
+visual = ""                        # optional image in logos/; empty = glass placeholder
+url    = "oba.academy/cohort"
+qr     = "cohort.png"
+
+# ------------------------------------------------------------------------------ Q&A ---
+[qa]
+# The two prompts sit side by side, the recap pills flow in a row beneath them
+# (wrapping to a second row if a deck has enough topics), and the rail is a
+# full-height card. Keep `speaking`/`chat` to one line each: they fit a ~460px
+# measure, and a second line is allowed but pushes the pair taller.
+heading  = "Your Q&A"
+support  = "Ask the panel anything"   # optional line under the heading rule
+speaking = "Raise your hand to speak live"
+chat     = "Type your question in chat or Q&A"
+recap    = true                    # re-list the [[topic]] titles as pills below the prompts
+reminder = "The Referral Audit link is in the chat and on the next slide."
+cta      = "Scan for the audit"    # caption under the QR plate; default is "Scan for the link"
+qr       = "referral-audit.png"
+
+# -------------------------------------------------------------------------- closing ---
+[closing]
+message = "Thank you for spending an hour with us."
+next    = "The recording and the audit land in your inbox tomorrow."
+website = "oba.academy"
+qr      = "referral-audit.png"

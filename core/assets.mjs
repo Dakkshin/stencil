@@ -37,7 +37,7 @@ export function resolveAsset(ref, kind, { local = [] } = {}) {
 
 export const resolvePhoto = (ref, opts) => resolveAsset(ref, "headshots", opts);
 export const resolveQr = (ref, opts) => resolveAsset(ref, "qrs", opts);
-export const resolveLogoAsset = (ref, opts) => resolveAsset(ref, "logos", opts);
+export const resolveSponsorLogo = (ref, opts) => resolveAsset(ref, "sponsors", opts);
 
 /** A panelist profile by stem: local dirs first, then the panelist pools. */
 export function resolvePanelist(stem, { local = [] } = {}) {

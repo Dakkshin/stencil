@@ -25,8 +25,9 @@ export const BRANDS_DIR = path.join(ROOT, "brands");
 export const FORMATS_DIR = path.join(ROOT, "formats");
 
 /* Content pools. A workspace pool is searched before the repo's own pool, so a
-   campaign workspace can override a shared photo without touching the pool. */
-export const POOL_KINDS = ["headshots", "panelists", "qrs", "logos"];
+   campaign workspace can override a shared photo without touching the pool.
+   Brand logos are the instrument (LOGOS above); sponsor logos are client content. */
+export const POOL_KINDS = ["headshots", "panelists", "qrs", "sponsors"];
 
 export function poolDirs(kind) {
   if (!POOL_KINDS.includes(kind)) throw new Error(`unknown asset pool "${kind}" (have: ${POOL_KINDS.join(", ")})`);

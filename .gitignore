@@ -26,6 +26,8 @@ assets/panelists/*
 !assets/panelists/.gitkeep
 assets/qrs/*
 !assets/qrs/.gitkeep
+assets/sponsors/*
+!assets/sponsors/.gitkeep
 
 # Local tooling
 node_modules/

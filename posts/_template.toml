@@ -1,0 +1,61 @@
+# IU panel social post — copy this file to <name>.toml and fill it in.
+# Then run:  node gen.mjs <name>
+
+post_type = "the_intro"        # the_intro | intro_panel_one | intro_panel_two |
+                                # one_more_day | happening_today | panel | speaker_promo
+brand = "IU"                   # IU (Depth, dark) | IU_LIGHT (Air, light — group posts only)
+formats = ["square", "portrait", "story", "landscape"]   # default: all four
+# portrait_tone = "bw"         # speaker_promo only: default "color"; "bw" opts into grayscale
+
+# campaign + output_name for subdir + custom stems (e.g. speaker intros):
+# campaign = "2026-10-22-fee-schedule-reset"
+# output_name = "The_Intro"   # +1 panelist => The_Intro_Name stem; writes to out/<campaign>/<fmt>/...@2x.png (clean name)
+# person = "first-last"       # optional: own out/<campaign>/<person>/<fmt>/ bucket for their set (omit => shared/)
+
+eyebrow = "Insurance Untangled · Live"
+category = "PPO Contracts · Negotiation"
+
+# Headline — write it under prompts/copy-system-prompt.md (read it first).
+# One string per line, sentence case, specific to dental practices.
+# Prefix ONE line with "~" to set it as the EB Garamond italic accent line.
+# Long lines wrap automatically.
+title = [
+  "The fee schedule reset.",
+  "~Renegotiate before 2027 locks you in.",
+]
+
+# Optional urgency pill (happening_today) …
+# urgency = "Live tonight"
+
+# … or a countdown (one_more_day):
+# [countdown]
+# number = "1"
+# label = "More day to go"
+
+# Panelists: reference profiles in panelists/ by filename stem …
+panelists = [
+  "first-last",
+]
+
+# … or inline them. Inline fields override the profile for this post only.
+# [[panelists]]
+# name = "Someone New"
+# credentials = ""
+# role = ""
+# company = ""
+# short = "S. New"
+# photo = ""
+# quote = ""
+
+[event]
+name = "Insurance Untangled Live"
+date = "Oct 22nd, 2026"
+time = "8:00 PM – 9:00 PM EST"
+# website = ""                 # only a real IU URL — never guess one
+cta = "Register Now"
+ce = "1 CE credit"              # mandatory on PACE-accredited IU events (PACE badge renders beside the CTA)
+# qr = "register.png"          # optional QR image — drop it in qrs/ and use
+                                # the bare filename. Group posts: square shows
+                                # the QR below the headline; portrait/story/
+                                # landscape keep the footer QR. speaker_promo:
+                                # top-right QR block when set.
