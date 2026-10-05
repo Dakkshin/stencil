@@ -1,0 +1,52 @@
+# Insurance Untangled episode thumbnail — copy this file to epXXX.toml and fill it in.
+# Drop guest photos into ../headshots/ and reference them by filename below.
+
+mode = "dark"          # "dark" (Depth ground, default) or "light" (Air ground)
+episode = 0            # just for humans — not rendered
+eyebrow = "Insurance Untangled · Ep 1XX"
+category = "Practice Economics"
+# hook = "The hidden cost of write-offs"
+                       # OPTIONAL. The stopping point above the claim — replaces
+                       # the small kicker text when set. Keep it short and blunt.
+
+# Headline — one string per line. Prefix a line with "~" to set it as the
+# EB Garamond accent line. Long lines wrap automatically.
+title = [
+  "First headline line",
+  "~Accent line in EB Garamond italic.",
+]
+
+# speakers = 4        # OPTIONAL: force this many guest cards. If you list
+                       #   fewer guests, the rest render as "?" placeholder cards.
+# Composition is chosen by the guest count alone:
+#   1 guest   ->  solo: headline column left, one large portrait card right
+#   2 guests  ->  duo: headline column left, two portrait cards right
+#   3+ guests ->  row: one headline line on top, a row of cards beneath
+# Every guest stands in a rounded card. A transparent cut-out is framed on the
+# brand gradient; a plain photo fills the card; no photo shows the initials.
+# Headline copy never shows an em dash (it is rendered as a comma).
+
+# One block per guest / panelist.
+#   photo   = filename inside ../headshots/  (e.g. "jane-doe.jpg")
+#             OR a path relative to the iu-podcast-thumbnails folder.
+#             Omit photo to show an initials card.
+#   role    = designation, e.g. "Practice Owner"
+#   company = OPTIONAL. Shown after the designation: "Practice Owner · Smith Dental Group".
+#             The card label (bottom-left, inside the card) is name + role · company.
+#   short   = OPTIONAL. A shorter name for the small cards of a 6+ guest row.
+#   cutout  = true | false   OPTIONAL. Force a cut-out (or a plain photo).
+#             When omitted it is auto-detected: a transparent PNG is a cut-out.
+#             Plain JPGs can be turned into cut-outs with `npm run cutout`.
+#   label, cred  are still accepted for older episodes but are not rendered.
+
+[[guests]]
+name = "Full Name"
+role = "Founder"
+company = "Smith Dental Group"
+photo = "full-name.jpg"
+
+[[guests]]
+name = "Second Speaker"
+role = "Host"
+company = "Insurance Untangled"
+photo = "second-speaker.jpg"

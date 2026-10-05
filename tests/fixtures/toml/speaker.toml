@@ -1,0 +1,12 @@
+# Deliberately awful content, used to exercise the fallbacks. Not a real person.
+name = "Bartholomew Fitzwilliam-Harrington"
+role = "Interim Executive Vice President of Strategic Referral Partnerships"
+company = "Greater Metropolitan Eye Group"
+short = "B. Fitzwilliam"
+photo = ""
+bio = [
+  "A deliberately long credibility point written to push the bio card to two full lines and check the wrap.",
+  "Second point.",
+  "Third point.",
+]
+tags = ["Extremely Long Expertise Tag", "Another One", "Third"]

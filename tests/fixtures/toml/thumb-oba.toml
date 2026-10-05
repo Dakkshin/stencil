@@ -1,0 +1,33 @@
+# OBA podcast thumbnail — copy this file to epXXX.toml and fill it in.
+# Drop guest photos into ../headshots/ and reference them by filename below.
+
+episode = 0            # just for humans — not rendered
+eyebrow = "OBA · Podcast 0XX"
+category = "Practice Growth · Sub-Specialty"
+
+# Headline — one string per line. Prefix a line with "~" to make it the
+# dimmed second-tone line. Long lines wrap automatically.
+title = [
+  "First headline line",
+  "~Dim subtitle line.",
+]
+
+# speakers = 4        # OPTIONAL: force the headshot grid to this many tiles.
+                       #   1 = solo, 2 = duo, 3-4 = row, 5-6 = grid, 7+ = circles
+                       #   If you list fewer guests, the rest render as "?"
+                       #   Portrait placeholders until photos arrive.
+
+# One block per guest / panelist.
+#   photo = filename inside ../headshots/  (e.g. "deep-parikh.jpg")
+#        OR a path relative to the podcast-thumbnails folder.
+#   Omit photo to show a monogram placeholder tile.
+[[guests]]
+name = "Full Name, MD"
+role = "Role · Affiliation"
+#   short = "Short Pill Name"   # OPTIONAL: shorter text for the headshot pill
+                               #   (use when the full name is too long to fit).
+photo = "full-name.jpg"
+
+[[guests]]
+name = "Second Speaker"
+role = "Role · Affiliation"

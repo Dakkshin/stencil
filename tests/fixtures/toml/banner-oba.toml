@@ -1,0 +1,25 @@
+# zoom-banner — panel config template.
+# Copy to panels/<name>.toml and edit. Rebuild with:  node gen.mjs <name>
+#
+# The add-a-panelist loop: append a [[panelists]] block, re-run, done.
+# Max 4 panelists; the row re-centres and the faces resize automatically.
+#
+# DESIGN RULE: the banner renders 1:1 at 640x200, so nothing on it may fall
+# below 11px. That is why there is no subtitle, incentive line or CTA button —
+# they could not be shown legibly. Keep strings short.
+
+brand = "OBA"
+
+eyebrow = "Expert Panel Webinar Series"   # mono text beside the logo
+date    = "Jan 1 · 12PM EDT"              # right-aligned chip
+# `~` toggles the accent colour: "A ~B~ C" -> A normal, B accent, C normal.
+title   = "Your Panel Name"
+
+# `photo` resolves against this tool's own headshots/ by bare filename, then
+# the shared ../podcast-thumbnails/headshots/ pool, or give an absolute path /
+# data: URI. Missing photo -> monogram tile.
+# Keep `role` under 40 chars or it will not fit two lines.
+[[panelists]]
+name  = "First Last"
+role  = "Title @ Organization"
+photo = "first-last.jpg"
