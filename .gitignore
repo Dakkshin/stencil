@@ -1,0 +1,33 @@
+# Generated. Every run regenerates all of it; never hand-edit.
+.gen/
+out/
+canva/
+preview/
+.parity/
+*.tmp
+
+# Generated templates (built from their .src.html on demand).
+formats/thumb/layouts/iu/template.html
+
+# Client content stays local. Only the starter templates are published.
+panels/*
+!panels/_template*.toml
+episodes/*
+!episodes/_template*.toml
+posts/*
+!posts/_template*.toml
+decks/*
+!decks/_template*.toml
+speakers/*
+!speakers/.gitkeep
+assets/headshots/*
+!assets/headshots/.gitkeep
+assets/panelists/*
+!assets/panelists/.gitkeep
+assets/qrs/*
+!assets/qrs/.gitkeep
+
+# Local tooling
+node_modules/
+.venv/
+token.json

@@ -1,0 +1,25 @@
+{
+  "name": "stencil",
+  "version": "0.1.0",
+  "private": true,
+  "description": "One asset engine with brand packs: Zoom banners, podcast thumbnails, panel social posts, slide decks and the host background, as layered Canva SVG plus PNG or PDF.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/",
+    "gui": "node gui.mjs",
+    "parity": "node parity/run.mjs",
+    "import": "node scripts/import.mjs",
+    "verify-moves": "node scripts/verify-moves.mjs"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "multer": "^2.0.1",
+    "playwright": "^1.63.0",
+    "sharp": "^0.35.4",
+    "smol-toml": "^1.8.0",
+    "toml-eslint-parser": "^1.0.3"
+  }
+}
