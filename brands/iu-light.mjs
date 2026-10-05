@@ -81,7 +81,8 @@ export default {
       },
       options: { requireCe: true, eyebrow: "Insurance Untangled · Live" },
     },
-    thumb: { layout: "cards" },
+    /* canva/IU-<name>.svg; the cards design calls this ground mode "light". */
+    thumb: { layout: "cards", options: { prefix: "IU", mode: "light" } },
     social: { layout: "scene" },
   },
 };

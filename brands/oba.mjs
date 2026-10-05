@@ -74,7 +74,8 @@ export default {
         },
       },
     },
-    thumb: { layout: "classic" },
+    /* The thumbnail SVG carries the brand prefix: canva/OBA-<name>.svg (frozen name). */
+    thumb: { layout: "classic", options: { prefix: "OBA" } },
     social: { layout: "classic" },
     deck: { layout: "deck" },
     background: { layout: "host" },

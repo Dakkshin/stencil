@@ -7,7 +7,7 @@ preview/
 *.tmp
 
 # Generated templates (built from their .src.html on demand).
-formats/thumb/layouts/iu/template.html
+formats/thumb/layouts/cards/template.html
 
 # Client content stays local. Only the starter templates are published.
 panels/*

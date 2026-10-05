@@ -33,6 +33,16 @@ export const OUTPUT_DIRS = [".gen", "out", "canva", "preview"];
 
 export const FORKS = ["podcast-thumbnails", "iu-podcast-thumbnails", "panel-social-posts", "iu-panel-social-posts", "zoom-banner", "iu-zoom-banner", "g-slides"];
 const SKIP = new Set(["node_modules", ".git", ".venv", ".gen", "out", "canva", "preview", "legacy", ".d", "tasks"]);
+/* Caches that are content, not output: carried into the scratch copy, never compared.
+   The social cutout cache keys on each photo's size and mtime, so copies keep mtimes. */
+export const CACHE_DIRS = [path.join(".gen", "cutouts")];
+
+/* Copy one file and keep its timestamps (cache keys depend on mtime). */
+function copyKeep(src, dest) {
+  fs.copyFileSync(src, dest);
+  const st = fs.statSync(src);
+  fs.utimesSync(dest, st.atimeMs / 1000, st.mtimeMs / 1000); // fractional: keys round mtimeMs
+}
 
 export async function loadCases(format) {
   const file = path.join(ROOT, "parity", "cases", `${format}.mjs`);
@@ -56,7 +66,7 @@ function copyTree(src, dest) {
     const s = path.join(src, e.name);
     const d = path.join(dest, e.name);
     if (e.isDirectory()) copyTree(s, d);
-    else if (e.isFile()) fs.copyFileSync(s, d);
+    else if (e.isFile()) copyKeep(s, d);
   }
 }
 
@@ -83,7 +93,7 @@ export function supplyPools(forkDir, supply = {}) {
       const target = path.join(dest, e.name);
       if (fs.existsSync(target)) continue;
       assertWritable(target);
-      fs.copyFileSync(path.join(pool, e.name), target);
+      copyKeep(path.join(pool, e.name), target);
       supplied.push(`${rel}/${e.name}`);
     }
   }
@@ -98,7 +108,10 @@ export function prepareScratch() {
     const src = path.join(AUTOMATION, fork);
     if (!fs.existsSync(src)) continue;
     copyTree(src, path.join(auto, fork));
-    for (const nm of ["node_modules", "panel-kit/node_modules"]) {
+    for (const cache of CACHE_DIRS) {
+      if (fs.existsSync(path.join(src, cache))) copyTree(path.join(src, cache), path.join(auto, fork, cache));
+    }
+    for (const nm of ["node_modules", "panel-kit/node_modules", ".venv"]) {
       const real = path.join(src, nm);
       if (fs.existsSync(real)) fs.symlinkSync(real, path.join(auto, fork, nm), "dir");
     }
@@ -123,11 +136,12 @@ export function forkHash(fork) {
   return h.digest("hex");
 }
 
-/** Every file under the output dirs of `root`, relative, sorted. */
+/** Every file under the output dirs of `root`, relative, sorted. Caches are skipped. */
 export function collect(root, dirs = OUTPUT_DIRS) {
   const out = [];
+  const caches = new Set(CACHE_DIRS.map((c) => path.join(root, c)));
   const walk = (dir) => {
-    if (!fs.existsSync(dir)) return;
+    if (!fs.existsSync(dir) || caches.has(dir)) return;
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       const p = path.join(dir, e.name);
       if (e.isDirectory()) walk(p);

@@ -21,7 +21,9 @@ import { fileURLToPath } from "node:url";
 /* Scratch trees (golden copies, Stencil parity workspaces) and the real Automation folder. */
 const ROOTS = [
   path.join(process.env.STENCIL_PARITY_TMP || os.tmpdir()),
-  path.dirname(path.dirname(path.dirname(fileURLToPath(import.meta.url)))),
+  os.tmpdir(),
+  path.dirname(path.dirname(fileURLToPath(import.meta.url))), // this checkout (a lane worktree may live anywhere)
+  path.resolve(process.env.STENCIL_SOURCES || path.dirname(path.dirname(path.dirname(fileURLToPath(import.meta.url))))),
 ];
 
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

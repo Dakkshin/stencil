@@ -73,7 +73,7 @@ async function runFormat(format, args) {
   }
   for (const extra of cases.stencilExtraDirs || []) {
     const from = path.join(ROOT, extra);
-    if (fs.existsSync(from)) fs.cpSync(from, path.join(ws, extra), { recursive: true });
+    if (fs.existsSync(from)) fs.cpSync(from, path.join(ws, extra), { recursive: true, preserveTimestamps: true });
   }
 
   let selected = names;

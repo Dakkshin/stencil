@@ -49,7 +49,9 @@ const EPISODE_BRAND = { "podcast-thumbnails": "OBA", "iu-podcast-thumbnails": "I
 const JOBS = [
   { what: "fonts", dirs: ["podcast-thumbnails/fonts", "iu-podcast-thumbnails/fonts", "panel-social-posts/fonts", "iu-panel-social-posts/fonts", "panel-kit/assets/fonts"], to: "assets/fonts", keep: (f) => f.endsWith(".woff2"), flat: true },
   { what: "logos", dirs: ["panel-kit/assets", "iu-zoom-banner/panel-kit/assets", "iu-panel-social-posts/assets", "iu-podcast-thumbnails/assets"], to: "assets/logos", keep: (f) => IMAGE.test(f) && !f.includes("/") && f !== "reference-cover.jpeg", flat: true },
-  { what: "headshots", dirs: ALL.map((r) => `${r}/headshots`), to: "assets/headshots", keep: (f) => !f.endsWith(".gitkeep") },
+  /* Social forks first: when one photo sits in several forks, theirs is the mtime the
+     cutout cache was keyed on, and the first source to place a file sets its mtime. */
+  { what: "headshots", dirs: ["panel-social-posts", "iu-panel-social-posts", ...ALL.filter((r) => !r.includes("social-posts"))].map((r) => `${r}/headshots`), to: "assets/headshots", keep: (f) => !f.endsWith(".gitkeep") },
   { what: "panelists", dirs: ["panel-social-posts/panelists", "iu-panel-social-posts/panelists"], to: "assets/panelists", keep: (f) => f.endsWith(".toml") },
   { what: "qrs", dirs: ["panel-social-posts/qrs", "iu-panel-social-posts/qrs", "g-slides/qrs"], to: "assets/qrs", keep: (f) => f !== "README.md" && !f.endsWith(".gitkeep") },
   { what: "sponsors", dirs: ["g-slides/logos"], to: "assets/sponsors", keep: (f) => IMAGE.test(f) },
@@ -58,9 +60,19 @@ const JOBS = [
   { what: "posts", dirs: ["panel-social-posts/posts", "iu-panel-social-posts/posts"], to: "posts", keep: (f) => !f.endsWith(".gitkeep") },
   { what: "decks", dirs: ["g-slides/decks"], to: "decks", keep: (f) => f.endsWith(".toml") },
   { what: "speakers", dirs: ["g-slides/speakers"], to: "speakers", keep: (f) => f.endsWith(".toml") },
+  /* The social cutout cache (rembg output and framing stamps). Generated, but expensive
+     and keyed on each photo's size and mtime, so it is seeded rather than recomputed. */
+  { what: "cutout cache", dirs: ["panel-social-posts/.gen/cutouts", "iu-panel-social-posts/.gen/cutouts"], to: ".gen/cutouts", keep: () => true },
 ];
 
 const sha = (buf) => crypto.createHash("sha1").update(buf).digest("hex");
+
+/* Copy the source's mtime exactly. A Date carries whole milliseconds only, and the cutout
+   cache keys on Math.round(mtimeMs), so the time goes over as fractional seconds. */
+function keepTime(src, dest) {
+  const st = fs.statSync(src);
+  fs.utimesSync(dest, st.atimeMs / 1000, st.mtimeMs / 1000);
+}
 
 function walk(dir, base = dir, out = []) {
   if (!fs.existsSync(dir)) return out;
@@ -83,9 +95,10 @@ function withBrand(text, brand) {
   return lines.join("\n");
 }
 
-const stats = { copied: 0, same: 0, annotated: 0, conflicts: [] };
+const stats = { copied: 0, same: 0, annotated: 0, retimed: 0, conflicts: [] };
 const sourceSnapshot = new Map();
 const planned = new Map(); // destRel -> sha, so a dry run sees in-run duplicates too
+const timed = new Set(); // destRel whose mtime a source already set this run
 
 for (const job of JOBS) {
   for (const rel of job.dirs) {
@@ -110,6 +123,12 @@ for (const job of JOBS) {
       const existing = planned.get(destRel) ?? (fs.existsSync(dest) ? sha(fs.readFileSync(dest)) : null);
       if (existing) {
         if (existing === sha(data)) {
+          /* Keep the fork's mtime on unedited copies: cutout caches key on it. */
+          if (!DRY && data === raw && !timed.has(destRel) && fs.existsSync(dest) && Math.abs(fs.statSync(dest).mtimeMs - fs.statSync(src).mtimeMs) > 0.001) {
+            keepTime(src, dest);
+            stats.retimed++;
+          }
+          timed.add(destRel);
           stats.same++;
           continue;
         }
@@ -125,6 +144,8 @@ for (const job of JOBS) {
       }
       fs.mkdirSync(path.dirname(dest), { recursive: true });
       fs.writeFileSync(dest, data);
+      if (data === raw) keepTime(src, dest);
+      timed.add(destRel);
     }
   }
 }
@@ -138,7 +159,7 @@ for (const [src, before] of sourceSnapshot) {
 
 console.log(
   `${DRY ? "dry run: " : ""}${stats.copied} to copy${DRY ? "" : " copied"}, ${stats.same} already present, ` +
-    `${stats.annotated} episode${stats.annotated === 1 ? "" : "s"} given a brand line, ` +
+    `${stats.annotated} episode${stats.annotated === 1 ? "" : "s"} given a brand line, ${stats.retimed} given back the fork's mtime, ` +
     `${sourceSnapshot.size} fork files read, ${touched} fork files changed`
 );
 for (const c of stats.conflicts) console.error(`  conflict: ${c}`);
