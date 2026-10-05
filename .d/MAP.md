@@ -91,7 +91,7 @@ parity: fork in scratch (golden) vs Stencil in scratch workspace -> .parity/repo
 
 - Content (inputs, photos, panelists, QRs, outputs, `.gen/cutouts`) is gitignored; `node scripts/import.mjs` restores it.
 - Deleting `.gen/` drops the seeded social cutout cache; re-run the import before a social build.
-- The OBA thumbnail loads Inter from Google Fonts; under load Chrome may lay text out 1/64 px differently.
+- OBA thumbnail and social templates load Google Fonts: under load text can shift 1/64 px or a page load stall; the renderers retry once and the runner re-renders the fork (`.d/learn/parity.md`).
 - The Sept 17 deck fails its own overflow check (slide 7) in g-slides and Stencil alike.
 - Vendor panel-kit only as `node ../panel-kit/scripts/vendor.mjs stencil`; no target overwrites every fork.
 - Moved social designs still key on brand ids internally (kept for parity; follow-up in decisions).
