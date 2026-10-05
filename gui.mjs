@@ -12,10 +12,16 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import { launch } from "./panel-kit/lib/index.mjs";
+import { ROOT, WORKSPACE } from "./core/paths.mjs";
 
-const ROOT = path.dirname(fileURLToPath(import.meta.url));
+/* panel-kit reads inputs under the root it is given and runs gen.mjs there, so the GUI
+   serves the Stencil folder itself. A custom workspace would split the two silently. */
+if (WORKSPACE !== ROOT) {
+  console.error(`the GUI serves the Stencil folder (${ROOT}); unset STENCIL_WORKSPACE / PANEL_WORKSPACE (now ${WORKSPACE}) to use it`);
+  process.exit(2);
+}
 const schemaFile = (format) => path.join(ROOT, "formats", format, "schema.mjs");
 const withGui = fs.readdirSync(path.join(ROOT, "formats")).filter((f) => fs.existsSync(schemaFile(f))).sort();
 

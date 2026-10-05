@@ -63,3 +63,13 @@ for (const format of formats) {
     }
   });
 }
+
+test("the GUI refuses a custom workspace instead of reading two folders", () => {
+  const r = spawnSync(process.execPath, [path.join(ROOT, "gui.mjs"), "banner"], {
+    cwd: ROOT,
+    encoding: "utf8",
+    env: { ...process.env, NO_OPEN: "1", STENCIL_WORKSPACE: "/tmp" },
+  });
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /serves the Stencil folder/);
+});

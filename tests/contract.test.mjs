@@ -83,3 +83,11 @@ test("the CLI lists five formats and five brands, and rejects an unknown format"
   const bad = spawnSync(process.execPath, [path.join(ROOT, "stencil.mjs"), "nope"], { encoding: "utf8" });
   assert.equal(bad.status, 2);
 });
+
+test("the CLI runs through a symlink (a stencil command on PATH)", () => {
+  const link = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "stencil-link-")), "stencil");
+  fs.symlinkSync(path.join(ROOT, "stencil.mjs"), link);
+  const r = spawnSync(process.execPath, [link, "--help"], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /^formats:/m);
+});

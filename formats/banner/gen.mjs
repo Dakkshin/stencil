@@ -335,6 +335,9 @@ async function emitJson(targets, opts) {
   return ok;
 }
 
+/* Flags that take a value (stencil.mjs skips them when it looks for input names). */
+export const VALUE_FLAGS = ["--count", "--brand"];
+
 const HELP = `usage: node stencil.mjs banner [<name>...] [--count N] [--svg-only] [--brand <id>]
        node stencil.mjs banner --list [--json] | <name> --emit-json | --watch
 

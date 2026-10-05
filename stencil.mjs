@@ -11,6 +11,7 @@
  * --help` prints them. Inputs live in the workspace (panels/, episodes/, posts/, decks/);
  * outputs keep their frozen names under .gen/, out/, canva/ and preview/.
  */
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { FORMATS, formatIds, isPorted, loadFormat } from "./formats/index.mjs";
@@ -42,13 +43,15 @@ ${brands}
 workspace: ${WORKSPACE}`;
 }
 
-/* Values that follow a flag, so they are not mistaken for input names. */
-const VALUE_FLAGS = new Set(["--brand", "--count", "--speakers", "--formats", "--format", "--slides", "-o", "-c"]);
+/* Flags whose next argument is a value, so it is not mistaken for an input name. A
+   format adds its own by exporting VALUE_FLAGS. */
+const VALUE_FLAGS = ["--brand", "--count", "--speakers", "--formats", "--format", "--slides", "-o", "-c"];
 
-function inputNames(args) {
+function inputNames(args, extra = []) {
+  const valueFlags = new Set([...VALUE_FLAGS, ...extra]);
   const names = [];
   for (let i = 0; i < args.length; i++) {
-    if (VALUE_FLAGS.has(args[i])) i++;
+    if (valueFlags.has(args[i])) i++;
     else if (!args[i].startsWith("-")) names.push(args[i]);
   }
   return names;
@@ -69,7 +72,7 @@ export async function run(argv) {
     console.error(`the ${format} format is not ported yet — use ${FORMATS[format].forks.join(" or ")} for now`);
     return 2;
   }
-  const clashes = inputNames(args).map((n) => nameClash(format, n)).filter(Boolean);
+  const clashes = inputNames(args, mod.VALUE_FLAGS || []).map((n) => nameClash(format, n)).filter(Boolean);
   if (clashes.length) {
     for (const c of clashes) console.error(`  ✖ ${c}`);
     return 2;
@@ -78,6 +81,7 @@ export async function run(argv) {
   return typeof code === "number" ? code : process.exitCode || 0;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+/* realpath: also true when run through a symlink (a `stencil` on PATH, say). */
+if (process.argv[1] && fs.realpathSync(path.resolve(process.argv[1])) === fs.realpathSync(fileURLToPath(import.meta.url))) {
   process.exitCode = await run(process.argv.slice(2));
 }
