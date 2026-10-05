@@ -28,13 +28,13 @@ Source of truth: vault note `Ekwa Organization/Reference/Tools/Stencil.md`. Deta
 
 ## Phase 2: Formats
 
-- [ ] T14: Thumbnail, OBA layout (M)
-- [ ] T15: Thumbnail, IU layout (M)
-- [ ] T16: Thumbnail CLI and gate (M)
-- [ ] T17: Social, shared engine pieces (M)
-- [ ] T18: Social, OBA layout (M)
-- [ ] T19: Social, IU layout (M)
-- [ ] T20: Social gate (S)
+- [x] T14: Thumbnail, OBA layout (M)
+- [x] T15: Thumbnail, IU layout (M)
+- [x] T16: Thumbnail CLI and gate (M)
+- [x] T17: Social, shared engine pieces (M)
+- [x] T18: Social, OBA layout (M)
+- [x] T19: Social, IU layout (M)
+- [x] T20: Social gate (S)
 - [x] T21: Deck (M)
 - [x] T22: Background format (S)
 - [x] T23: Deck and background gate (S)
@@ -43,8 +43,8 @@ Source of truth: vault note `Ekwa Organization/Reference/Tools/Stencil.md`. Deta
 
 ## Phase 3: Packs and surface
 
-- [ ] T24: Finish the brand packs (S)
-- [ ] T25: One GUI for every surface (S)
+- [x] T24: Finish the brand packs (S)
+- [x] T25: One GUI for every surface (S)
 - [ ] T26: Docs and the map (S)
 - [ ] Checkpoint 3: `d-gate` green; full parity report; GUI smoke; side-by-sides presented to
       the owner. Retirement and the GitHub repo wait for the owner's yes.

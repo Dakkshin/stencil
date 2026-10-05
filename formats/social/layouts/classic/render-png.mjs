@@ -118,10 +118,12 @@ async function renderCanvas(browser, cfg, format, bboxes = {}) {
   }
 }
 
-/* Chrome itself has crashed mid-run on a busy machine (parity lanes render side by side),
-   and a dead browser takes every later page of the post with it. Such a failure gets one
-   fresh browser and one more try; anything else, or a second failure, is real. */
-const chromeGone = (e) => /has been closed|Target crashed|Browser closed|disconnected/i.test(String(e?.message || e));
+/* Two transient failures get one fresh browser and one more try; anything else, or a second
+   failure, is real. Chrome itself has crashed mid-run on a busy machine (parity lanes render
+   side by side), and a dead browser takes every later page of the post with it. And the
+   template links Google Fonts in its head, so a stalled font request holds the page past
+   the 30s navigation timeout (seen once on Promo_05 landscape; the fork has the same link). */
+const chromeGone = (e) => /has been closed|Target crashed|Browser closed|disconnected|Timeout \d+ms exceeded[\s\S]*navigating to/i.test(String(e?.message || e));
 
 /**
  * Render one post. jobs: [{ format, out }] with `out` the PNG path to write.
@@ -141,7 +143,7 @@ export async function render(rawCfg, jobs) {
         buf = await renderCanvas(browser, cfg, format, bboxes);
       } catch (e) {
         if (!chromeGone(e)) throw e;
-        console.warn(`  ! Chrome closed during the ${format} render (${String(e.message).split("\n")[0]}); relaunching once`);
+        console.warn(`  ! the ${format} render failed transiently (${String(e.message).split("\n")[0]}); relaunching once`);
         await browser.close().catch(() => {});
         browser = await launch();
         buf = await renderCanvas(browser, cfg, format, bboxes);

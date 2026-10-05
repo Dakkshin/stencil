@@ -33,13 +33,21 @@ async function renderPage(browser, cfg, template) {
   }
 }
 
-/* One capture in its own browser, as the fork's render.mjs did per episode. */
-async function capture(cfg, template) {
+/* One capture in its own browser, as the fork's render.mjs did per episode. A transient
+   failure (Chrome gone, or the classic template's Google Fonts link stalling the page past
+   the navigation timeout) gets one more capture in a fresh browser. */
+const transient = (e) => /has been closed|Target crashed|Browser closed|disconnected|Timeout \d+ms exceeded[\s\S]*navigating to/i.test(String(e?.message || e));
+
+async function capture(cfg, template, retry = true) {
   const browser = await launch();
   try {
     return await renderPage(browser, cfg, template);
+  } catch (e) {
+    if (!retry || !transient(e)) throw e;
+    console.warn(`    (capture failed transiently: ${String(e.message).split("\n")[0]}; one more in a fresh browser)`);
+    return capture(cfg, template, false);
   } finally {
-    await browser.close();
+    await browser.close().catch(() => {});
   }
 }
 
