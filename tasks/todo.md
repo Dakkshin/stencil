@@ -7,8 +7,8 @@ Source of truth: vault note `Ekwa Organization/Reference/Tools/Stencil.md`. Deta
 
 - [x] T1: Scaffold the repository and the one dependency set (S)
 - [x] T2: One TOML parser (S)
-- [ ] T3: Paths, workspace and the single asset pool (S)
-- [ ] T4: Chromium loader and SVG helpers (S)
+- [x] T3: Paths, workspace and the single asset pool (S)
+- [x] T4: Chromium loader and SVG helpers (S)
 - [ ] T5: Brand registry and the OBA and IU packs (M)
 - [ ] T6: OBA_LIGHT, IU_LIGHT and VET packs (S)
 - [ ] T7: Content and asset import script (M)

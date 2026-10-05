@@ -1,0 +1,920 @@
+{
+  "about": "Read-only snapshot of every fork brand registry on 2026-10-05, so brand tests never reach into a fork.",
+  "registries": {
+    "panel-kit": {
+      "OBA": {
+        "id": "OBA",
+        "label": "Ophthalmology Business Academy",
+        "wordmark": "OBA",
+        "logo": "assets/oba-logo-white.png",
+        "gradient": [
+          [
+            "#5b7484",
+            0
+          ],
+          [
+            "#3e5361",
+            34
+          ],
+          [
+            "#263743",
+            62
+          ],
+          [
+            "#16232c",
+            100
+          ]
+        ],
+        "glow": "rgba(214, 228, 235, 0.5)",
+        "ink": "#16232c",
+        "inkOnAccent": "#ffffff",
+        "accent": "#3d5361",
+        "inkSoft": "#465a66",
+        "dim": "rgba(255,255,255,0.55)",
+        "textMuted": "rgba(255,255,255,0.66)",
+        "textFaint": "rgba(255,255,255,0.55)",
+        "pillBg": "rgba(11, 18, 32, 0.42)",
+        "tileFill": "rgba(255,255,255,0.1)",
+        "line": "rgba(255,255,255,0.14)",
+        "qrGold": "#D4AF37"
+      },
+      "VET": {
+        "id": "VET",
+        "label": "Veterinary Business Institute",
+        "wordmark": "VBI",
+        "logo": "assets/vbi-logo-white.png",
+        "gradient": [
+          [
+            "#12332b",
+            0
+          ],
+          [
+            "#0b241f",
+            40
+          ],
+          [
+            "#061512",
+            78
+          ],
+          [
+            "#040c0a",
+            100
+          ]
+        ],
+        "glow": "rgba(230, 242, 10, 0.16)",
+        "ink": "#061512",
+        "inkOnAccent": "#061512",
+        "accent": "#E6F20A",
+        "inkSoft": "#00BFA5",
+        "dim": "rgba(230, 242, 10, 0.55)",
+        "textMuted": "rgba(230, 242, 10, 0.72)",
+        "textFaint": "rgba(230, 242, 10, 0.6)",
+        "pillBg": "rgba(4, 12, 10, 0.5)",
+        "tileFill": "rgba(221, 240, 0, 0.07)",
+        "line": "rgba(230, 242, 10, 0.22)",
+        "qrGold": "#E6F20A"
+      }
+    },
+    "panel-social-posts": {
+      "OBA": {
+        "id": "OBA",
+        "label": "Ophthalmology Business Academy",
+        "wordmark": "OBA",
+        "logo": "assets/oba-logo-white.png",
+        "gradient": [
+          [
+            "#5b7484",
+            0
+          ],
+          [
+            "#3e5361",
+            34
+          ],
+          [
+            "#263743",
+            62
+          ],
+          [
+            "#16232c",
+            100
+          ]
+        ],
+        "glow": "rgba(214, 228, 235, 0.5)",
+        "dots": "rgba(255,255,255,0.10)",
+        "ink": "#16232c",
+        "inkOnAccent": "#ffffff",
+        "accent": "#3d5361",
+        "inkSoft": "#465a66",
+        "dim": "rgba(255,255,255,0.55)",
+        "textMuted": "rgba(255,255,255,0.66)",
+        "textFaint": "rgba(255,255,255,0.55)",
+        "pillBg": "rgba(11, 18, 32, 0.42)",
+        "tileFill": "rgba(255,255,255,0.1)",
+        "line": "rgba(255,255,255,0.14)",
+        "qrGold": "#D4AF37",
+        "titleText": "#ffffff",
+        "wordmarkColor": "#ffffff",
+        "wave": "#ffffff",
+        "qrCaption": "#ffffff",
+        "qrFrame": "rgba(255,255,255,0.08)",
+        "qrStroke": "#ffffff",
+        "scrim": [
+          [
+            0,
+            "#0b1220",
+            0.52
+          ],
+          [
+            0.4,
+            "#0b1220",
+            0.26
+          ],
+          [
+            0.6,
+            "#0b1220",
+            0
+          ]
+        ]
+      },
+      "VET": {
+        "id": "VET",
+        "label": "Veterinary Business Institute",
+        "wordmark": "VBI",
+        "logo": "assets/vbi-logo-white.png",
+        "gradient": [
+          [
+            "#12332b",
+            0
+          ],
+          [
+            "#0b241f",
+            40
+          ],
+          [
+            "#061512",
+            78
+          ],
+          [
+            "#040c0a",
+            100
+          ]
+        ],
+        "glow": "rgba(230, 242, 10, 0.16)",
+        "dots": "rgba(255,255,255,0.10)",
+        "ink": "#061512",
+        "inkOnAccent": "#061512",
+        "accent": "#E6F20A",
+        "inkSoft": "#00BFA5",
+        "dim": "rgba(230, 242, 10, 0.55)",
+        "textMuted": "rgba(230, 242, 10, 0.72)",
+        "textFaint": "rgba(230, 242, 10, 0.6)",
+        "pillBg": "rgba(4, 12, 10, 0.5)",
+        "tileFill": "rgba(221, 240, 0, 0.07)",
+        "line": "rgba(230, 242, 10, 0.22)",
+        "qrGold": "#E6F20A",
+        "titleText": "#ffffff",
+        "wordmarkColor": "#ffffff",
+        "wave": "#ffffff",
+        "qrCaption": "#ffffff",
+        "qrFrame": "rgba(255,255,255,0.08)",
+        "qrStroke": "#ffffff",
+        "scrim": [
+          [
+            0,
+            "#0b1220",
+            0.52
+          ],
+          [
+            0.4,
+            "#0b1220",
+            0.26
+          ],
+          [
+            0.6,
+            "#0b1220",
+            0
+          ]
+        ]
+      },
+      "OBA_LIGHT": {
+        "id": "OBA_LIGHT",
+        "label": "OBA Light (inverted)",
+        "wordmark": "OBA",
+        "logo": "",
+        "gradient": [
+          [
+            "#ffffff",
+            0
+          ],
+          [
+            "#e9eff3",
+            38
+          ],
+          [
+            "#cfdae2",
+            72
+          ],
+          [
+            "#b7c7d2",
+            100
+          ]
+        ],
+        "glow": "rgba(61, 83, 97, 0.18)",
+        "dots": "rgba(22,35,44,0.25)",
+        "ink": "#16232c",
+        "inkOnAccent": "#ffffff",
+        "accent": "#3d5361",
+        "inkSoft": "#465a66",
+        "dim": "rgba(22,35,44,0.55)",
+        "textMuted": "rgba(22,35,44,0.66)",
+        "textFaint": "rgba(22,35,44,0.55)",
+        "pillBg": "rgba(11, 18, 32, 0.42)",
+        "tileFill": "rgba(61,83,97,0.08)",
+        "line": "rgba(22,35,44,0.16)",
+        "qrGold": "#3d5361",
+        "titleText": "#16232c",
+        "wordmarkColor": "#16232c",
+        "wave": "#465a66",
+        "qrCaption": "#16232c",
+        "qrFrame": "rgba(22,35,44,0.06)",
+        "qrStroke": "#16232c",
+        "scrim": [
+          [
+            0,
+            "#ffffff",
+            0.5
+          ],
+          [
+            0.4,
+            "#ffffff",
+            0.25
+          ],
+          [
+            0.6,
+            "#ffffff",
+            0
+          ]
+        ]
+      }
+    },
+    "panel-social-posts/panel-kit": {
+      "OBA": {
+        "id": "OBA",
+        "label": "Ophthalmology Business Academy",
+        "wordmark": "OBA",
+        "logo": "assets/oba-logo-white.png",
+        "gradient": [
+          [
+            "#5b7484",
+            0
+          ],
+          [
+            "#3e5361",
+            34
+          ],
+          [
+            "#263743",
+            62
+          ],
+          [
+            "#16232c",
+            100
+          ]
+        ],
+        "glow": "rgba(214, 228, 235, 0.5)",
+        "dots": "rgba(255,255,255,0.10)",
+        "ink": "#16232c",
+        "inkOnAccent": "#ffffff",
+        "accent": "#3d5361",
+        "inkSoft": "#465a66",
+        "dim": "rgba(255,255,255,0.55)",
+        "textMuted": "rgba(255,255,255,0.66)",
+        "textFaint": "rgba(255,255,255,0.55)",
+        "pillBg": "rgba(11, 18, 32, 0.42)",
+        "tileFill": "rgba(255,255,255,0.1)",
+        "line": "rgba(255,255,255,0.14)",
+        "qrGold": "#D4AF37",
+        "titleText": "#ffffff",
+        "wordmarkColor": "#ffffff",
+        "wave": "#ffffff",
+        "qrCaption": "#ffffff",
+        "qrFrame": "rgba(255,255,255,0.08)",
+        "qrStroke": "#ffffff",
+        "scrim": [
+          [
+            0,
+            "#0b1220",
+            0.52
+          ],
+          [
+            0.4,
+            "#0b1220",
+            0.26
+          ],
+          [
+            0.6,
+            "#0b1220",
+            0
+          ]
+        ]
+      },
+      "VET": {
+        "id": "VET",
+        "label": "Veterinary Business Institute",
+        "wordmark": "VBI",
+        "logo": "assets/vbi-logo-white.png",
+        "gradient": [
+          [
+            "#12332b",
+            0
+          ],
+          [
+            "#0b241f",
+            40
+          ],
+          [
+            "#061512",
+            78
+          ],
+          [
+            "#040c0a",
+            100
+          ]
+        ],
+        "glow": "rgba(230, 242, 10, 0.16)",
+        "dots": "rgba(255,255,255,0.10)",
+        "ink": "#061512",
+        "inkOnAccent": "#061512",
+        "accent": "#E6F20A",
+        "inkSoft": "#00BFA5",
+        "dim": "rgba(230, 242, 10, 0.55)",
+        "textMuted": "rgba(230, 242, 10, 0.72)",
+        "textFaint": "rgba(230, 242, 10, 0.6)",
+        "pillBg": "rgba(4, 12, 10, 0.5)",
+        "tileFill": "rgba(221, 240, 0, 0.07)",
+        "line": "rgba(230, 242, 10, 0.22)",
+        "qrGold": "#E6F20A",
+        "titleText": "#ffffff",
+        "wordmarkColor": "#ffffff",
+        "wave": "#ffffff",
+        "qrCaption": "#ffffff",
+        "qrFrame": "rgba(255,255,255,0.08)",
+        "qrStroke": "#ffffff",
+        "scrim": [
+          [
+            0,
+            "#0b1220",
+            0.52
+          ],
+          [
+            0.4,
+            "#0b1220",
+            0.26
+          ],
+          [
+            0.6,
+            "#0b1220",
+            0
+          ]
+        ]
+      },
+      "OBA_LIGHT": {
+        "id": "OBA_LIGHT",
+        "label": "OBA Light (inverted)",
+        "wordmark": "OBA",
+        "logo": "",
+        "gradient": [
+          [
+            "#ffffff",
+            0
+          ],
+          [
+            "#e9eff3",
+            38
+          ],
+          [
+            "#cfdae2",
+            72
+          ],
+          [
+            "#b7c7d2",
+            100
+          ]
+        ],
+        "glow": "rgba(61, 83, 97, 0.18)",
+        "dots": "rgba(22,35,44,0.25)",
+        "ink": "#16232c",
+        "inkOnAccent": "#ffffff",
+        "accent": "#3d5361",
+        "inkSoft": "#465a66",
+        "dim": "rgba(22,35,44,0.55)",
+        "textMuted": "rgba(22,35,44,0.66)",
+        "textFaint": "rgba(22,35,44,0.55)",
+        "pillBg": "rgba(11, 18, 32, 0.42)",
+        "tileFill": "rgba(61,83,97,0.08)",
+        "line": "rgba(22,35,44,0.16)",
+        "qrGold": "#3d5361",
+        "titleText": "#16232c",
+        "wordmarkColor": "#16232c",
+        "wave": "#465a66",
+        "qrCaption": "#16232c",
+        "qrFrame": "rgba(22,35,44,0.06)",
+        "qrStroke": "#16232c",
+        "scrim": [
+          [
+            0,
+            "#ffffff",
+            0.5
+          ],
+          [
+            0.4,
+            "#ffffff",
+            0.25
+          ],
+          [
+            0.6,
+            "#ffffff",
+            0
+          ]
+        ]
+      }
+    },
+    "iu-panel-social-posts": {
+      "IU": {
+        "id": "IU",
+        "label": "Insurance Untangled",
+        "wordmark": "INSURANCE UNTANGLED",
+        "logo": "assets/iu-logo-reversed.svg",
+        "logoH": 94,
+        "logoHSpeaker": 94,
+        "gradient": [
+          [
+            "#1B2560",
+            0
+          ],
+          [
+            "#12182B",
+            55
+          ],
+          [
+            "#0A0F22",
+            100
+          ]
+        ],
+        "glow": "rgba(98, 137, 217, 0.34)",
+        "dots": "rgba(255,255,255,0.10)",
+        "ink": "#12182B",
+        "inkOnAccent": "#ffffff",
+        "accent": "#6289D9",
+        "inkSoft": "#4D7BAC",
+        "dim": "#8BB3E2",
+        "textMuted": "rgba(255,255,255,0.62)",
+        "textFaint": "rgba(255,255,255,0.44)",
+        "pillBg": "rgba(18, 24, 43, 0.42)",
+        "tileFill": "rgba(255,255,255,0.12)",
+        "tileFrame": "#232C4A",
+        "monoText": "#ffffff",
+        "line": "rgba(255,255,255,0.14)",
+        "qrGold": "#8BB3E2",
+        "titleText": "#ffffff",
+        "wordmarkColor": "#ffffff",
+        "wave": "#ffffff",
+        "qrCaption": "#ffffff",
+        "qrFrame": "rgba(255,255,255,0.08)",
+        "qrStroke": "#ffffff",
+        "scrim": [
+          [
+            0,
+            "#12182B",
+            0.52
+          ],
+          [
+            0.4,
+            "#12182B",
+            0.26
+          ],
+          [
+            0.6,
+            "#12182B",
+            0
+          ]
+        ]
+      },
+      "IU_LIGHT": {
+        "id": "IU_LIGHT",
+        "label": "Insurance Untangled (light)",
+        "wordmark": "INSURANCE UNTANGLED",
+        "logo": "assets/iu-logo.png",
+        "logoH": 94,
+        "logoHSpeaker": 94,
+        "gradient": [
+          [
+            "#FFFFFF",
+            0
+          ],
+          [
+            "#F4F7FB",
+            46
+          ],
+          [
+            "#C8DDF5",
+            100
+          ]
+        ],
+        "glow": "rgba(139, 179, 226, 0.42)",
+        "dots": "rgba(18,24,43,0.18)",
+        "ink": "#12182B",
+        "inkOnAccent": "#ffffff",
+        "accent": "#2A3A71",
+        "inkSoft": "#4D7BAC",
+        "dim": "#4D7BAC",
+        "textMuted": "rgba(18,24,43,0.72)",
+        "textFaint": "rgba(18,24,43,0.42)",
+        "pillBg": "rgba(18, 24, 43, 0.42)",
+        "tileFill": "rgba(42,58,113,0.08)",
+        "tileFrame": "#E6EEF8",
+        "monoText": "#2A3A71",
+        "line": "#D8E0EB",
+        "qrGold": "#2A3A71",
+        "titleText": "#12182B",
+        "wordmarkColor": "#12182B",
+        "wave": "#4D7BAC",
+        "qrCaption": "#12182B",
+        "qrFrame": "rgba(18,24,43,0.06)",
+        "qrStroke": "#12182B",
+        "scrim": [
+          [
+            0,
+            "#ffffff",
+            0.5
+          ],
+          [
+            0.4,
+            "#ffffff",
+            0.25
+          ],
+          [
+            0.6,
+            "#ffffff",
+            0
+          ]
+        ]
+      }
+    },
+    "iu-panel-social-posts/panel-kit": {
+      "OBA": {
+        "id": "OBA",
+        "label": "Ophthalmology Business Academy",
+        "wordmark": "OBA",
+        "logo": "assets/oba-logo-white.png",
+        "gradient": [
+          [
+            "#5b7484",
+            0
+          ],
+          [
+            "#3e5361",
+            34
+          ],
+          [
+            "#263743",
+            62
+          ],
+          [
+            "#16232c",
+            100
+          ]
+        ],
+        "glow": "rgba(214, 228, 235, 0.5)",
+        "dots": "rgba(255,255,255,0.10)",
+        "ink": "#16232c",
+        "inkOnAccent": "#ffffff",
+        "accent": "#3d5361",
+        "inkSoft": "#465a66",
+        "dim": "rgba(255,255,255,0.55)",
+        "textMuted": "rgba(255,255,255,0.66)",
+        "textFaint": "rgba(255,255,255,0.55)",
+        "pillBg": "rgba(11, 18, 32, 0.42)",
+        "tileFill": "rgba(255,255,255,0.1)",
+        "line": "rgba(255,255,255,0.14)",
+        "qrGold": "#D4AF37",
+        "titleText": "#ffffff",
+        "wordmarkColor": "#ffffff",
+        "wave": "#ffffff",
+        "qrCaption": "#ffffff",
+        "qrFrame": "rgba(255,255,255,0.08)",
+        "qrStroke": "#ffffff",
+        "scrim": [
+          [
+            0,
+            "#0b1220",
+            0.52
+          ],
+          [
+            0.4,
+            "#0b1220",
+            0.26
+          ],
+          [
+            0.6,
+            "#0b1220",
+            0
+          ]
+        ]
+      },
+      "VET": {
+        "id": "VET",
+        "label": "Veterinary Business Institute",
+        "wordmark": "VBI",
+        "logo": "assets/vbi-logo-white.png",
+        "gradient": [
+          [
+            "#12332b",
+            0
+          ],
+          [
+            "#0b241f",
+            40
+          ],
+          [
+            "#061512",
+            78
+          ],
+          [
+            "#040c0a",
+            100
+          ]
+        ],
+        "glow": "rgba(230, 242, 10, 0.16)",
+        "dots": "rgba(255,255,255,0.10)",
+        "ink": "#061512",
+        "inkOnAccent": "#061512",
+        "accent": "#E6F20A",
+        "inkSoft": "#00BFA5",
+        "dim": "rgba(230, 242, 10, 0.55)",
+        "textMuted": "rgba(230, 242, 10, 0.72)",
+        "textFaint": "rgba(230, 242, 10, 0.6)",
+        "pillBg": "rgba(4, 12, 10, 0.5)",
+        "tileFill": "rgba(221, 240, 0, 0.07)",
+        "line": "rgba(230, 242, 10, 0.22)",
+        "qrGold": "#E6F20A",
+        "titleText": "#ffffff",
+        "wordmarkColor": "#ffffff",
+        "wave": "#ffffff",
+        "qrCaption": "#ffffff",
+        "qrFrame": "rgba(255,255,255,0.08)",
+        "qrStroke": "#ffffff",
+        "scrim": [
+          [
+            0,
+            "#0b1220",
+            0.52
+          ],
+          [
+            0.4,
+            "#0b1220",
+            0.26
+          ],
+          [
+            0.6,
+            "#0b1220",
+            0
+          ]
+        ]
+      },
+      "OBA_LIGHT": {
+        "id": "OBA_LIGHT",
+        "label": "OBA Light (inverted)",
+        "wordmark": "OBA",
+        "logo": "",
+        "gradient": [
+          [
+            "#ffffff",
+            0
+          ],
+          [
+            "#e9eff3",
+            38
+          ],
+          [
+            "#cfdae2",
+            72
+          ],
+          [
+            "#b7c7d2",
+            100
+          ]
+        ],
+        "glow": "rgba(61, 83, 97, 0.18)",
+        "dots": "rgba(22,35,44,0.25)",
+        "ink": "#16232c",
+        "inkOnAccent": "#ffffff",
+        "accent": "#3d5361",
+        "inkSoft": "#465a66",
+        "dim": "rgba(22,35,44,0.55)",
+        "textMuted": "rgba(22,35,44,0.66)",
+        "textFaint": "rgba(22,35,44,0.55)",
+        "pillBg": "rgba(11, 18, 32, 0.42)",
+        "tileFill": "rgba(61,83,97,0.08)",
+        "line": "rgba(22,35,44,0.16)",
+        "qrGold": "#3d5361",
+        "titleText": "#16232c",
+        "wordmarkColor": "#16232c",
+        "wave": "#465a66",
+        "qrCaption": "#16232c",
+        "qrFrame": "rgba(22,35,44,0.06)",
+        "qrStroke": "#16232c",
+        "scrim": [
+          [
+            0,
+            "#ffffff",
+            0.5
+          ],
+          [
+            0.4,
+            "#ffffff",
+            0.25
+          ],
+          [
+            0.6,
+            "#ffffff",
+            0
+          ]
+        ]
+      }
+    },
+    "iu-zoom-banner/panel-kit": {
+      "IU": {
+        "id": "IU",
+        "label": "Insurance Untangled",
+        "wordmark": "INSURANCE UNTANGLED",
+        "logo": "assets/iu-logo-reversed.svg",
+        "logoH": 22,
+        "gradient": [
+          [
+            "#1B2560",
+            0
+          ],
+          [
+            "#12182B",
+            55
+          ],
+          [
+            "#0A0F22",
+            100
+          ]
+        ],
+        "glow": "rgba(98, 137, 217, 0.34)",
+        "dots": "rgba(255,255,255,0.10)",
+        "ink": "#12182B",
+        "inkOnAccent": "#ffffff",
+        "accent": "#6289D9",
+        "inkSoft": "#4D7BAC",
+        "dim": "#8BB3E2",
+        "textMuted": "rgba(255,255,255,0.62)",
+        "textFaint": "rgba(255,255,255,0.44)",
+        "pillBg": "rgba(18, 24, 43, 0.42)",
+        "tileFill": "rgba(255,255,255,0.12)",
+        "tileFrame": "#232C4A",
+        "monoText": "#ffffff",
+        "line": "rgba(255,255,255,0.14)",
+        "qrGold": "#8BB3E2",
+        "titleText": "#ffffff",
+        "wordmarkColor": "#ffffff",
+        "wave": "#ffffff",
+        "qrCaption": "#ffffff",
+        "qrFrame": "rgba(255,255,255,0.08)",
+        "qrStroke": "#ffffff",
+        "scrim": [
+          [
+            0,
+            "#12182B",
+            0.52
+          ],
+          [
+            0.4,
+            "#12182B",
+            0.26
+          ],
+          [
+            0.6,
+            "#12182B",
+            0
+          ]
+        ],
+        "cePlate": "#FFFFFF",
+        "ceSeal": "#C8DDF5",
+        "ceInk": "#12182B",
+        "arc": "#8BB3E2",
+        "arcOpacity": [
+          0.08,
+          0.03
+        ]
+      },
+      "IU_LIGHT": {
+        "id": "IU_LIGHT",
+        "label": "Insurance Untangled (light)",
+        "wordmark": "INSURANCE UNTANGLED",
+        "logo": "assets/iu-logo.png",
+        "logoH": 22,
+        "gradient": [
+          [
+            "#FFFFFF",
+            0
+          ],
+          [
+            "#F4F7FB",
+            46
+          ],
+          [
+            "#C8DDF5",
+            100
+          ]
+        ],
+        "glow": "rgba(139, 179, 226, 0.42)",
+        "dots": "rgba(18,24,43,0.18)",
+        "ink": "#12182B",
+        "inkOnAccent": "#ffffff",
+        "accent": "#2A3A71",
+        "inkSoft": "#4D7BAC",
+        "dim": "#4D7BAC",
+        "textMuted": "rgba(18,24,43,0.72)",
+        "textFaint": "rgba(18,24,43,0.42)",
+        "pillBg": "rgba(18, 24, 43, 0.42)",
+        "tileFill": "rgba(42,58,113,0.08)",
+        "tileFrame": "#E6EEF8",
+        "monoText": "#2A3A71",
+        "line": "#D8E0EB",
+        "qrGold": "#2A3A71",
+        "titleText": "#12182B",
+        "wordmarkColor": "#12182B",
+        "wave": "#4D7BAC",
+        "qrCaption": "#12182B",
+        "qrFrame": "rgba(18,24,43,0.06)",
+        "qrStroke": "#12182B",
+        "scrim": [
+          [
+            0,
+            "#ffffff",
+            0.5
+          ],
+          [
+            0.4,
+            "#ffffff",
+            0.25
+          ],
+          [
+            0.6,
+            "#ffffff",
+            0
+          ]
+        ],
+        "cePlate": "#FFFFFF",
+        "ceSeal": "#2A3A71",
+        "ceInk": "#FFFFFF",
+        "arc": "#2A3A71",
+        "arcOpacity": [
+          0.09,
+          0.035
+        ]
+      },
+      "OBA": {
+        "id": "OBA",
+        "label": "Ophthalmology Business Academy",
+        "wordmark": "OBA",
+        "logo": "assets/oba-logo-white.png",
+        "logoH": 26,
+        "gradient": [
+          [
+            "#5b7484",
+            0
+          ],
+          [
+            "#3e5361",
+            34
+          ],
+          [
+            "#263743",
+            62
+          ],
+          [
+            "#16232c",
+            100
+          ]
+        ],
+        "glow": "rgba(214, 228, 235, 0.5)",
+        "ink": "#16232c",
+        "inkOnAccent": "#ffffff",
+        "accent": "#3d5361",
+        "inkSoft": "#465a66",
+        "dim": "rgba(255,255,255,0.55)",
+        "textMuted": "rgba(255,255,255,0.66)",
+        "textFaint": "rgba(255,255,255,0.55)",
+        "pillBg": "rgba(11, 18, 32, 0.42)",
+        "tileFill": "rgba(255,255,255,0.1)",
+        "line": "rgba(255,255,255,0.14)",
+        "qrGold": "#D4AF37"
+      }
+    }
+  }
+}
