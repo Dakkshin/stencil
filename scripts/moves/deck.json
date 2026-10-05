@@ -51,8 +51,8 @@
           "    else if (v === \"--no-optimize\") a.noOptimize = true;\n    else if (v === \"--brand\") a.brand = String(argv[++i] || \"\");"
         ],
         [
-          "  const deckName = str(parsed.deck) || name;\n  const { config, problems, warnings } = normalize(parsed, deckName, rawText);",
-          "  if (args.brand) parsed.brand = args.brand; // stencil: --brand beats the file (plan AD-9)\n  const deckName = str(parsed.deck) || name;\n  const { config, problems, warnings } = normalize(parsed, deckName, rawText);"
+          "    return false;\n  }\n\n  const deckName = str(parsed.deck) || name;",
+          "    return false;\n  }\n\n  if (args.brand) parsed.brand = args.brand; // stencil: --brand beats the file (plan AD-9)\n  const deckName = str(parsed.deck) || name;"
         ]
       ]
     },

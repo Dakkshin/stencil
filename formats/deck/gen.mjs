@@ -579,7 +579,6 @@ function inventory(name) {
   } catch (e) {
     return fail(e.message);
   }
-  if (args.brand) parsed.brand = args.brand; // stencil: --brand beats the file (plan AD-9)
   const deckName = str(parsed.deck) || name;
   const { config, problems, warnings } = normalize(parsed, deckName, rawText);
   const stems = arr(parsed.speakers).map(str).filter(Boolean);
