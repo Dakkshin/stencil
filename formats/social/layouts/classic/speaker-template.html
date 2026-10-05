@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speaker Promo Template — OBA design system</title>
+
+<!--
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Speaker Promo Template                                                  │
+  │  Individual-speaker promotional graphic, styled with the OBA design      │
+  │  system (cinematic slate gradient, two-tone Inter headline, IBM Plex     │
+  │  Mono eyebrow — same tokens as the podcast / panel thumbnails).          │
+  │                                                                          │
+  │  COMPOSITION (mirrors the "The Intro" speaker reference)                 │
+  │  · Large cutout portrait — fixed 780px wide on square at X 264 / Y 202,  │
+  │    top 75% of the image visible, bleeding to the bottom edge            │
+  │  · Colored cutout by default (grayscale only with portrait_tone = "bw")  │
+  │  · Category (mono eyebrow) → two-tone headline → event date/time line    │
+  │  · (Optional) QR block top-right (frosted frame + SCAN TO/REGISTER below) — omitted by default│
+  │  · Rounded frosted name/role chip overlapping the portrait (lower left)  │
+  │  · Brand logo (lower right)                                              │
+  │                                                                          │
+  │  FORMATS: square (default) · portrait · story · landscape.               │
+  │  POST TYPE: speaker_promo (gen.mjs → canva/*.svg + out/*@2x.png).        │
+  └──────────────────────────────────────────────────────────────────────────┘
+-->
+
+<style>
+/* Bundled fonts — exact woff2 files from podcast-thumbnails/fonts. */
+@font-face { font-family: "Inter"; src: url("../../../../assets/fonts/Inter-300-normal.woff2") format("woff2"); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../../../../assets/fonts/Inter-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../../../../assets/fonts/Inter-500-normal.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("../../../../assets/fonts/Inter-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../../../../assets/fonts/IBM-Plex-Mono-500-normal.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../../../../assets/fonts/IBM-Plex-Mono-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+
+:root {
+  --ink-900: #16232c;
+  --ink-800: #22323d;
+  --ink-700: #31434f;
+  --ink-600: #465a66;
+  --accent-600: #3d5361;
+  --white: #ffffff;
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+
+  /* Cinematic slate backdrop — identical to --gradient-hero in globals.css */
+  --gradient-hero: radial-gradient(
+    115% 90% at 78% 30%,
+    #5b7484 0%,
+    #3e5361 34%,
+    #263743 62%,
+    #16232c 100%
+  );
+  --gradient-hero-glow: radial-gradient(
+    60% 55% at 72% 42%,
+    rgba(214, 228, 235, 0.5) 0%,
+    rgba(214, 228, 235, 0) 70%
+  );
+
+  --brand-accent: #3d5361;
+  --brand-dim: rgba(255, 255, 255, 0.55);
+  --brand-muted: rgba(255, 255, 255, 0.66);
+  --brand-faint: rgba(255, 255, 255, 0.55);
+  --brand-pill: rgba(11, 18, 32, 0.42);
+  --brand-line: rgba(255, 255, 255, 0.14);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: #0d151b;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ============================================================
+   Canvas + formats
+   ============================================================ */
+.canvas {
+  width: 1080px;
+  height: 1080px;
+  position: relative;
+  overflow: hidden;
+  color: var(--white);
+  background: var(--gradient-hero);
+  --pad: 56px;
+  --pad-top: 46px;
+  --pad-bottom: 42px;
+  --title: 54px;
+  --title-lh: 1.08;
+  --eyebrow: 13px;
+  --event: 26px;
+  --qr: 158px;
+  --scan: 18px;
+  --chip-name: 25px;
+  --chip-role: 18px;
+  --chip-w: 46%;
+  --portrait-w: 46%;
+  --portrait-h: 74%;
+}
+.canvas.format-square    { width: 1080px;  height: 1080px; }
+.canvas.format-portrait  {
+  width: 1080px; height: 1350px;
+  --pad: 64px; --pad-top: 54px; --pad-bottom: 50px;
+  --title: 60px; --eyebrow: 14px; --event: 28px;
+  --qr: 176px; --scan: 19px; --chip-name: 28px; --chip-role: 20px;
+  --chip-w: 48%; --portrait-w: 50%; --portrait-h: 76%;
+}
+.canvas.format-story     {
+  width: 1080px; height: 1920px;
+  --pad: 64px; --pad-top: 58px; --pad-bottom: 58px;
+  --title: 68px; --eyebrow: 14px; --event: 30px;
+  --qr: 193px; --scan: 20px; --chip-name: 31px; --chip-role: 21px;
+  --chip-w: 52%; --portrait-w: 56%; --portrait-h: 64%;
+}
+.canvas.format-landscape {
+  width: 1200px; height: 630px;
+  --pad: 52px; --pad-top: 40px; --pad-bottom: 36px;
+  --title: 40px; --eyebrow: 9px; --event: 19px;
+  --qr: 113px; --scan: 15px; --chip-name: 18px; --chip-role: 13px;
+  --chip-w: 42%; --portrait-w: 46%; --portrait-h: 78%;
+}
+
+/* ---- background layers ---- */
+.layer { position: absolute; inset: 0; pointer-events: none; }
+.glow { background: var(--gradient-hero-glow); opacity: 0.45; }
+.dots {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.10) 1px, transparent 0);
+  background-size: 18px 18px;
+  opacity: 0.75;
+  -webkit-mask-image: linear-gradient(90deg, transparent 24%, #000 70%);
+  mask-image: linear-gradient(90deg, transparent 24%, #000 70%);
+}
+.scrim {
+  background: linear-gradient(
+    90deg,
+    rgba(11, 18, 32, 0.52) 0%,
+    rgba(11, 18, 32, 0.26) 40%,
+    rgba(11, 18, 32, 0) 60%
+  );
+}
+
+/* ============================================================
+   Portrait — large cutout, fixed 780px wide on square at
+   X 264 / Y 202, top 75% of the image visible, bleeding to the
+   bottom edge
+   ============================================================ */
+.portrait {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: var(--portrait-w);
+  height: var(--portrait-h);
+  z-index: 1;
+  overflow: hidden;
+}
+.portrait img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--portrait-obj-x, 50%) var(--portrait-obj-y, 0%);
+  filter: grayscale(1) contrast(1.07) brightness(1.02);
+}
+.portrait.tone-color img { filter: none; }
+.portrait-monogram {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 300;
+  font-size: 96px;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.05) 42%,
+    rgba(11, 18, 32, 0.35) 100%
+  );
+  border-right: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+/* ============================================================
+   Text block — category / headline / event line (top-left)
+   ============================================================ */
+.text-block {
+  position: absolute;
+  top: var(--pad-top);
+  left: var(--pad);
+  width: 60%;
+  z-index: 3;
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--eyebrow);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-muted);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.eyebrow::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-accent);
+  flex: none;
+  margin-top: 2px;
+}
+.headline {
+  margin: 20px 0 0;
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: var(--title);
+  line-height: var(--title-lh);
+  letter-spacing: -0.02em;
+  color: var(--white);
+  text-wrap: balance;
+}
+.headline .dim { color: var(--brand-dim); }
+.event-line {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.event-line .event-pill {
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-family: var(--font-sans);
+  font-size: var(--event);
+  line-height: 1.4;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+}
+
+   /* ============================================================
+      QR block — top-right frosted rounded frame for QR + CTA text below.
+      Frame: white 8% fill + white 2px stroke, rx=14.
+      Text: white 80% opacity.
+      Only visible when event.qr present.
+      ============================================================ */
+.qr-block {
+  position: absolute;
+  top: var(--pad-top);
+  right: var(--pad);
+  z-index: 3;
+  text-align: center;
+}
+.qr-frame {
+  width: var(--qr);
+  height: var(--qr);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+.qr-img {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+}
+.qr-cta {
+  margin-top: 4px;
+  line-height: 1.05;
+}
+.scan-to {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: calc(var(--scan) * 0.85);
+  color: #ffffff;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+.register {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: calc(var(--scan) * 1.25);
+  color: #ffffff;
+  opacity: 0.8;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+/* ============================================================
+   Name chip — frosted rounded label over the portrait
+   ============================================================ */
+.chip {
+  position: absolute;
+  left: var(--pad);
+  bottom: var(--pad-bottom);
+  width: fit-content;
+  max-width: var(--chip-w);
+  z-index: 3;
+  padding: 13px 17px;
+  border-radius: 18px;
+  background: rgba(11, 18, 32, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 18px 44px -14px rgba(11, 18, 32, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.chip-name {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--chip-name);
+  line-height: 1.22;
+  color: var(--white);
+}
+.chip-role {
+  margin-top: 4px;
+  font-family: var(--font-sans);
+  font-size: var(--chip-role);
+  line-height: 1.45;
+  color: #a9c1d0;
+}
+
+/* ---- brand logo ----
+   The logo plate now matches the name chip style: 22px pad (half of 44),
+   18px radius, translucent chip fill (brand.pillBg rgba(...,0.42) + blur).
+   This is a deliberate divergence from brand §8 (mark over photo instead of
+   opaque PAGEBG plate). See agents.md "Known divergences". */
+.brand-lockup {
+  position: absolute;
+  right: var(--pad);
+  bottom: var(--pad-bottom);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px;
+  border-radius: 18px;
+  background: rgba(11, 18, 32, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 18px 44px -14px rgba(11, 18, 32, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.logo { height: 46px; width: auto; }
+.wordmark {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--white);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   Toolbar (not part of the exported post)
+   ============================================================ */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  background: #101b22;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.toolbar .tb-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+.toolbar .tb-sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 2px;
+}
+.tb-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tb-actions button {
+  font: 500 12px var(--font-sans);
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.tb-actions button:hover { background: rgba(255, 255, 255, 0.12); }
+.tb-actions button.active {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.tb-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+.stage {
+  margin: 24px auto;
+  position: relative;
+  transform-origin: top left;
+}
+.editor {
+  max-width: 1280px;
+  margin: 0 auto 40px;
+  padding: 0 20px;
+}
+.editor textarea {
+  width: 100%;
+  height: 320px;
+  resize: vertical;
+  background: #0d151b;
+  color: #d7e1e6;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 14px;
+  font: 12px/1.55 var(--font-mono);
+  outline: none;
+}
+.editor textarea:focus { border-color: rgba(255, 255, 255, 0.35); }
+.editor-actions { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.editor-actions button {
+  font: 500 13px var(--font-sans);
+  color: #0d151b;
+  background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.editor-actions button.secondary { background: transparent; color: rgba(255, 255, 255, 0.75); }
+.editor .err { font: 12px var(--font-mono); color: #ff8f8f; margin-left: 6px; }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+
+  <div class="toolbar" id="toolbar">
+    <div>
+      <span class="tb-title">Speaker Promo Template</span>
+      <span class="tb-sub">individual panelist promo — OBA / VBI styling</span>
+    </div>
+    <div class="tb-actions">
+      <div class="tb-group" id="formatGroup">
+        <button data-format="square" class="active">Square</button>
+        <button data-format="portrait">Portrait</button>
+        <button data-format="story">Story</button>
+        <button data-format="landscape">Landscape</button>
+      </div>
+      <div class="tb-group" id="brandGroup">
+        <button data-brand="OBA" class="active">OBA</button>
+        <button data-brand="VET">VBI</button>
+      </div>
+      <button id="editBtn">Edit JSON</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="canvas format-square" id="canvas" role="img" aria-label="Speaker promo preview">
+      <div class="layer glow"></div>
+      <div class="layer dots"></div>
+      <div class="layer scrim"></div>
+
+      <div class="portrait" id="portrait">
+        <div class="portrait-monogram" id="portraitMonogram"></div>
+        <img id="portraitImg" alt="">
+      </div>
+
+      <div class="text-block">
+        <span class="eyebrow" id="eyebrow"></span>
+        <h1 class="headline" id="headline"></h1>
+        <div class="event-line" id="eventLine"></div>
+      </div>
+
+       <div class="qr-block" id="qrBlock">
+         <div class="qr-frame" id="qrFrame">
+           <div class="qr-img" id="qrImg"></div>
+         </div>
+         <div class="qr-cta">
+           <div class="scan-to" id="scanTo">SCAN TO</div>
+           <div class="register" id="registerCta">REGISTER</div>
+         </div>
+       </div>
+
+      <div class="chip" id="chip">
+        <div class="chip-name" id="chipName"></div>
+        <div class="chip-role" id="chipRole"></div>
+      </div>
+
+      <div class="brand-lockup">
+        <img class="logo" id="logo" src="../../../../assets/logos/oba-logo-white.png" alt="">
+        <span class="wordmark" id="wordmark"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="editor hidden" id="editor">
+    <textarea id="cfgText" spellcheck="false"></textarea>
+    <div class="editor-actions">
+      <button id="applyCfg">Apply</button>
+      <button class="secondary" id="copyCfg">Copy JSON</button>
+      <button class="secondary" id="closeEditor">Close</button>
+      <span class="err" id="cfgErr"></span>
+    </div>
+  </div>
+
+<script>
+/* Inline geometry defaults — mirror lib/geometry.mjs. render.mjs injects the
+   exact Node-side numbers via window.__setGeometry. */
+const GEOMETRY = {
+  FORMATS: {
+    square:    { w: 1080, h: 1080 },
+    portrait:  { w: 1080, h: 1350 },
+    story:     { w: 1080, h: 1920 },
+    landscape: { w: 1200, h: 630 },
+  },
+};
+window.__setGeometry = (geom) => {
+  if (geom && geom.FORMATS) Object.assign(GEOMETRY.FORMATS, geom.FORMATS);
+};
+
+/* ------------------------------------------------------------
+   Portrait auto-fit — mirrors lib/portrait-fit.mjs.
+
+   The oversized cutout portrait is placed so the panelist's head clears the
+   date/time line (a fixed gap below the measured event line) and the
+   silhouette still bleeds to the bottom edge. On square, the portrait is
+   fixed to PORTRAIT_FIXED_W wide, placed at the explicit top-left
+   PORTRAIT_FIXED_POS coordinates, with only the top PORTRAIT_SHOW_FRAC of the
+   image visible. The alpha bbox is computed in Node (sharp) and injected via
+   window.__setSpeakerBBox; the demo photo has its bbox hard-coded below so
+   the live preview shows the same result.
+   ------------------------------------------------------------ */
+const PORTRAIT_GAP = { square: -45, portrait: 38, story: 42, landscape: 26 };
+const PORTRAIT_MAX_W = { square: 0.52, portrait: 0.52, story: 0.56, landscape: 0.46 };
+const PORTRAIT_MIN_W = { square: 0.34, portrait: 0.34, story: 0.34, landscape: 0.34 };
+const PORTRAIT_FIXED_W = { square: 900, portrait: 0, story: 0, landscape: 0 };
+const PORTRAIT_FIXED_POS = {
+  square: { x: 180, y: 202 },
+  portrait: null,
+  story: null,
+  landscape: null,
+};
+const PORTRAIT_SHOW_FRAC = { square: 0.75, portrait: 1, story: 1, landscape: 1 };
+
+function portraitRect(bbox, canvasW, canvasH, safeTop, format) {
+  const { w: iw, h: ih, left, top, right, bottom } = bbox;
+  const availH = Math.max(canvasH - safeTop, 40);
+  const personW = right - left;
+  const personH = bottom - top;
+  const maxW = canvasW * (PORTRAIT_MAX_W[format] ?? 0.52);
+  const minW = canvasW * (PORTRAIT_MIN_W[format] ?? 0.34);
+  const fixedW = PORTRAIT_FIXED_W[format] || 0;
+  const showFrac = PORTRAIT_SHOW_FRAC[format] ?? 1;
+
+  if (fixedW) {
+    const w = fixedW;
+    const scale = w / iw;
+    const h = Math.max(Math.round(showFrac * ih * scale), 40);
+    const pos = PORTRAIT_FIXED_POS[format] || null;
+    const x = pos ? Math.round(pos.x) : Math.max(Math.round((canvasW - w) / 2), 0);
+    const y = pos ? Math.round(pos.y) : Math.round(safeTop);
+    return { x, y, w, h, posX: 50, posY: 0 };
+  }
+
+  const scaleH = availH / personH;
+  let w = personW * scaleH;
+  const limitW = (iw * availH) / ih;
+  if (w > maxW) w = maxW;
+  else if (w > limitW) w = limitW;
+  w = Math.max(w, minW);
+  const h = availH;
+
+  const scale = Math.max(w / iw, h / ih);
+  const overflowX = scale * iw - w;
+  const overflowY = scale * ih - h;
+
+  let oy = 0;
+  if (overflowY > 0) oy = Math.min(top * scale, overflowY);
+  const personCx = (left + right) / 2;
+  let ox = 0;
+  if (overflowX > 0) ox = Math.max(0, Math.min(personCx * scale - w / 2, overflowX));
+
+  const posX = overflowX > 0 ? (ox / overflowX) * 100 : 50;
+  const posY = overflowY > 0 ? (oy / overflowY) * 100 : 0;
+  return { x: 0, y: Math.round(safeTop), w, h, posX, posY };
+}
+
+window.__SPEAKER_BBOX = {};
+window.__setSpeakerBBox = (bboxes) => Object.assign(window.__SPEAKER_BBOX, bboxes);
+
+/* Measure the event line's bottom (relative to the canvas, in unscaled CSS
+   px) and auto-fit the portrait below it. Falls back to the fixed
+   width/height defaults when no bbox is available (e.g. monogram). */
+function getPortraitFit(photo) {
+  if (!photo) return null;
+  const bbox = window.__SPEAKER_BBOX[photo];
+  if (!bbox) return null;
+  const F = GEOMETRY.FORMATS[currentFormat] || GEOMETRY.FORMATS.square;
+  const tb = document.querySelector(".text-block");
+  const evEl = document.getElementById("eventLine");
+  const eventBottom = tb.offsetTop + evEl.offsetTop + evEl.offsetHeight;
+  const safeTop = eventBottom + (PORTRAIT_GAP[currentFormat] ?? 34);
+  return portraitRect(bbox, F.w, F.h, safeTop, currentFormat);
+}
+
+/* Demo cutout bbox (source px) so the live preview matches the generated
+   output without needing Node: headshots/chris-bonsall-cutout.png */
+window.__setSpeakerBBox({
+  "headshots/chris-bonsall-cutout.png": { w: 540, h: 810, left: 2, top: 25, right: 539, bottom: 809 },
+});
+
+/* Brands (inline defaults). render.mjs injects real logo data URIs. */
+const BRANDS = {
+  OBA: {
+    label: "Ophthalmology Business Academy",
+    wordmark: "OBA",
+    logo: "../../../../assets/logos/oba-logo-white.png",
+    gradient: [["#5b7484", 0], ["#3e5361", 34], ["#263743", 62], ["#16232c", 100]],
+    glow: "rgba(214, 228, 235, 0.5)",
+    inkOnAccent: "#ffffff",
+    accent: "#3d5361",
+    dim: "rgba(255,255,255,0.55)",
+    textMuted: "rgba(255,255,255,0.66)",
+    textFaint: "rgba(255,255,255,0.55)",
+    pillBg: "rgba(11,18,32,0.42)",
+    line: "rgba(255,255,255,0.14)",
+  },
+  VET: {
+    label: "Veterinary Business Institute",
+    wordmark: "VBI",
+    logo: "",
+    gradient: [["#12332b", 0], ["#0b241f", 40], ["#061512", 78], ["#040c0a", 100]],
+    glow: "rgba(230, 242, 10, 0.16)",
+    inkOnAccent: "#061512",
+    accent: "#E6F20A",
+    dim: "rgba(230,242,10,0.55)",
+    textMuted: "rgba(230,242,10,0.72)",
+    textFaint: "rgba(230,242,10,0.6)",
+    pillBg: "rgba(4,12,10,0.5)",
+    line: "rgba(230,242,10,0.22)",
+  },
+};
+
+let currentConfig = null;
+let currentFormat = "square";
+let currentBrand = "OBA";
+
+window.__BRAND_OVERRIDES = {};
+window.__setBrandOverride = (id, brand) => { window.__BRAND_OVERRIDES[id] = brand; };
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]));
+}
+
+function initials(name) {
+  return String(name)
+    .replace(/,.*$/, "")
+    .split(/[\s·–—-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+}
+
+function applyBrand(brandId) {
+  currentBrand = brandId;
+  const b = (window.__BRAND_OVERRIDES && window.__BRAND_OVERRIDES[brandId]) ||
+    BRANDS[brandId] || BRANDS.OBA;
+  const root = document.documentElement;
+  if (b.gradient) {
+    root.style.setProperty(
+      "--gradient-hero",
+      `radial-gradient(115% 90% at 78% 30%, ${b.gradient
+        .map(([c, p]) => `${c} ${p}%`)
+        .join(", ")})`,
+    );
+  }
+  if (b.glow) {
+    root.style.setProperty(
+      "--gradient-hero-glow",
+      `radial-gradient(60% 55% at 72% 42%, ${b.glow} 0%, rgba(0,0,0,0) 70%)`,
+    );
+  }
+  root.style.setProperty("--brand-accent", b.accent);
+  root.style.setProperty("--brand-ink-on-accent", b.inkOnAccent || "#16232c");
+  root.style.setProperty("--brand-dim", b.dim);
+  root.style.setProperty("--brand-muted", b.textMuted);
+  root.style.setProperty("--brand-faint", b.textFaint);
+  root.style.setProperty("--brand-pill", b.pillBg);
+  root.style.setProperty("--brand-line", b.line);
+  const logo = document.getElementById("logo");
+  const wm = document.getElementById("wordmark");
+  if (b.logo && (b.logo.startsWith("data:") || b.logo.startsWith("../../../../assets/"))) {
+    logo.src = b.logo;
+    logo.style.display = "";
+    if (wm) wm.style.display = "none";
+  } else {
+    logo.style.display = "none";
+    if (wm) {
+      wm.textContent = b.wordmark || "";
+      wm.style.display = b.wordmark ? "" : "none";
+    }
+  }
+  document.body.dataset.brand = brandId;
+  document.querySelectorAll("#brandGroup button[data-brand]").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.brand === brandId);
+  });
+}
+window.__setBrand = applyBrand;
+
+function setFormat(fmt) {
+  currentFormat = fmt;
+  const canvas = document.getElementById("canvas");
+  canvas.className = "canvas format-" + fmt;
+  document.querySelectorAll("#formatGroup button[data-format]").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.format === fmt);
+  });
+  if (currentConfig) render(currentConfig);
+}
+window.__setFormat = setFormat;
+
+function render(cfg) {
+  const speaker = (cfg.panelists || []).filter(Boolean)[0] || {};
+
+  document.getElementById("eyebrow").textContent = cfg.eyebrow || "";
+  document.getElementById("headline").innerHTML = (cfg.title || [])
+    .map((frag) =>
+      `<span class="${frag.dim ? "dim" : ""}">${esc(frag.text)}</span>${frag.br ? "<br>" : ""}`,
+    )
+    .join("");
+
+  const ev = cfg.event || {};
+  const evParts = [];
+  if (ev.date) evParts.push(esc(ev.date));
+  if (ev.time) evParts.push(esc(ev.time));
+  if (ev.website) evParts.push(esc(ev.website));
+  document.getElementById("eventLine").innerHTML = evParts
+    .map((p) => `<span class="event-pill">${p}</span>`)
+    .join("");
+
+  /* Portrait — colored unless portrait_tone = "bw". */
+  const portrait = document.getElementById("portrait");
+  const img = document.getElementById("portraitImg");
+  const mono = document.getElementById("portraitMonogram");
+  portrait.classList.toggle("tone-color", cfg.portraitTone !== "bw");
+  if (speaker.photo) {
+    img.src = speaker.photo;
+    img.style.display = "";
+    mono.style.display = "none";
+  } else {
+    img.removeAttribute("src");
+    img.style.display = "none";
+    mono.style.display = "";
+    mono.textContent = initials(speaker.name) || "?";
+  }
+
+  /* Auto-fit the portrait below the date/time line when the photo's alpha
+     bbox is known; otherwise keep the fixed width/height defaults. */
+  const fit = getPortraitFit(speaker.photo);
+  if (fit) {
+    portrait.style.left = `${fit.x}px`;
+    portrait.style.top = `${fit.y}px`;
+    portrait.style.bottom = "auto";
+    portrait.style.width = `${Math.round(fit.w)}px`;
+    portrait.style.height = `${Math.round(fit.h)}px`;
+    img.style.objectPosition = `${fit.posX.toFixed(2)}% ${fit.posY.toFixed(2)}%`;
+  } else {
+    portrait.style.left = "";
+    portrait.style.top = "";
+    portrait.style.bottom = "";
+    portrait.style.width = "";
+    portrait.style.height = "";
+    img.style.objectPosition = "";
+  }
+
+  /* Name chip. */
+  const cred = speaker.credentials ? `, ${esc(speaker.credentials)}` : "";
+  document.getElementById("chipName").textContent = `${esc(speaker.name)}${cred}`;
+  document.getElementById("chipRole").textContent =
+    [speaker.role, speaker.company].filter(Boolean).join(" · ");
+
+  /* QR block (top-right). */
+  const qrBlock = document.getElementById("qrBlock");
+  const qrFrame = document.getElementById("qrFrame");
+  const qrImg = document.getElementById("qrImg");
+  const regEl = document.getElementById("registerCta");
+  if (ev.qr) {
+    qrBlock.style.display = "";
+    qrImg.style.backgroundImage = `url("${esc(ev.qr)}")`;
+  } else {
+    qrBlock.style.display = "none";
+    qrImg.style.backgroundImage = "";
+  }
+}
+
+function applyConfig(cfg) {
+  currentConfig = JSON.parse(JSON.stringify(cfg));
+  if (cfg.brand) applyBrand(cfg.brand);
+  render(currentConfig);
+  window.__currentConfig = currentConfig;
+  return currentConfig;
+}
+window.applyConfig = applyConfig;
+
+/* ---- demo preset ---- */
+const DEMO_POST = {
+  name: "chris_bonsall",
+  postType: "speaker_promo",
+  brand: "OBA",
+  portraitTone: "color",
+  eyebrow: "OBA · Ophthalmology Ownership & Leadership Panel",
+  title: [
+    { text: "Building OD partnerships ", br: true },
+    { text: "that actually ", br: true },
+    { text: "drive patient volume.", dim: true },
+  ],
+  event: { date: "Thursday, Sep 17", time: "12–1 PM" },
+  panelists: [
+    {
+      name: "Chris Bonsall",
+      credentials: "",
+      role: "Vice President of Revenue Generation",
+      company: "Navigate Patient Solutions",
+      photo: "headshots/chris-bonsall-cutout.png",
+    },
+  ],
+};
+
+/* ---- preview scaling ---- */
+function setPreviewScale(s) {
+  const stage = document.getElementById("stage");
+  const canvas = document.getElementById("canvas");
+  canvas.style.transform = `scale(${s})`;
+  canvas.style.transformOrigin = "top left";
+  const F = GEOMETRY.FORMATS[currentFormat] || GEOMETRY.FORMATS.square;
+  stage.style.width = `${F.w * s}px`;
+  stage.style.height = `${F.h * s}px`;
+}
+window.setPreviewScale = setPreviewScale;
+
+function fitPreview() {
+  const tb = document.getElementById("toolbar").offsetHeight;
+  const F = GEOMETRY.FORMATS[currentFormat] || GEOMETRY.FORMATS.square;
+  const s = Math.min(1, (window.innerWidth - 48) / F.w, (window.innerHeight - tb - 48) / F.h);
+  setPreviewScale(Math.max(s, 0.2));
+}
+
+/* ---- toolbar wiring ---- */
+document.querySelectorAll("#formatGroup button[data-format]").forEach((btn) => {
+  btn.addEventListener("click", () => setFormat(btn.dataset.format));
+});
+document.querySelectorAll("#brandGroup button[data-brand]").forEach((btn) => {
+  btn.addEventListener("click", () => { applyBrand(btn.dataset.brand); if (currentConfig) render(currentConfig); });
+});
+
+const editor = document.getElementById("editor");
+const cfgText = document.getElementById("cfgText");
+const cfgErr = document.getElementById("cfgErr");
+document.getElementById("editBtn").addEventListener("click", () => {
+  editor.classList.toggle("hidden");
+  cfgText.value = JSON.stringify(currentConfig || DEMO_POST, null, 2);
+  cfgErr.textContent = "";
+});
+document.getElementById("applyCfg").addEventListener("click", () => {
+  try {
+    applyConfig(JSON.parse(cfgText.value));
+    cfgErr.textContent = "";
+  } catch (e) {
+    cfgErr.textContent = e.message;
+  }
+});
+document.getElementById("copyCfg").addEventListener("click", () => {
+  cfgText.select();
+  document.execCommand("copy");
+});
+document.getElementById("closeEditor").addEventListener("click", () => {
+  editor.classList.add("hidden");
+});
+
+applyConfig(DEMO_POST);
+/* Re-render once the webfonts are in so the auto-fit measures the final
+   event-line position (title wrapping can shift before fonts load). */
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => render(currentConfig));
+}
+window.addEventListener("resize", fitPreview);
+fitPreview();
+</script>
+</body>
+</html>

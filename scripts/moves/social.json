@@ -1,0 +1,354 @@
+{
+  "about": "Every file moved from a fork into Stencil. src is relative to Automation/, dest to stencil/. verbatim = equal to src after the literal rewrites (checked by scripts/verify-moves.mjs); adapted = provenance only.",
+  "moves": [
+    {
+      "src": "panel-social-posts/lib/geometry.mjs",
+      "dest": "formats/social/geometry.mjs",
+      "mode": "verbatim",
+      "rewrites": [],
+      "note": "code identical in iu-panel-social-posts; the two differing lines are comments (the header's fork name, and the font list above TYPE, where the OBA one is right: TYPE is the classic layout's Inter + IBM Plex Mono scale)"
+    },
+    {
+      "src": "iu-panel-social-posts/lib/portrait-fit.mjs",
+      "dest": "formats/social/portrait-fit.mjs",
+      "mode": "verbatim",
+      "rewrites": [],
+      "note": "the IU copy: sharp from this repo's node_modules, no fall back into ../../OBA/oba-website (AD-6); the rest is identical to panel-social-posts"
+    },
+    {
+      "src": "iu-panel-social-posts/lib/cutout.mjs",
+      "dest": "formats/social/cutout.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { fileURLToPath } from \"node:url\";\n",
+          "import { fileURLToPath } from \"node:url\";\nimport { ROOT, GEN } from \"../../core/paths.mjs\";\n"
+        ],
+        [
+          "const ROOT = path.join(__dirname, \"..\");\n",
+          ""
+        ],
+        [
+          "const RAW_DIR = path.join(ROOT, \".gen\", \"cutouts\");",
+          "const RAW_DIR = path.join(GEN, \"cutouts\");"
+        ],
+        [
+          "const CUTOUT_DIR = path.join(ROOT, \"headshots\", \"cutouts\");",
+          "const CUTOUT_DIR = path.join(ROOT, \"assets\", \"headshots\", \"cutouts\");"
+        ]
+      ],
+      "note": "the IU copy, shared by both layouts: it differs from panel-social-posts only by `export` on rawCutout (the scene layout's photo.mjs needs it) and the header's fork name. Framed cutouts live in assets/headshots/cutouts, the rembg cache in the workspace .gen/cutouts"
+    },
+    {
+      "src": "iu-panel-social-posts/lib/cutout.py",
+      "dest": "formats/social/cutout.py",
+      "mode": "verbatim",
+      "rewrites": [],
+      "note": "identical in panel-social-posts; only runs on a cutout cache miss, from ROOT/.venv"
+    },
+    {
+      "src": "iu-panel-social-posts/lib/qr.mjs",
+      "dest": "formats/social/qr.mjs",
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "IU's QR selection for both layouts (brand never changes the variant): the qrs/ folder becomes the workspace and repo QR pools; `root` still names one folder holding qrs/, as the fork's tests use it"
+    },
+    {
+      "src": "panel-social-posts/gen.mjs",
+      "dest": "formats/social/gen.mjs",
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "merged with iu-panel-social-posts/gen.mjs: one normalize skeleton, the fork differences are layout rules (LAYOUTS in gen.mjs), brands from core/brands.mjs, paths from core/paths.mjs"
+    },
+    {
+      "src": "iu-panel-social-posts/gui/schema.mjs",
+      "dest": "formats/social/schema.mjs",
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "the union of both forks' GUI schemas; brand options from the packs with a social design"
+    },
+    {
+      "src": "panel-social-posts/template.html",
+      "dest": "formats/social/layouts/classic/template.html",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "url(\"fonts/",
+          "url(\"../../../../assets/fonts/"
+        ],
+        [
+          "\"assets/oba-logo-white.png\"",
+          "\"../../../../assets/logos/oba-logo-white.png\""
+        ],
+        [
+          "startsWith(\"assets/\")",
+          "startsWith(\"../../../../assets/\")"
+        ]
+      ]
+    },
+    {
+      "src": "panel-social-posts/speaker-template.html",
+      "dest": "formats/social/layouts/classic/speaker-template.html",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "url(\"fonts/",
+          "url(\"../../../../assets/fonts/"
+        ],
+        [
+          "\"assets/oba-logo-white.png\"",
+          "\"../../../../assets/logos/oba-logo-white.png\""
+        ],
+        [
+          "startsWith(\"assets/\")",
+          "startsWith(\"../../../../assets/\")"
+        ]
+      ]
+    },
+    {
+      "src": "panel-social-posts/render-svg.mjs",
+      "dest": "formats/social/layouts/classic/render-svg.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "\"./lib/geometry.mjs\"",
+          "\"../../geometry.mjs\""
+        ],
+        [
+          "import { portraitBBox, portraitRect, PORTRAIT_GAP } from \"./lib/portrait-fit.mjs\";",
+          "import { portraitBBox, portraitRect, PORTRAIT_GAP } from \"../../portrait-fit.mjs\";\nimport { CANVA, FONTS, GEN, ROOT, WORKSPACE } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const GEN_DIR = path.join(__dirname, \".gen\");",
+          "const GEN_DIR = GEN;"
+        ],
+        [
+          "const OUT_DIR = path.join(__dirname, \"canva\");",
+          "const OUT_DIR = CANVA;"
+        ],
+        [
+          "const HEADSHOTS_FALLBACK = path.join(__dirname, \"..\", \"podcast-thumbnails\", \"headshots\");",
+          "const HEADSHOTS_FALLBACK = path.join(ROOT, \"assets\", \"headshots\");"
+        ],
+        [
+          "path.join(__dirname, \"assets\", \"headshots\"",
+          "path.join(ROOT, \"assets\", \"headshots\""
+        ],
+        [
+          "path.join(__dirname, \"fonts\", f.file)",
+          "path.join(FONTS, f.file)"
+        ],
+        [
+          "path.resolve(__dirname, pattern",
+          "path.resolve(WORKSPACE, pattern"
+        ]
+      ],
+      "note": "its `./brands.mjs` import is unchanged: layouts/classic/brands.mjs serves the fork registry's objects from the packs"
+    },
+    {
+      "src": "panel-social-posts/render.mjs",
+      "dest": "formats/social/layouts/classic/render-png.mjs",
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "the template half (speaker bounding boxes, brand override, __setFormat, the CDP canvas capture) as a function; Chrome from core/chromium.mjs, one browser per post instead of one per format"
+    },
+    {
+      "src": "panel-social-posts/brands.mjs",
+      "dest": "formats/social/layouts/classic/brands.mjs",
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "same exports (BRANDS, logoDataUri, resolveLogo), built from the packs that pick the classic layout, picked to the fork registry's keys (AD-2)"
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/atmosphere.mjs",
+      "dest": "formats/social/layouts/scene/atmosphere.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { splitColor } from \"./scene.mjs\";",
+          "import { splitColor } from \"./scene.mjs\";\nimport { GEN, LOGOS } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const ROOT = path.join(__dirname, \"..\", \"..\");\n",
+          ""
+        ],
+        [
+          "const REVERSED_LOGO = path.join(ROOT, \"assets\", \"iu-logo-reversed.svg\");",
+          "const REVERSED_LOGO = path.join(LOGOS, \"iu-logo-reversed.svg\");"
+        ],
+        [
+          "const GRAIN_DIR = path.join(ROOT, \".gen\", \"grain\");",
+          "const GRAIN_DIR = path.join(GEN, \"grain\");"
+        ]
+      ]
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/build.mjs",
+      "dest": "formats/social/layouts/scene/build.mjs",
+      "mode": "verbatim",
+      "rewrites": [],
+      "note": "keeps the accreditation guard: every event card must carry its PACE plate and CE seal, wholly on the canvas"
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/cli.mjs",
+      "dest": "formats/social/layouts/scene/cli.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/components.mjs",
+      "dest": "formats/social/layouts/scene/components.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { fitFace } from \"./photo.mjs\";",
+          "import { fitFace } from \"./photo.mjs\";\nimport { LOGOS } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const ROOT = path.join(__dirname, \"..\", \"..\");\n",
+          ""
+        ],
+        [
+          "const p = path.join(ROOT, file);",
+          "const p = path.join(LOGOS, path.basename(file));"
+        ]
+      ],
+      "note": "the IU logos and the PACE mark (assets/<file> in the fork) come from assets/logos/"
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/copy-lint.mjs",
+      "dest": "formats/social/layouts/scene/copy-lint.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/fonts.mjs",
+      "dest": "formats/social/layouts/scene/fonts.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/photo.mjs",
+      "dest": "formats/social/layouts/scene/photo.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { rawCutout } from \"../cutout.mjs\";",
+          "import { rawCutout } from \"../../cutout.mjs\";\nimport { GEN } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const ROOT = path.join(__dirname, \"..\", \"..\");\n",
+          ""
+        ],
+        [
+          "const CACHE = path.join(ROOT, \".gen\", \"photos\");",
+          "const CACHE = path.join(GEN, \"photos\");"
+        ],
+        [
+          "path.join(ROOT, \".gen\", \"cutouts\", ",
+          "path.join(GEN, \"cutouts\", "
+        ]
+      ]
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/qr.mjs",
+      "dest": "formats/social/layouts/scene/qr.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/scene.mjs",
+      "dest": "formats/social/layouts/scene/scene.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { baseline, shown } from \"./text.mjs\";",
+          "import { baseline, shown } from \"./text.mjs\";\nimport { FONTS } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const FONT_DIR = path.join(__dirname, \"..\", \"..\", \"fonts\");",
+          "const FONT_DIR = FONTS;"
+        ]
+      ]
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/text.mjs",
+      "dest": "formats/social/layouts/scene/text.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/tokens.mjs",
+      "dest": "formats/social/layouts/scene/tokens.mjs",
+      "mode": "verbatim",
+      "rewrites": [],
+      "note": "the scene's own design tokens; themeFor(cfg.brand) keys its two grounds by brand id (IU, IU_LIGHT), kept for parity"
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/widths.json",
+      "dest": "formats/social/layouts/scene/widths.json",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/layouts/group.mjs",
+      "dest": "formats/social/layouts/scene/layouts/group.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/layouts/index.mjs",
+      "dest": "formats/social/layouts/scene/layouts/index.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/layouts/reference.mjs",
+      "dest": "formats/social/layouts/scene/layouts/reference.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/layouts/signal.mjs",
+      "dest": "formats/social/layouts/scene/layouts/signal.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-panel-social-posts/lib/iu/layouts/speaker.mjs",
+      "dest": "formats/social/layouts/scene/layouts/speaker.mjs",
+      "mode": "verbatim",
+      "rewrites": []
+    },
+    {
+      "src": "iu-panel-social-posts/render-svg.mjs",
+      "dest": "formats/social/layouts/scene/render-svg.mjs",
+      "mode": "verbatim",
+      "rewrites": [
+        [
+          "import { buildSvg } from \"./lib/iu/build.mjs\";",
+          "import { buildSvg } from \"./build.mjs\";"
+        ],
+        [
+          "import { parseArgs, expandConfigs, formatsFor, outName } from \"./lib/iu/cli.mjs\";",
+          "import { parseArgs, expandConfigs, formatsFor, outName } from \"./cli.mjs\";\nimport { CANVA, WORKSPACE } from \"../../../../core/paths.mjs\";"
+        ],
+        [
+          "const outDir = path.resolve(__dirname, args.outDir || \"canva\");",
+          "const outDir = path.resolve(WORKSPACE, args.outDir || CANVA);"
+        ],
+        [
+          "expandConfigs(__dirname, args.configs)",
+          "expandConfigs(WORKSPACE, args.configs)"
+        ]
+      ]
+    },
+    {
+      "src": "iu-panel-social-posts/render.mjs",
+      "dest": "formats/social/layouts/scene/render-png.mjs",
+      "mode": "adapted",
+      "rewrites": [],
+      "note": "Chrome rasterises the exact scene SVG at 2x, as a function; Chrome from core/chromium.mjs"
+    }
+  ]
+}
