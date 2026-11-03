@@ -7,6 +7,15 @@ used. It replaces seven generator repos: `zoom-banner`, `iu-zoom-banner`, `podca
 
 Adding a brand is one file in `brands/`, not a forked repo.
 
+## What it looks like
+
+Same engine, two brand packs. IU on top, OBA below.
+
+| Social post | Thumbnail or deck |
+|---|---|
+| ![IU speaker post](docs/images/iu-social.jpg) | ![IU episode thumbnail](docs/images/iu-thumb.jpg) |
+| ![OBA panel promo](docs/images/oba-social.jpg) | ![OBA deck cover](docs/images/oba-deck.jpg) |
+
 ## Quick start
 
 ```bash
@@ -125,6 +134,6 @@ Known behaviour carried over from the forks, not introduced here:
   PNG two browser sessions agree on, and both renderers retry once after a stalled page load.
   Local fonts would remove this at the root but change pixels, so that waits for a look.
 
-No fork is retired and no GitHub repo exists yet: each fork retires after its format's contact
+No fork is retired yet: each fork retires after its format's contact
 sheets (`.parity/look/README.md`) have had a person's look. See `tasks/todo.md` and
 `.d/decisions.tsv` for what was decided along the way and why.
